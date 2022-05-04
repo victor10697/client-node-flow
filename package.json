@@ -4,6 +4,7 @@
   "license": "MIT",
   "description": "",
   "_location": "/client-node-flow-br",
+  "repository": "https://github.com/victor10697/client-node-flow.git",
   "keywords": [],
   "dependencies": {
     "axios": "^0.21.4",
