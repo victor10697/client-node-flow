@@ -12,6 +12,7 @@ module.exports = {
   ActionsTypesController,
   HistoryFlowController,
   InputsUpdatesController,
+  NodesFlowsController,
   SettingsController,
   SourcesController,
 };

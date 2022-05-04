@@ -1,6 +1,6 @@
 {
   "name": "client-node-flow-br",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "license": "MIT",
   "description": "",
   "_location": "/client-node-flow-br",
@@ -23,10 +23,12 @@
   "main": "./index.js",
   "bin": "index.js",
   "files": [
-    "index.js"
+    "index.js",
+    "App/",
+    "doc/"
   ],
   "author": {
     "name": "Victor Garcia",
     "email": "victor.garcia@brandlive.co"
-  },
+  }
 }

@@ -1,2 +1,2 @@
-const Model = require('./Connection/' + process.env.DB_CONNECTION + '/Model')
+const Model = require('./Connection/mysql/Model')
 module.exports = Model;
