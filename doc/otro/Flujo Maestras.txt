@@ -1,0 +1,73 @@
+- Construir entidad masterdata
+    - id                       ----- codigoCliente+codigoDistribuidora
+    - codigo                   ----- AD addressName y AD number
+    - nombre cliente           ----- CL firstName
+    - direccion                ----- AD street
+    - documento identidad      ----- CL document
+    - telefono                 ----- CL homePhone
+    - ubigueo                  ----- AD postalCode
+    - codigo vendedor          ----- AD vendedor
+    - dia visita               ----- AD diaVisita
+    - dia entrega              ----- AD diaEntrega
+    - frecuencia               ----- AD frecuencia
+    - codigo distribuidor      ----- AD reference
+    - region geografica        ----- AD state
+    - distribuidor             ----- CL customerClass
+    - distrito                 ----- AD neighborhood
+    - ciudad                   ----- AD city
+    - tipo documento           ----- CL documentType
+    - approved                 ----- CL approved booble true|false
+
+    Entidad Clientes Totales (CT)
+    - id                       ----- CSFA Cod Distribuidora             ---- varchar 100
+    - codigo                   ----- Código                             ---- varchar 50
+    - firstName                ----- Nombre Cliente                     ---- varchar 750
+    - street                   ----- Dirección                          ---- varchar 750
+    - document                 ----- Documento Identidad                ---- varchar 50
+    - homePhone                ----- Telefono                           ---- varchar 50
+    - postalCode               ----- Ubiqueo                            ---- varchar 10
+    - vendedor                 ----- Código Vendedor                    ---- varchar 50
+    - diaVisita                ----- Día Visita                         ---- varchar 50
+    - diaEntrega               ----- Día Entrega                        ---- varchar 50
+    - frecuencia               ----- Frecuencia                         ---- varchar 50
+    - reference                ----- Código Distribuidor                ---- varchar 50
+    - state                    ----- Región Geografica                  ---- varchar 50
+    - customerClass            ----- Distribuidor                       ---- varchar 50
+    - neighborhood             ----- Distrito                           ---- varchar 750
+    - city                     ----- Ciudad                             ---- varchar 100
+    - documentType             ----- Tipo Documento                     ---- varchar 10
+    - approved                 ----- Approved                           ---- booble true|false
+
+
+
+Configuracion de acction tipo SFTP
+  Variables configuracion (objectConfig)
+  {
+    host: -- host de servidor
+    port: -- puerto de conexion
+    username: -- usuario de accesso al servidor
+    privateKey: -- llave privada del servidor
+    password: -- contraseña conexion sftp
+  }
+
+  Variables accion plugins (objectAction)
+  {
+    path: -- es la ruta o directorio en el servidor de sfttp
+    pathFile: -- es el directorio con el nombre del archivo a manipular
+    pathFileOld: -- nombre actual de un archivo a ser renombrado
+    pathFileNew: -- nuevo nombre de un archivo a ser renombrado
+    data: -- es el contendo interno de un archivo
+    coding: -- codificacion de un contenido de un archivo
+    opts: -- Opciones filtros listar
+  }
+
+  Opciones de accion
+  - list -- Listar archivos y carpetas
+  - deleteFile -- Eliminar un archivo
+  - rmdir -- Eliminar carpeta
+  - mkdir -- Crear una carpeta
+  - rename -- Renombrar un archivo
+  - exists -- validar si existe un directorio
+  - appendFile -- agregar contenido dentro de un archivo
+  - writeFile -- escribir contenido dentro de un archivo
+  - readFile -- Leer contenido de un archivo

@@ -1,0 +1,31 @@
+{
+  "name": "client-node-flow-br",
+  "version": "1.1.0",
+  "license": "MIT",
+  "description": "",
+  "_location": "/client-node-flow-br",
+  "keywords": [],
+  "dependencies": {
+    "axios": "^0.21.4",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-validation": "^3.0.8",
+    "jsonwebtoken": "^8.5.1",
+    "md5": "^2.3.0",
+    "mongoose": "^6.1.7",
+    "mongoose-unique-validator": "^3.0.0",
+    "mysql": "github:mysqljs/mysql",
+    "node-fetch": "^3.2.3",
+    "nodemailer": "^6.7.3",
+    "ssh2": "^1.9.0"
+  },
+  "main": "./index.js",
+  "bin": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "author": {
+    "name": "Victor Garcia",
+    "email": "victor.garcia@brandlive.co"
+  },
+}

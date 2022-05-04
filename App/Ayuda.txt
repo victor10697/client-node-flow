@@ -1,0 +1,20 @@
+Variables Globales Utilidad
+    returnEmpty
+        - Su lo seteamos como true el torma un objeto vacio 
+            ejemplo
+                if(condicional){ returnEmpty=true;}
+    input
+        - Son los datos que van en el cuerpo de la peticion que son enviados en formato json. Estos datos son los que van hacer procesados en los diferentes nodos configurados. Esta variable la podemos usar en scriptActionPost, scriptActionPrev, body, functionProcessData y templete.
+    responsePrev
+        - Es la respuesta de una accion ejecutada de un nodo anterior o padre. Esta variable la podemos usar en scriptActionPost, scriptActionPrev, body, functionProcessData y templete.
+    responseNow
+        - Es la respuesta actual de una peticion se utiliza en las operaciones de la accion scriptActionPost
+    returnAction
+        - Esta opcion la utilizamos cuando tenemos una accion de tipo action_type_process_data y es para es seteo de la respuesta final a esta procesamiento de informacion.
+    errorHttp:
+        - Esta respuesta que es diferente a 200 por parte del servidor
+    errorData
+        - Es la respuesta de error que surgue en el procesamiento de la informacion
+    errorEmail:
+        - Es el mensaje de error que suge en el procesamiento de envio de un email.
+    
