@@ -6,6 +6,7 @@ const InputsUpdatesController = require('./App/Http/Controllers/InputsUpdatesCon
 const NodesFlowsController = require('./App/Http/Controllers/NodesFlowsController')
 const SettingsController = require('./App/Http/Controllers/SettingsController')
 const SourcesController = require('./App/Http/Controllers/SourcesController')
+const CronsController = require('./App/Http/Controllers/CronsController')
 
 module.exports = {
   ActionsController,
@@ -15,4 +16,5 @@ module.exports = {
   NodesFlowsController,
   SettingsController,
   SourcesController,
+  CronsController
 };
