@@ -36,9 +36,9 @@ Instalar proyecto con npm
 | responsePrev | Es una varible que retorma una accion padre. El retorno puede ser de tipo Bool, String, Number, Object, Array | "scriptActionPrev": "console.log('responsePrev',responsePrev);" |
 | responseNow | Es la respuesta de una acción actual. | "scriptActionPost": "console.log('responseNow',responseNow)" |
 | returnAction | Esta opción la utilizamos cuando tenemos una acción de tipo action_type_process_data y es para es seteo de la respuesta final a esta procesamiento de informacion  | "functionProcessData": "returnAction= {'myObject': 'procesed'} " |
-| errorHttp |  |  |
-| errorData |  |  |
-| errorEmail |  |  |
+| errorHttp | Es el retorno de error de una ccion de tipo http. | "scriptActionPost": "console.log('errorHttp',errorHttp)" |
+| errorData | Es el retorno de error de una accion de tipo procesamiento de datos. | "scriptActionPost": "console.log('errorData',errorData)" |
+| errorEmail | Es el retorno de error de una accion de tipo email. | "scriptActionPost": "console.log('errorData',errorData)" |
 | $GLOBAL | Es un objeto donde almacenamos todas las respuestas de acciones anteriores. | "scriptActionPost": "console.log('Response name_nodo_action_1', $GLOBAL.name_nodo_action_1)" |
 
 ## Consulta de acciones creadas
@@ -364,7 +364,7 @@ Con estas configuraciones podremos realizar conexiones a SFTP para realizar cons
   });
 ```
 
-## Creación de configuraciones generales
+## Procesar un flijo de acción
 
 Aqui procesamos un flujo de acción y nos retorna la respuesta del flujo creado para esa fuente o integración. Esta es una de la funcionalidades de mayor utilidad porque es donde se hace el procesamiento de una fuente.
 
