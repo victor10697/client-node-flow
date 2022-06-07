@@ -1,4 +1,5 @@
 const CronModel = require('../../Models/CronModel')
+const SourcesModel = require('../../Models/SourcesModel')
 
 /**
  * Metodo para obtener lista registros
@@ -23,7 +24,7 @@ exports.findAll = (req, res) => {
 exports.insert = (req, res) => {
     if (req.body && Object.keys(req.body).length > 0) {
         // Desestructurar los valores del cuerpo de la petición
-        const { sourceName, cronName, cronDescription, cronTime } = req.body
+        const { sourceName, cronName, cronDescription, cronTime, cronValues } = req.body
         if (sourceName && sourceName != '') {
             SourcesModel.getSourcePerName(sourceName, (err, resS) => {
                 if (err) {
@@ -32,9 +33,10 @@ exports.insert = (req, res) => {
                     if (cronName && cronTime) {
                         const cronJobRecord = {
                             name: cronName,
-                            description: cronDescription ?? '',
+                            description: cronDescription ?? null,
                             cron: cronTime,
-                            sources_id: resS.id
+                            sources_id: resS.id,
+                            values: cronValues ?? null
                         };
                         // Se inserta o actualiza los datos del Cron Job
                         CronModel.createOrUpdate(cronJobRecord, { 'name': true }, (err, result) => {
@@ -97,4 +99,3 @@ exports.getCronJobs = (regExpByDate, regExpGeneral, callback) => {
         callback({ 'state': 'error', 'message': 'error consultas cron!' })
     }
 }
-
