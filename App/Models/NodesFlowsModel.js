@@ -473,7 +473,10 @@ const ProcessHttpRequest= async (httpProcess, input, inputId, responsePrev, call
 		for (let index = 0; index < httpProcess.headers.length; index++) {
 			myHeaders[httpProcess.headers[index].key]= httpProcess.headers[index].value;					
 		}
-	}				
+	}
+	if(httpProcess.headers && typeof httpProcess.headers == 'string'){
+		eval(`myHeaders=${httpProcess.headers}`);
+	}	
 	requestOptions.headers= myHeaders;
 	if(!Array.isArray(responsePrev) && typeof responsePrev == 'object'){
 		for (var resPrev in responsePrev){
