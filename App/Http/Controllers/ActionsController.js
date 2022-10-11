@@ -245,7 +245,7 @@ const saveTypeEmails= (data, action_type_id, callback)=>{
                     DB_DATABASE: data.DB_DATABASE ? data.DB_DATABASE : '',
                     DB_USERNAME: data.DB_USERNAME ? data.DB_USERNAME : '',
                     DB_PASSWORD: data.DB_PASSWORD ? data.DB_PASSWORD : ''
-                }, {actions_id:true, DB_HOST:true, DB_CONNECTION:true, DB_PORT:true, DB_DATABASE:true }, (errorRDS,reponseRDS) => {
+                }, {actions_id:true }, (errorRDS,reponseRDS) => {
                     if(!errorRDS){
                         callback(null, reponseRDS)
                     }else{

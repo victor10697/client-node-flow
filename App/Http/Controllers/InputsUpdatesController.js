@@ -19,12 +19,12 @@ exports.insert = (req, res) => {
                                 id: response.id,
                                 input: JSON.parse(response.bodyRequest),
                                 source_id: response.source_id
-                            }], (errorA, responseA) => {
+                            }], (errorA, responseA,code=200) => {
                                 InputsUpdatesModel.delete(response.id, (eRi, rRi) => { console.log('eRi', eRi); });
                                 if (!errorA) {
-                                    res.status(200).json({ 'state': 'success', 'result': responseA })
+                                    res.status(code).json({ 'state': 'success', 'result': responseA })
                                 } else {
-                                    res.status(200).json({ 'state': 'error', 'result': errorA })
+                                    res.status(code).json({ 'state': 'error', 'result': errorA })
                                 }
                             });
                         } else {
@@ -56,19 +56,19 @@ exports.insertInternal = (bodyR, res) => {
                     id: response.id,
                     input: JSON.parse(response.bodyRequest),
                     source_id: response.source_id
-                }], (errorA, responseA) => {
+                }], (errorA, responseA, code=200) => {
                     InputsUpdatesModel.delete(response.id, (eRi, rRi) => { console.log('eRi', eRi); });
                     if (!errorA) {
-                        res(null, responseA)
+                        res(null, responseA,code)
                     } else {
-                        res('error', null)
+                        res('error', null,code)
                     }
                 });
             } else {
-                res('error', null)
+                res('error', null, 403)
             }
         });
     } else {
-        res('error', null)
+        res('error', null, 403)
     }
 }

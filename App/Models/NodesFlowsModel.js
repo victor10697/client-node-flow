@@ -127,12 +127,12 @@ const processInputNodeFlowForSource= async (input, inputId, source_id, callback)
 		if(lengthListFlow > 0){
 			let treeNode= await getTreeNodeFlow(listNodeFlow);
 			if(Object.keys(treeNode).length > 0){
-				await ProcessTreeNode(input, inputId, treeNode, async (errorPT, responsePT)=>{
+				await ProcessTreeNode(input, inputId, treeNode, async (errorPT, responsePT, code=200)=>{
 					if(!errorPT){
-						callback(null, responsePT)
+						callback(null, responsePT,code)
 						return true;
 					}else{
-						callback(errorPT, {})
+						callback(errorPT, {},code)
 						return false;
 					}
 				},lengthListFlow);
@@ -153,7 +153,7 @@ const processInputNodeFlowForSource= async (input, inputId, source_id, callback)
  * @param {*} treeNode 
  * @param {*} callback 
  */
-var countFlow={},$GLOBAL={};
+var countFlow={},$GLOBAL={},errorCode=null,errorMessage='';
 const ProcessTreeNode= async (input, inputId, treeNode, callback, lengthListFlow) => {
 	countFlow['input_'+inputId]=0;
 	for (var tree in treeNode){
@@ -191,6 +191,12 @@ const ProcessActionPerType= async (action, input, inputId, responsePrev, callbac
 		eval(`${action.scriptActionPrev}`);
 	}
 	if(returnEmpty === true){callback(null, []); return false;}
+
+	if(errorCode && errorCode != ''){
+		callback(null, {
+			error: errorMessage,
+		}, errorCode); return false;		
+	}
 
 	switch (action.action_type) {
 		case 'action_type_emails':
@@ -380,8 +386,8 @@ const ProcessActionTypeSSH2= async (action, input, inputId, responsePrev, callba
 	await ActionsTypeSftpModel.getActionSFTP(action.id, async (error, response)=>{
 		if(!error){
 			for (let index = 0; index < response.length; index++) {
-				await ProcessSSH2Action(response[index], input, inputId, responsePrev, (errorData, responseNow)=>{
-					if(!errorData){
+				await ProcessSSH2Action(response[index], input, inputId, responsePrev, (errorSSH, responseNow)=>{
+					if(!errorSSH){
 						console.log('response Process SSH2',responseNow);
 					}
 					if(action.scriptActionPost){
@@ -743,23 +749,23 @@ NodesFlowsModel.prototype.ProcesingInputsNode= async (inputs, callback) => {
 	if(typeof inputs == 'object'){
 		for (let index = 0; index < inputs.length; index++) {
 			InputsUpdatesModel.update(inputs[index].id, {processStatus:'processing'}, (errorIn,resIn)=>{});
-			await processInputNodeFlowForSource(inputs[index].input, inputs[index].id, inputs[index].source_id, async (error, response)=>{
+			await processInputNodeFlowForSource(inputs[index].input, inputs[index].id, inputs[index].source_id, async (error, response, code=200)=>{
 				if(!error){
 					InputsUpdatesModel.update(inputs[index].id, {processStatus:'processed'}, (errorIn,resIn)=>{})
 				}else{
 					InputsUpdatesModel.update(inputs[index].id, {processStatus:'invalid'}, (errorIn,resIn)=>{})
 				}
 				if((parseInt(inputs.length)-1) === index ){
-					callback(null, response)
+					callback(null, response,code)
 					return true;
 				}
 			})
 		}
 		if(inputs.length === 0){
-			callback(null, [])
+			callback(null, [],403)
 		}
 	}else{
-		callback('Error inputs!', null)
+		callback('Error inputs!', null, 403)
 	}	
 }
 
