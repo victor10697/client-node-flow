@@ -19,16 +19,23 @@ exports.insert = (req, res) => {
                                 id: response.id,
                                 input: JSON.parse(response.bodyRequest),
                                 source_id: response.source_id
-                            }], (errorA, responseA,code=200) => {
+                            }], (errorA, responseA, code=200) => {
                                 InputsUpdatesModel.delete(response.id, (eRi, rRi) => { console.log('eRi', eRi); });
                                 if (!errorA) {
-                                    res.status(code).json({ 'state': 'success', 'result': responseA })
+                                    if(code > 399){
+                                        if(typeof responseA != 'object'){
+                                            responseA= {error:responseA};
+                                        }
+                                        res.status(code).json(responseA)
+                                    }else{
+                                        res.status(code).json({ 'state': 'success', 'result': responseA })
+                                    }
                                 } else {
                                     res.status(code).json({ 'state': 'error', 'result': errorA })
                                 }
                             });
                         } else {
-                            res.status(200).json({ 'state': 'error', 'result': error })
+                            res.status(403).json({ 'state': 'error', 'result': error })
                         }
                     });
                 } else {

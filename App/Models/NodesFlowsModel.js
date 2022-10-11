@@ -187,16 +187,15 @@ const ProcessActionNode= async (node,input, inputId,responseAnt,callback,lengthL
 
 const ProcessActionPerType= async (action, input, inputId, responsePrev, callback)=>{
 	let returnEmpty= false;
-	if(action.scriptActionPrev){
-		eval(`${action.scriptActionPrev}`);
-	}
-	if(returnEmpty === true){callback(null, []); return false;}
-
-	if(errorCode && errorCode != ''){
+	if(errorCode && errorCode != '' && errorCode > 399){
 		callback(null, {
 			error: errorMessage,
 		}, errorCode); return false;		
 	}
+	if(action.scriptActionPrev){
+		eval(`${action.scriptActionPrev}`);
+	}
+	if(returnEmpty === true){callback(null, []); return false;}
 
 	switch (action.action_type) {
 		case 'action_type_emails':
@@ -723,8 +722,9 @@ const getActionNode= async (nodeId, callback)=>{
 
 const listenerTree= function (inputId,longitud,callback,responseAct) {
 	countFlow['input_'+inputId]++;
+	let code= errorCode ? errorCode : 200;
 	if(countFlow['input_'+inputId] == longitud){
-		callback(null, responseAct);
+		callback(null, responseAct, code);
 	}
 };
 /** Fin procesamiento arbol de accion */
