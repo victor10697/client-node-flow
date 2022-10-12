@@ -723,7 +723,7 @@ const getActionNode= async (nodeId, callback)=>{
 	});
 }
 
-const listenerTree= function (inputId,longitud,callback,responseAct, codeAct) {
+const listenerTree= function (inputId,longitud,callback,responseAct, codeAct=200) {
 	countFlow['input_'+inputId]++;
 	let code= codeAct ? codeAct : 200;
 	if(countFlow['input_'+inputId] == longitud){
