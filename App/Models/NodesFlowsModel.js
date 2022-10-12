@@ -153,7 +153,7 @@ const processInputNodeFlowForSource= async (input, inputId, source_id, callback)
  * @param {*} treeNode 
  * @param {*} callback 
  */
-var countFlow={},$GLOBAL={},errorCode=null,errorMessage='';
+var countFlow={},$GLOBAL={},responseCode=null,responseMessage=null;
 const ProcessTreeNode= async (input, inputId, treeNode, callback, lengthListFlow) => {
 	countFlow['input_'+inputId]=0;
 	for (var tree in treeNode){
@@ -187,13 +187,14 @@ const ProcessActionNode= async (node,input, inputId,responseAnt,callback,lengthL
 
 const ProcessActionPerType= async (action, input, inputId, responsePrev, callback)=>{
 	let returnEmpty= false;
-	if(errorCode && errorCode != '' && errorCode > 399){
-		callback(null, {
-			error: errorMessage,
-		}, errorCode); return false;		
+	if(responseCode && responseCode != ''){
+		callback(null, responseMessage, responseCode); return false;		
 	}
 	if(action.scriptActionPrev){
 		eval(`${action.scriptActionPrev}`);
+	}
+	if(responseCode && responseCode != ''){
+		callback(null, responseMessage, responseCode); return false;		
 	}
 	if(returnEmpty === true){callback(null, []); return false;}
 
@@ -722,7 +723,7 @@ const getActionNode= async (nodeId, callback)=>{
 
 const listenerTree= function (inputId,longitud,callback,responseAct) {
 	countFlow['input_'+inputId]++;
-	let code= errorCode ? errorCode : 200;
+	let code= responseCode ? responseCode : 200;
 	if(countFlow['input_'+inputId] == longitud){
 		callback(null, responseAct, code);
 	}
