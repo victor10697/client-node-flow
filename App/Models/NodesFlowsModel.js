@@ -156,6 +156,8 @@ const processInputNodeFlowForSource= async (input, inputId, source_id, callback)
 var countFlow={},$GLOBAL={},responseCode=null,responseMessage=null;
 const ProcessTreeNode= async (input, inputId, treeNode, callback, lengthListFlow) => {
 	countFlow['input_'+inputId]=0;
+	responseCode=null;
+	responseMessage=null;
 	for (var tree in treeNode){
 		await ProcessActionNode(treeNode[tree], input,  inputId, {}, callback, lengthListFlow);
 	}
@@ -166,16 +168,16 @@ const ProcessActionNode= async (node,input, inputId,responseAnt,callback,lengthL
 	await getActionNode(node.id, async (error, resAction)=>{
 		if(!error && typeof resAction == 'object' && resAction.length > 0){
 			for (let index = 0; index < resAction.length; index++) {
-				await ProcessActionPerType(resAction[index], input, inputId, responseAnt, async (errorAct, responseAct)=>{
+				await ProcessActionPerType(resAction[index], input, inputId, responseAnt, async (errorAct, responseAct, codeAct=200)=>{
 					if(!errorAct){
 						if(node.children != undefined){
 							for (var treeC in node.children){
 								await ProcessActionNode(node.children[treeC],input,inputId,responseAct, callback,lengthListFlow);
 							}
 						}
-						listenerTree(inputId,lengthListFlow, callback, responseAct);
+						listenerTree(inputId,lengthListFlow, callback, responseAct, codeAct);
 					}else{
-						listenerTree(inputId,lengthListFlow, callback, errorAct);
+						listenerTree(inputId,lengthListFlow, callback, errorAct, codeAct);
 					}
 				});		
 			}
@@ -721,9 +723,9 @@ const getActionNode= async (nodeId, callback)=>{
 	});
 }
 
-const listenerTree= function (inputId,longitud,callback,responseAct) {
+const listenerTree= function (inputId,longitud,callback,responseAct, codeAct) {
 	countFlow['input_'+inputId]++;
-	let code= responseCode ? responseCode : 200;
+	let code= codeAct ? codeAct : 200;
 	if(countFlow['input_'+inputId] == longitud){
 		callback(null, responseAct, code);
 	}
