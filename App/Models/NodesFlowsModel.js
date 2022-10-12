@@ -189,13 +189,13 @@ const ProcessActionNode= async (node,input, inputId,responseAnt,callback,lengthL
 
 const ProcessActionPerType= async (action, input, inputId, responsePrev, callback)=>{
 	let returnEmpty= false;
-	if(responseCode && responseCode != '' && responseCode > 399){
+	if(responseCode && responseCode != ''){
 		callback(null, responseMessage, responseCode); return false;		
 	}
 	if(action.scriptActionPrev){
 		eval(`${action.scriptActionPrev}`);
 	}
-	if(responseCode && responseCode != '' && responseCode > 399){
+	if(responseCode && responseCode != ''){
 		callback(null, responseMessage, responseCode); return false;		
 	}
 	if(returnEmpty === true){callback(null, []); return false;}
