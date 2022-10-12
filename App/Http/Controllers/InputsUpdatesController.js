@@ -23,9 +23,7 @@ exports.insert = (req, res) => {
                                 InputsUpdatesModel.delete(response.id, (eRi, rRi) => { console.log('eRi', eRi); });
                                 if (!errorA) {
                                     if(code > 399){
-                                        if(typeof responseA != 'object'){
-                                            responseA= {error:responseA};
-                                        }
+                                        responseA= { 'state': 'error', 'error': responseA };
                                         res.status(code).json(responseA)
                                     }else{
                                         res.status(code).json({ 'state': 'success', 'result': responseA })
