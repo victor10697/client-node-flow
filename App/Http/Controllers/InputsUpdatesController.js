@@ -33,7 +33,7 @@ exports.insert = (req, res) => {
                                 }
                             });
                         } else {
-                            res.status(403).json({ 'state': 'error', 'result': error })
+                            res.status(400).json({ 'state': 'error', 'result': error })
                         }
                     });
                 } else {
