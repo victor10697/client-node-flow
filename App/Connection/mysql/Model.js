@@ -12,7 +12,7 @@ function Model() {
 Model.prototype.select = function (result) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE deleted = 0`
 	this.callbackSelect(statement, [], result)
-}
+} 
 
 /**
  * Obtiene los datos de un registro asociado a un determinado Id.
@@ -25,11 +25,46 @@ Model.prototype.get = function (id, result) {
 }
 
 /**
+ * Obtiene los datos de un registro asociado a un determinado Id Promesa.
+ * @param {*} id Id del registro a consultar.
+ */
+Model.prototype.getRegister = async function (id) {
+	const statement = `SELECT * FROM ${this.tableName} WHERE id = ? AND deleted = 0`;
+
+	return new Promise((resolve, reject) => this.dbConnection.query(statement, [id], (err, results) => {
+      if (err) {
+        reject(err)
+      } else if(results[0]){
+        resolve(results[0]);
+      }else{
+      	resolve(null);
+      }
+    }));
+}
+
+/**
+ * Obtiene los datos de registros asociado a un determinada relacion Promesa.
+ * @param {*} campoRelacion campo al que relaciona con un un id.
+ * @param {*} id Id del registro a consultar.
+ */
+Model.prototype.getRegisterRelacion = async function (campoRelacion, id, active=1) {
+	const statement = `SELECT * FROM ${this.tableName} WHERE ${campoRelacion} = ? AND deleted = 0 AND actived=?`;
+
+	return new Promise((resolve, reject) => this.dbConnection.query(statement, [id,active], (err, results) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(results);
+      }
+    }));
+}
+
+/**
  * Eliminar los datos de un registro asociado a un determinado Id.
  * @param {*} id Id del registro a consultar.
  * @param {Function} result Función callback a la que se establece el resultado de la ejecución.
  */
-Model.prototype.delete = function (id, result) {
+ Model.prototype.delete = function (id, result) {
 	const statement = `DELETE FROM ${this.tableName} WHERE id = ?`
 	this.callbackSelectOne(statement, [id], result)
 }
@@ -148,50 +183,49 @@ Model.prototype.callbackSelectOne = function (statement, values, result) {
 
 Model.prototype.createOrUpdate = function (record, skipKeys, result) {
 	setCurrentDate(record, true)
-	let arrOptionUpdateCreate = this.getArrayRequestUpdateOrCreate(record, skipKeys), t = this;
+	let arrOptionUpdateCreate= this.getArrayRequestUpdateOrCreate(record, skipKeys), t= this;
 
-	if (arrOptionUpdateCreate.fieldsUniquied.length > 0 && arrOptionUpdateCreate.fieldsUniquiedValues.length > 0) {
-		t.validRegisterUniqued(arrOptionUpdateCreate.fieldsUniquied, arrOptionUpdateCreate.fieldsUniquiedValues, (err, res) => {
-			if (!err) {
-				if (res > 0) { // Registro para actualizacion
-					record[t.columnId] = res;
-					t.updateRegister(arrOptionUpdateCreate.fieldsUpdate, arrOptionUpdateCreate.valuesUpdates, res, (errU, resU) => {
-						if (!errU) {
-							delete record.created_at;
+	if(arrOptionUpdateCreate.fieldsUniquied.length > 0 && arrOptionUpdateCreate.fieldsUniquiedValues.length > 0){
+		t.validRegisterUniqued(arrOptionUpdateCreate.fieldsUniquied, arrOptionUpdateCreate.fieldsUniquiedValues, (err, res)=>{
+			if(!err){
+				if(res > 0){ // Registro para actualizacion
+					record[t.columnId]= res;
+					t.updateRegister(arrOptionUpdateCreate.fieldsUpdate, arrOptionUpdateCreate.valuesUpdates, res, (errU, resU)=>{
+						if(!errU){
+							delete record.created_at;	
 							result(null, record);
-						} else {
+						}else{
 							result(errU, null);
 						}
 					});
-				} else { // Registro para creacion
-					t.createRegister(arrOptionUpdateCreate.fields, arrOptionUpdateCreate.wildcards, arrOptionUpdateCreate.values, (errC, resC) => {
-						console.log(errC);
-						if (!errC) {
-							if (resC.insertId) {
-								record[t.columnId] = resC.insertId
+				}else{ // Registro para creacion
+					t.createRegister(arrOptionUpdateCreate.fields, arrOptionUpdateCreate.wildcards, arrOptionUpdateCreate.values, (errC, resC)=>{console.log(errC);
+						if(!errC){
+							if(resC.insertId){
+								record[t.columnId]= resC.insertId
 							}
 							result(null, record);
-						} else {
+						}else{
 							result(errC, null);
 						}
 					});
 				}
-			} else {
+			}else{
 				result(err, null);
 			}
 		})
-	} else if (arrOptionUpdateCreate.fields.length > 0 && arrOptionUpdateCreate.values.length > 0) {
-		t.createRegister(arrOptionUpdateCreate.fields, arrOptionUpdateCreate.wildcards, arrOptionUpdateCreate.values, (errC, resC) => {
-			if (!errC) {
-				if (resC.insertId) {
-					record[t.columnId] = resC.insertId
+	}else if(arrOptionUpdateCreate.fields.length > 0 && arrOptionUpdateCreate.values.length > 0){
+		t.createRegister(arrOptionUpdateCreate.fields, arrOptionUpdateCreate.wildcards, arrOptionUpdateCreate.values, (errC, resC)=>{
+			if(!errC){
+				if(resC.insertId){
+					record[t.columnId]= resC.insertId
 				}
 				result(null, record);
-			} else {
+			}else{
 				result(errC, null);
 			}
 		});
-	} else {
+	}else{
 		result('Error Register', null);
 	}
 }
@@ -203,16 +237,16 @@ Model.prototype.createOrUpdate = function (record, skipKeys, result) {
  * @returns {*} Objeto con datos de validacion de variables para almacenamiento o actualizacion
  */
 Model.prototype.getArrayRequestUpdateOrCreate = function (record, skipKeys) {
-	let fieldsUpdate = [], fields = [], wildcards = [], valuesUpdates = [], values = [], updateFields = [], fieldsUniquied = [], fieldsUniquiedValues = [];
+	let fieldsUpdate=[], fields = [], wildcards = [], valuesUpdates = [], values = [], updateFields = [], fieldsUniquied= [], fieldsUniquiedValues= [];
 
 	for (let i in record) {
 		if (record.hasOwnProperty(i)) {
 			fields.push(`\`${i}\``)
-			if (i != 'created_at') {
+			if(i != 'created_at'){
 				fieldsUpdate.push(`\`${i}\`=?`)
 				valuesUpdates.push(record[i])
 			}
-
+			
 			wildcards.push('?')
 			values.push(record[i])
 
@@ -220,7 +254,7 @@ Model.prototype.getArrayRequestUpdateOrCreate = function (record, skipKeys) {
 				updateFields.push(`\`${i}\` = VALUES(\`${i}\`)`)
 			}
 
-			if (skipKeys[i] && i != 'created_at' && i != 'updated_at') {
+			if(skipKeys[i] && i != 'created_at' && i != 'updated_at'){
 				fieldsUniquied.push(`${this.tableName}.${i}=?`);
 				fieldsUniquiedValues.push(record[i]);
 			}
@@ -249,15 +283,15 @@ Model.prototype.getArrayRequestUpdateOrCreate = function (record, skipKeys) {
 Model.prototype.validRegisterUniqued = function (fieldsUniquied, fieldsUniquiedValues, result) {
 	const statementSelect = `SELECT ${this.columnId} FROM ${this.tableName} WHERE ${fieldsUniquied.join(' AND ')} AND ${this.tableName}.deleted=0 LIMIT 1`;
 	this.dbConnection.query(statementSelect, fieldsUniquiedValues, (err, res) => {
-		if (!err) {
-			if (res.length > 0) {
+		if(!err){
+			if(res.length > 0){
 				result(null, res[0][this.columnId])
 				return
-			} else {
+			}else{
 				result(null, -1)
 				return
 			}
-		} else {
+		}else{
 			result(err, null)
 			return
 		}
@@ -279,7 +313,7 @@ Model.prototype.updateRegister = function (fieldsUpdate, values, registreId, res
 		if (err) {
 			result(err, null)
 			return
-		} else {
+		}else{
 			result(null, res)
 			return
 		}
@@ -293,7 +327,7 @@ Model.prototype.createRegister = function (fields, wildcards, values, result) {
 		if (err) {
 			result(err, null)
 			return
-		} else {
+		}else{
 			result(null, res)
 			return
 		}
