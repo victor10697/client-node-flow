@@ -23,8 +23,7 @@ TypesLoginsModel.prototype.selectAvailable = function (token,callback) {
 			return false;
 		}else{
 			SettingsModel.getSettings((errorS, settings)=>{
-				const statement = `SELECT providerName,label,description,iconUrl FROM ${this.tableName} WHERE actived = 1 AND deleted=0 ORDER BY position ASC`;
-				this.dbConnection.query(statement, [], (err, res) => {
+				TypesLoginsModel.prototype.getListProviders((err, res) => {
 					if (err) {
 						console.log(err);
 						callback(null,{list:[], information:{}});
@@ -61,8 +60,7 @@ const saveSesionClient= (data)=>{
 	LoginsAuthorizationsModel.createOrUpdate(data,{tokenAuthorization:true},(err,res)=>{});
 }
 const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback){
-	const statement = `SELECT sl.sources_id, sl.types_logins_id FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? LIMIT 1`;
-	TypesLoginsModel.prototype.dbConnection.query(statement, [1,0,provider,1,0,1], (err, res) => {
+	TypesLoginsModel.prototype.generateTokenIntial(provider, (err, res) => {
 		if(!err){
 			if(res.length > 0){
 				InputsUpdatesController.insertInternal({
@@ -100,8 +98,7 @@ const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback)
 };
 
 TypesLoginsModel.prototype.getProviderAvailable = async function (data,callback) {
-	const statement = `SELECT sl.id, sl.name, sl.label, sl.description, sl.nameButtonSubmit, sl.nameButtonClose FROM ${this.tableName} INNER JOIN steps_logins as sl ON sl.types_logins_id=${this.tableName}.id WHERE ${this.tableName}.actived=? AND ${this.tableName}.deleted=? AND ${this.tableName}.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? ORDER BY sl.step ASC`;
-	this.dbConnection.query(statement, [1,0,data.provider,1,0,0], async (err, res) => {
+	TypesLoginsModel.prototype.getProviderAvailablePerName(data.provider, async (err, res) => {
 		if (err) {
 			console.log(err);
 			callback('error data',null);

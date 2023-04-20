@@ -21,30 +21,6 @@ function NodesFlowsModel() {
 }
 NodesFlowsModel.prototype = new Model()
 
-NodesFlowsModel.prototype.getNodesFlowPerSource= async function(source_id, callback){
-	const statement = `SELECT * FROM nodes_flows WHERE nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
-	this.dbConnection.query(statement, [source_id], (err, res) => {
-		if (err) {
-			callback(err, [])
-			return
-		}
-
-		callback(null, res)
-	})
-}
-
-NodesFlowsModel.prototype.updateNodeParent= function(nodeFlowId,nodeParent,sourceId){
-	const statement = `SELECT id FROM nodes_flows WHERE nodes_flows.name=? AND nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
-	this.dbConnection.query(statement, [nodeParent,sourceId], (err, res) => {
-		if (err) {
-			return false;
-		}
-		if(res.length > 0){
-			this.update(nodeFlowId,{node_flow_id:res[0].id}, (errA,resA)=>{});
-		}
-		return true;
-	})
-}
 /**
  * Metodos para obtener arbol de acciones
  */
@@ -147,13 +123,13 @@ const processInputNodeFlowForSource= async (input, inputId, source_id, callback)
 	})
 }
 /** Metodos Procesamiento de arbol de accion */
+var countFlow={},$GLOBAL={},responseCode=null,responseMessage=null;
 /**
  * Metodo de inicio procesamiento arbol de accion
  * @param {*} input
  * @param {*} treeNode 
  * @param {*} callback 
  */
-var countFlow={},$GLOBAL={},responseCode=null,responseMessage=null;
 const ProcessTreeNode= async (input, inputId, treeNode, callback, lengthListFlow) => {
 	countFlow['input_'+inputId]=0;
 	responseCode=null;

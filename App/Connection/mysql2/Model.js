@@ -319,7 +319,13 @@ Model.prototype.updateRegister = function (fieldsUpdate, values, registreId, res
 		}
 	})
 }
-
+/**
+ * Metodo para insertar registros dentro de base datos
+ *@param fields -- son las columnas a modificar
+ *@param wildcards -- son los valores correctondientes a cada columna a insertar
+ *@param values -- son valores que se envian para proteer de ataques sql
+ *@param result -- es una funcion donse se retorma la respuesta del proceso realizado
+ **/
 Model.prototype.createRegister = function (fields, wildcards, values, result) {
 	const statement = `INSERT INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
 
@@ -384,5 +390,551 @@ function getCurrentDate() {
 	return mySQLDateString
 }
 Model.prototype.getCurrentDate = getCurrentDate
+
+/**
+ * METODOS CUSTOM PARA CONSULATAS DE TABLAS ESPECIFICAS 
+ **/
+
+/**
+ * Metodo para poder eliminar una accion de la tabla action_parameter 
+ *@param (*) actionId -- es el ide de la accion a eliminar
+ **/
+Model.prototype.deleteByActionId = function deleteByActionId(actionId) {
+	const statement = `DELETE FROM ${this.tableName} WHERE action_id = ?`
+	return this.dbConnection.query(statement, [actionId],(err, res)=>{})
+}
+
+/**
+ * Es un metodo para obtener una accion por flujo nodo.
+ *@param (*) nodeId   -- es el id del nodo de accion
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta 
+ **/
+Model.prototype.getActionPerNodeFlowId = function getActionPerNodeFlowId(nodeId, callback) {
+	const statement = `SELECT actions.*, act.name as action_type FROM actions INNER JOIN actions_types as act ON act.id=actions.action_type_id WHERE actions.nodes_flows_id=? AND actions.deleted=0 AND actions.actived=1 LIMIT 1`;
+	this.dbConnection.query(statement, [nodeId], (err, res) => {
+		if (err) {
+			callback(err, [])
+			return
+		}
+
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener una accion de un nodo tipo RDS
+ *@param (*) actionId   -- es el id de una accion
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.getActionDatabaseRDS = function getActionDatabaseRDS(actionId, callback){
+	const statement = `SELECT * FROM databases_rds WHERE databases_rds.actions_id=? AND databases_rds.deleted=0 AND databases_rds.actived=1`;
+	this.dbConnection.query(statement, [actionId], (err, res) => {
+		if (err) {
+			callback(err, [])
+			return
+		}
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener una accion de un nodo tipo Emails
+ *@param (*) actionId   -- es el id de una accion
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.getEmails = function getEmails(actionEmailId, callback){
+	const statement = `SELECT * FROM emails WHERE emails.action_type_emails_id=? AND emails.deleted=0 AND emails.actived=1`;
+	this.dbConnection.query(statement, [actionEmailId], (err, res) => {
+		if (err) {
+			callback(err, [])
+			return
+		}
+
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener una accion de un nodo tipo email
+ *@param (*) actionId   -- es el id de una accion
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.getActionEmail = function getActionEmail(actionId, callback){
+	const statement = `SELECT * FROM action_type_emails WHERE action_type_emails.actions_id=? AND action_type_emails.deleted=0 AND action_type_emails.actived=1`;
+	let thisT= this;
+	this.dbConnection.query(statement, [actionId], (err, res) => {
+		if (err) {
+			callback(err, [])
+			return
+		}
+
+		if(res.length > 0){
+			for (let index = 0; index < res.length; index++) {
+				thisT.getEmails(res[index].id, (error, response)=>{
+					if (!error) {
+						res[index].emails=response;
+					} else {
+						res[index].emails=[];
+					}
+
+					if(res.length == (parseInt(index)+1)){
+						callback(null, res)
+					}
+				})
+			}
+		}else{
+			callback(null, res)
+		}
+	})
+}
+
+/**
+ * Metodo para obtener una accion de un nodo tipo JWT
+ *@param (*) actionId   -- es el id de una accion
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.getActionJWT = function getActionJWT(actionId, callback){
+	const statement = `SELECT * FROM actions_types_jwt WHERE actions_types_jwt.actions_id=? AND actions_types_jwt.deleted=0 AND actions_types_jwt.actived=1`;
+	this.dbConnection.query(statement, [actionId], (err, res) => {
+		if (err) {
+			callback(err, [])
+			return
+		}
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener una accion de un nodo tipo MD5
+ *@param (*) actionId   -- es el id de una accion
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.getActionMD5 = function getActionMD5(actionId, callback){
+	const statement = `SELECT * FROM actions_types_md5 WHERE actions_types_md5.actions_id=? AND actions_types_md5.deleted=0 AND actions_types_md5.actived=1`;
+	this.dbConnection.query(statement, [actionId], (err, res) => {
+		if (err) {
+			callback(err, [])
+			return
+		}
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener una accion de un nodo tipo SFTP
+ *@param (*) actionId   -- es el id de una accion
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.getActionSFTP = function getActionSFTP(actionId, callback){
+	const statement = `SELECT * FROM actions_types_ssh2 WHERE actions_types_ssh2.actions_id=? AND actions_types_ssh2.deleted=0 AND actions_types_ssh2.actived=1`;
+	this.dbConnection.query(statement, [actionId], (err, res) => {
+		if (err) {
+			callback(err, [])
+			return
+		}
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener una accion de un nodo tipo SFTP
+ *@param (*) name   -- es el nombre de una accion
+ *@param (*) result -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.validTypeAction = function validTypeAction(name, result) {
+	const statement = `SELECT * FROM actions_types WHERE actions_types.name=? AND actions_types.deleted=0 AND actions_types.actived=1`;
+	this.dbConnection.query(statement, [name], (err, res) => {
+		if (err) {
+			result(err, null)
+			return
+		}
+
+		res = res.length > 0 ? {state: 'success', action: res[0]} : {state: 'error', action:{}};
+		result(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener una accion de un nodo tipo HTTP
+ *@param (*) actionHttpId   -- es el id de una accion
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.getHeadersPerActionHttpRequest = function getHeadersPerActionHttpRequest(actionHttpId, callback){
+	const statement = `SELECT * FROM headers WHERE headers.action_type_http_request_id=? AND headers.deleted=0 AND headers.actived=1`;
+	this.dbConnection.query(statement, [actionHttpId], (err, res) => {
+		if (err) {
+			callback(err, [])
+			return
+		}
+
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener una accion de un nodo tipo HTTP
+ *@param (*) actionId   -- es el id de una accion
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.getActionHttpRequest = function getActionHttpRequest(actionId, callback){
+	const statement = `SELECT * FROM action_type_http_request WHERE action_type_http_request.actions_id=? AND action_type_http_request.deleted=0 AND action_type_http_request.actived=1`;
+	let thisT= this;
+	this.dbConnection.query(statement, [actionId], (err, res) => {
+		if (err) {
+			callback(err, [])
+			return
+		}
+
+		if(res.length > 0){
+			for (let index = 0; index < res.length; index++) {
+				thisT.getHeadersPerActionHttpRequest(res[index].id, (error, response)=>{
+					if (!error) {
+						res[index].headers=response;
+					} else {
+						res[index].headers=[];
+					}
+
+					if(res.length == (parseInt(index)+1)){
+						callback(null, res)
+					}
+				})
+			}
+		}else{
+			callback(null, res)
+		}
+	})
+}
+
+/**
+ * Metodo para obtener una accion de un nodo tipo ProcessData
+ *@param (*) actionId   -- es el id de una accion
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.getActionProcessData = function getActionProcessData(actionId, callback){
+	const statement = `SELECT * FROM action_type_process_data WHERE action_type_process_data.actions_id=? AND action_type_process_data.deleted=0 AND action_type_process_data.actived=1`;
+	this.dbConnection.query(statement, [actionId], (err, res) => {
+		if (err) {
+			callback(err, [])
+			return
+		}
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener una accion de un nodo tipo ProcessData
+ *@param (*) regExpByDate   -- exprecion regular para buscar un registro para activar tarea programada
+ *@param (*) regExpGeneral   -- exprecion regular para buscar registros generales para activar tarea programada
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.getCronJobs = function getCronJobs(regExpByDate, regExpGeneral, callback) {
+  const statement = `SELECT * FROM cron_jobs WHERE (cron REGEXP '${regExpByDate}' OR cron NOT REGEXP '${regExpGeneral}') AND deleted = 0 AND actived = 1`;
+  this.dbConnection.query(statement, [], (error, records) => {
+    if (error) callback(error, null)
+    else callback(null, records)
+  })
+}
+
+/**
+ * Metodo para obtener una accion de un nodo tipo ProcessData
+ *@param (*) actionId   -- es el id de una accion
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+function getQueryHistory(req){
+	let w='', 
+		hoy= new Date()
+		dia= hoy.getDay(),
+		mes= hoy.getMonth(),
+		anio= hoy.getFullYear();
+		mes= (parseInt(mes)+1);
+		mes= mes < 10 ? '0'+mes : mes;
+		fecha= `${anio}-${mes}-${dia}`;
+		params= [];
+
+	w+= ` AND DATE(history_flow.created_at) = ?`;
+	if(req.query.createdAt && req.query.createdAt != ''){
+		params.push(req.query.createdAt);
+	}else{
+		params.push(fecha);
+	}
+	if(req.query.searchInput && req.query.searchInput != ''){
+		w+= ` AND inp.bodyRequest LIKE ?`;
+		params.push(`%${req.query.searchInput}%`);
+	}
+	if(req.query.inputStatus && req.query.inputStatus != ''){
+		w+= ` AND inp.processStatus= ?`;
+		params.push(req.query.inputStatus);
+	}
+	return {where:w,params:params};
+}
+
+/**
+ * Metodo para obtener una historial de acciones flujos de accion
+ *@param (*) req   -- es el id de una accion
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.selectHistory = function selectHistory(req, callback){
+	let w= getQueryHistory(req);
+	const statement =  `SELECT 
+							node.name as node_name,
+							node.label as node_label,
+							act.name as action_name,
+							sour.name as source,
+							sour.key as source_key,
+							inp.bodyRequest as input,
+							inp.processStatus as input_status,
+							history_flow.request,
+							history_flow.response,
+							history_flow.error,
+							history_flow.created_at 
+						FROM 
+							history_flow
+							INNER JOIN inputs_updates AS inp
+								ON inp.id = history_flow.inputs_updates_id
+							INNER JOIN actions AS act
+								ON act.id = history_flow.actions_id
+							INNER JOIN nodes_flows AS node
+								ON node.id = act.nodes_flows_id
+							INNER JOIN sources AS sour
+								ON sour.id = node.sources_id
+						WHERE 
+							history_flow.deleted=? AND 
+							history_flow.actived=? AND
+							inp.source_id=? 
+							${w.where}`;
+	this.dbConnection.query(statement, [0,1,req.params.source_id].concat(w.params), (err, res) => {
+		if (err) {console.log(err);
+			callback(err, [])
+			return
+		}
+
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener un nodo por fuente id
+ *@param (*) source_id   -- es el id de una fuente
+ *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+ **/
+Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(source_id, callback){
+	const statement = `SELECT * FROM nodes_flows WHERE nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
+	this.dbConnection.query(statement, [source_id], (err, res) => {
+		if (err) {
+			callback(err, [])
+			return
+		}
+
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para actualizar un nodo padre
+ *@param (*) nodeFlowId   -- es el id de una fuente
+ *@param (*) nodeParent   -- nombre de nodo padre
+ *@param (*) sourceId -- es el id de la fuente
+ **/
+Model.prototype.updateNodeParent = function updateNodeParent(nodeFlowId,nodeParent,sourceId){
+	const statement = `SELECT id FROM nodes_flows WHERE nodes_flows.name=? AND nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
+	this.dbConnection.query(statement, [nodeParent,sourceId], (err, res) => {
+		if (err) {
+			return false;
+		}
+		if(res.length > 0){
+			Model.prototype.update(nodeFlowId,{node_flow_id:res[0].id}, (errA,resA)=>{});
+		}
+		return true;
+	})
+}
+
+/**
+ * Metodo para validar un fuente
+ *@param (*) key   -- llave de la fuente
+ *@param (*) token   -- token de la fuente
+ *@param (*) result -- funcion que retorna el proceso de la funcion
+ **/
+Model.prototype.validSource = function validSource(key, token, result) {
+	const statement = `SELECT id FROM sources WHERE sources.key=? AND sources.token=? AND sources.deleted=0 AND sources.actived=1`;
+	this.dbConnection.query(statement, [key, token], (err, res) => {
+		if (err) {
+			result(err, null)
+			return
+		}
+
+		res = res.length > 0 ? {state: 'success', source_id: res[0].id} : {state: 'error', source_id:null};
+		result(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener el id de una fuente por nombre de la fuente
+ *@param (*) sourceName   -- llave de la fuente
+ *@param (*) result -- funcion que retorna el proceso de la funcion
+ **/
+Model.prototype.getSourcePerName = function getSourcePerName(sourceName, result) {
+	const statement = `SELECT id FROM sources WHERE sources.name=? AND sources.deleted=0 AND sources.actived=1`;
+	this.dbConnection.query(statement, [sourceName], (err, res) => {
+		if (err) {
+			result(err, null)
+			return
+		}
+		res = res.length > 0 ? res[0] : {};
+		result(null, res)
+	})
+}
+
+/**
+ * METODOS PARA EL MANEJO DEL LOGIN 
+ **/
+
+/**
+ * Metodo para obtener token de autorizacion
+ *@param (*) tokenAuthorization   -- token registro de autenticacion
+ *@param (*) callback -- funcion que retorna el proceso de la funcion
+ **/
+Model.prototype.getPerToken = function getPerToken(tokenAuthorization, callback){
+	const statement = `SELECT id,types_logins_id,codeVerify,state,email,name,userId,redirect_uri,stateVtex,password FROM logins_authorizations WHERE tokenAuthorization=? AND state='pending' AND actived = 1 AND deleted=0`;
+	this.dbConnection.query(statement, [tokenAuthorization], (err, res) => {
+		if (err) {
+			console.log(err);
+			callback('error',null);
+			return false;
+		}else{
+			callback(null,(res.length > 0 ? res[0] : {}));
+			return true;
+		}
+	})
+}
+
+/**
+ * Metodo para validar accesos a un cliente
+ *@param (*) accesToken   -- token registro de validacion
+ *@param (*) callback -- funcion que retorna el proceso de la funcion
+ **/
+Model.prototype.validAccessClient = function validAccessClient(accesToken, callback){
+	const statement = `SELECT * FROM logins_authorizations WHERE accessToken=? AND actived = 1 AND deleted=0`;
+	this.dbConnection.query(statement, [accesToken], (err, res) => {
+		if (err) {
+			console.log(err);
+			callback('error',null);
+			return false;
+		}else{
+			callback(null,(res.length > 0 ? res[0] : {}));
+			return true;
+		}
+	})
+}
+
+/**
+ * Metodo para actualizar registros de una solicitud de acceso
+ *@param (*) id   -- id registro actualizar
+ *@param (*) token   -- token registro actualizacion
+ *@param (*) callback -- funcion que retorna el proceso de la funcion
+ **/
+Model.prototype.updateSolicitudVTEX = function updateSolicitudVTEX(id,token, callback){
+	const statement = `UPDATE logins_authorizations SET accessToken=?, state=? WHERE id=?`;
+	this.dbConnection.query(statement, [token,'processed',id], (err, res) => {
+		if (err) {
+			console.log(err);
+			callback('error',null);
+			return false;
+		}else{
+			callback(null, res);
+			return true;
+		}
+	})
+}
+
+/**
+ * Metodo para validar accesos a un cliente
+ *@param (*) code -- token registro de validacion
+ *@param (*) callback -- funcion que retorna el proceso de la funcion
+ **/
+Model.prototype.validCodeSolicitudVTEX = function validCodeSolicitudVTEX(code, callback){
+	const statement = `SELECT * FROM logins_authorizations WHERE codeAuthorization=? AND (state=? OR state=?) AND actived = 1 AND deleted=0`;
+	this.dbConnection.query(statement, [code,'processing','pending'], (err, res) => {
+		if (err) {
+			console.log(err);
+			callback('error',null);
+			return false;
+		}else{
+			callback(null, res);
+			return true;
+		}
+	})
+}
+
+/**
+ * Metodo para obtener un paso por nombre
+ *@param (*) stepName -- nombre de un paso
+ *@param (*) types_logins_id -- id tipo de login 
+ *@param (*) callback -- funcion que retorna el proceso de la funcion
+ **/
+Model.prototype.getStepPerName = function getStepPerName(stepName, types_logins_id, callback){
+	const statement = `SELECT * FROM steps_logins WHERE steps_logins.name=? AND steps_logins.types_logins_id=? AND steps_logins.deleted=0 AND steps_logins.actived=1`;
+	this.dbConnection.query(statement, [stepName,types_logins_id], (err, res) => {
+		if (err) {
+			callback(err, null)
+			return
+		}
+
+		res = res.length > 0 ? res[0] : null;
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener listado de logins
+ *@param (*) callback -- funcion que retorna el proceso de la funcion
+ **/
+Model.prototype.getListProviders = function getListProviders(callback){
+	const statement = `SELECT providerName,label,description,iconUrl FROM types_logins WHERE actived = 1 AND deleted=0 ORDER BY position ASC`;
+	this.dbConnection.query(statement, [], (err, res) => {
+		if (err) {
+			callback(err, null)
+			return
+		}
+
+		res = res.length > 0 ? res[0] : null;
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para obtener listado de logins
+ *@param (*) provider -- es el name del provedor seleccionado
+ *@param (*) callback -- funcion que retorna el proceso de la funcion
+ **/
+Model.prototype.generateTokenIntial = function generateTokenIntial(provider, callback){
+	const statement = `SELECT sl.sources_id, sl.types_logins_id FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? LIMIT 1`;
+	this.dbConnection.query(statement, [1,0,provider,1,0,1], (err, res) => {
+		if (err) {
+			callback(err, null)
+			return
+		}
+
+		res = res.length > 0 ? res[0] : null;
+		callback(null, res)
+	})
+}
+
+/**
+ * Metodo para proveedor habilitado
+ *@param (*) provider -- es el name del provedor seleccionado
+ *@param (*) callback -- funcion que retorna el proceso de la funcion
+ **/
+Model.prototype.getProviderAvailablePerName = function getProviderAvailablePerName(provider, callback){
+	const statement = `SELECT sl.id, sl.name, sl.label, sl.description, sl.nameButtonSubmit, sl.nameButtonClose FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? ORDER BY sl.step ASC`;
+	this.dbConnection.query(statement, [1,0,provider,1,0,0], (err, res) => {
+		if (err) {
+			callback(err, null)
+			return
+		}
+
+		res = res.length > 0 ? res[0] : null;
+		callback(null, res)
+	})
+}
 
 module.exports = Model

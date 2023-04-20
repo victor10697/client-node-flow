@@ -9,38 +9,8 @@ function LoginsAuthorizationsModel() {
 }
 LoginsAuthorizationsModel.prototype = new Model();
 
-LoginsAuthorizationsModel.prototype.getPerToken= function(tokenAuthorization, callback){
-	const statement = `SELECT id,types_logins_id,codeVerify,state,email,name,userId,redirect_uri,stateVtex,password FROM ${this.tableName} WHERE tokenAuthorization=? AND state='pending' AND actived = 1 AND deleted=0`;
-	this.dbConnection.query(statement, [tokenAuthorization], (err, res) => {
-		if (err) {
-			console.log(err);
-			callback('error',null);
-			return false;
-		}else{
-			callback(null,(res.length > 0 ? res[0] : {}));
-			return true;
-		}
-	})
-};
-
-
-LoginsAuthorizationsModel.prototype.validAccessClient= function(accesToken, callback){
-	const statement = `SELECT * FROM ${this.tableName} WHERE accessToken=? AND actived = 1 AND deleted=0`;
-	this.dbConnection.query(statement, [accesToken], (err, res) => {
-		if (err) {
-			console.log(err);
-			callback('error',null);
-			return false;
-		}else{
-			callback(null,(res.length > 0 ? res[0] : {}));
-			return true;
-		}
-	})
-}
-
 const deleteSolicitudVTEX=(id)=>{
-	const statement = `DELETE FROM logins_authorizations WHERE id=?`;
-	LoginsAuthorizationsModel.prototype.dbConnection.query(statement, [id], (err, res) => {
+	LoginsAuthorizationsModel.prototype.delete(id, (err, res) => {
 		if (err) {
 			console.log(err)
 		}
@@ -86,18 +56,17 @@ const getDataJSON=(string)=>{
 	return obj;
 };
 
-const updateSolicitudVTEX=(id,token)=>{
+const updateSolicitudVTEX= function(id,token){
 	const statement = `UPDATE logins_authorizations SET accessToken=?, state=? WHERE id=?`;
-	LoginsAuthorizationsModel.prototype.dbConnection.query(statement, [token,'processed',id], (err, res) => {
+	LoginsAuthorizationsModel.prototype.updateSolicitudVTEX(id, token, (err, res) => {
 		if (err) {
 			console.log(err)
 		}
 	})
 };
 
-const validCodeSolicitudVTEX= (code,settings,callback)=>{
-	const statement = `SELECT * FROM logins_authorizations WHERE codeAuthorization=? AND (state=? OR state=?) AND actived = 1 AND deleted=0`;
-	LoginsAuthorizationsModel.prototype.dbConnection.query(statement, [code,'processing','pending'], (err, res) => {
+const validCodeSolicitudVTEX= function(code,settings,callback){
+	LoginsAuthorizationsModel.prototype.validCodeSolicitudVTEX(code, (err, res) => {
 		if (err) {
 			callback('error',null);
 			return false;

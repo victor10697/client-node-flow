@@ -1,5 +1,4 @@
 const Model = require('../Model')
-// const NodesFlowsModel = require('./NodesFlowsModel')
 
 function InputsUpdatesModel() {
 	Model.call(this)

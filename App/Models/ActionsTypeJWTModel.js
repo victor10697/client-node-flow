@@ -8,17 +8,6 @@ function ActionTypeJWTModel() {
 }
 ActionTypeJWTModel.prototype = new Model()
 
-ActionTypeJWTModel.prototype.getActionJWT= function(actionId, callback){
-	const statement = `SELECT * FROM actions_types_jwt WHERE actions_types_jwt.actions_id=? AND actions_types_jwt.deleted=0 AND actions_types_jwt.actived=1`;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
-		if (err) {
-			callback(err, [])
-			return
-		}
-		callback(null, res)
-	})
-}
-
 ActionTypeJWTModel.prototype.singJWT= (actionConfig, input, responsePrev, callback)=>{
 	let secret= "nodeflow20220119",
 		objectEncrypt={},
