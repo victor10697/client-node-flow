@@ -737,12 +737,13 @@ Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(sou
  **/
 Model.prototype.updateNodeParent = function updateNodeParent(nodeFlowId,nodeParent,sourceId){
 	const statement = `SELECT id FROM nodes_flows WHERE nodes_flows.name=? AND nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
+	let thisT= this;
 	this.dbConnection.query(statement, [nodeParent,sourceId], (err, res) => {
 		if (err) {
 			return false;
 		}
 		if(res.length > 0){
-			Model.prototype.update(nodeFlowId,{node_flow_id:res[0].id}, (errA,resA)=>{});
+			thisT.update(nodeFlowId,{node_flow_id:res[0].id}, (errA,resA)=>{});
 		}
 		return true;
 	})
@@ -896,7 +897,7 @@ Model.prototype.getListProviders = function getListProviders(callback){
 			return
 		}
 
-		res = res.length > 0 ? res[0] : null;
+		res = res.length > 0 ? res : null;
 		callback(null, res)
 	})
 }
@@ -914,7 +915,7 @@ Model.prototype.generateTokenIntial = function generateTokenIntial(provider, cal
 			return
 		}
 
-		res = res.length > 0 ? res[0] : null;
+		res = res.length > 0 ? res : null;
 		callback(null, res)
 	})
 }
@@ -932,7 +933,7 @@ Model.prototype.getProviderAvailablePerName = function getProviderAvailablePerNa
 			return
 		}
 
-		res = res.length > 0 ? res[0] : null;
+		res = res.length > 0 ? res : [];
 		callback(null, res)
 	})
 }
