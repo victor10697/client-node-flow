@@ -14,7 +14,7 @@ function TypesLoginsModel() {
 	Model.call(this)
 	this.tableName = 'types_logins'
 }
-TypesLoginsModel.prototype = new Model()
+TypesLoginsModel.prototype = new Model() 
 
 TypesLoginsModel.prototype.selectAvailable = function (token,callback) {
 	ActionsTypeJWTModel.verify(token,(err,res)=>{
@@ -179,9 +179,21 @@ const saveStepLogin=(steps, type_login_id)=>{
 	}
 }
 
-const saveFieldsLogin=(fields, step_login_id)=>{
+const saveFieldsLogin= async (fields, step_login_id)=>{
+
+	let fieldsRegistered= await FieldsLoginModel.getRegisterRelacion('steps_logins_id',step_login_id);
+	let fieldsActive= [];
 	for (let i = 0; i < fields.length; i++) {
 		if(fields[i].name && fields[i].name != ''){
+			let exitField=false;
+			for (var j = 0; j < fieldsRegistered.length; j++) {
+				if(fields[i].name == fieldsRegistered[j].name){
+					exitField=true;
+				}
+			}
+			if(exitField==true){
+				fieldsActive= [...fieldsActive,fields[i].name];
+			}
 			FieldsLoginModel.createOrUpdate({
 				name: fields[i].name && fields[i].name != '' ? fields[i].name : 'error',
 				label: fields[i].label ? fields[i].label : '',
@@ -205,7 +217,30 @@ const saveFieldsLogin=(fields, step_login_id)=>{
 				description: fields[i].description ? fields[i].description : '',
 				class: fields[i].class ? fields[i].class : '',
 				iconUrl: fields[i].iconUrl ? fields[i].iconUrl : '',
+				tabIndex: fields[i].tabIndex ? fields[i].tabIndex : '',
+				autofocus: fields[i].autofocus ? fields[i].autofocus : 'false',
 				steps_logins_id: step_login_id
+			},{name:true, steps_logins_id:true},(err,res)=>{
+				if(err){
+					console.log('err', err);
+				}
+			});
+		}
+	}
+
+	for (let i = 0; i < fieldsRegistered.length; i++) {
+		let exitField=false;
+		for (var j = 0; j < fieldsActive.length; j++) {
+			if(fieldsActive[j] == fieldsRegistered[i].name){
+				exitField=true;
+			}
+		}
+
+		if(exitField == false){
+			FieldsLoginModel.createOrUpdate({
+				name: fieldsRegistered[i].name && fieldsRegistered[i].name != '' ? fieldsRegistered[i].name : 'error',
+				steps_logins_id: step_login_id,
+				actived: 0
 			},{name:true, steps_logins_id:true},(err,res)=>{
 				if(err){
 					console.log('err', err);

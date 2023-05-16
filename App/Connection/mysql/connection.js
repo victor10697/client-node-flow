@@ -1,15 +1,17 @@
-const mysql = require('mysql')
+const VtexModel = require('./VtexModel')
 // Referencia a las variables definidas en el archivo .env
 const env = process.env
 
 // Parámetros de conexión con la base de datos MySQL (ver archivo .env)
 const paramsConexion = {
-	host: env.DB_HOST || 'localhost',
-	port: env.DB_PORT || '3306',
-	database: env.DB_DATABASE || '',
-	user: env.DB_USERNAME || 'root',
-	password: env.DB_PASSWORD || ''
+	DB_VTEX_URL: env.DB_VTEX_URL || 'https://{{accountName}}.{{environment}}.com.br',
+	DB_VTEX_APIKEY: env.DB_VTEX_APIKEY || '',
+	DB_VTEX_APITOKEN: env.DB_VTEX_APITOKEN || '',
+	DB_VTEX_START_ENTITY: env.DB_VTEX_START_ENTITY || 'lgbr',
+	DB_VTEX_VERSION: env.DB_VTEX_VERSION || 'v1',
+	DB_VTEX_NAME: env.DB_VTEX_NAME || 'login_brandlive'
+	DB_VTEX_TITLE: env.DB_VTEX_TITLE || 'Login BRANDLIVE'
 }
-const connection = mysql.createConnection(paramsConexion)
+const connection = VtexModel.createConnection(paramsConexion)
 
 module.exports = connection
