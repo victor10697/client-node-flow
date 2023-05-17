@@ -10,8 +10,8 @@ function Model() {
  * @param {Function} result Función callback a la que se establece el resultado de la ejecución.
  */
 Model.prototype.select = function (result) {
-	const statement = `SELECT * FROM ${this.tableName} WHERE deleted = 0`
-	this.callbackSelect(statement, [], result)
+	const statement = `${this.tableName}`
+	this.callbackSelect(statement, {}, result)
 } 
 
 /**
@@ -20,8 +20,8 @@ Model.prototype.select = function (result) {
  * @param {Function} result Función callback a la que se establece el resultado de la ejecución.
  */
 Model.prototype.get = function (id, result) {
-	const statement = `SELECT * FROM ${this.tableName} WHERE id = ? AND deleted = 0`
-	this.callbackSelectOne(statement, [id], result)
+	const statement = `${this.tableName}`
+	this.callbackSelectOne(statement, {id:id}, result)
 }
 
 /**
@@ -29,9 +29,12 @@ Model.prototype.get = function (id, result) {
  * @param {*} id Id del registro a consultar.
  */
 Model.prototype.getRegister = async function (id) {
-	const statement = `SELECT * FROM ${this.tableName} WHERE id = ? AND deleted = 0`;
+	const statement = this.tableName;
 
-	return new Promise((resolve, reject) => this.dbConnection.query(statement, [id], (err, results) => {
+	return new Promise((resolve, reject) => this.dbConnection.getMasterdata({
+		acronym: statement,
+		query: {id:id}
+	}, (err, results) => {
       if (err) {
         reject(err)
       } else if(results[0]){
@@ -48,9 +51,18 @@ Model.prototype.getRegister = async function (id) {
  * @param {*} id Id del registro a consultar.
  */
 Model.prototype.getRegisterRelacion = async function (campoRelacion, id, active=1) {
-	const statement = `SELECT * FROM ${this.tableName} WHERE ${campoRelacion} = ? AND deleted = 0 AND actived=?`;
+	const statement = this.tableName;
+	let qr= {actived: active == 1 ? true : false};
+	if(campoRelacion && id){
+		qr[campoRelacion]= id;
+	}else{
+		return null;
+	}
 
-	return new Promise((resolve, reject) => this.dbConnection.query(statement, [id,active], (err, results) => {
+	return new Promise((resolve, reject) => this.dbConnection.getMasterdata({
+		acronym: statement,
+		query: qr
+	}, (err, results) => {
       if (err) {
         reject(err)
       } else {
@@ -162,7 +174,10 @@ Model.prototype.replace = function (record, result) {
 }
 
 Model.prototype.callbackSelect = function (statement, values, result) {
-	this.dbConnection.query(statement, values, (err, res) => {
+	this.dbConnection.getMasterdata({
+		acronym: statement,
+		query: values
+	}, (err, res) => {
 		if (err) {
 			result(err, null)
 			return
@@ -172,7 +187,10 @@ Model.prototype.callbackSelect = function (statement, values, result) {
 }
 
 Model.prototype.callbackSelectOne = function (statement, values, result) {
-	this.dbConnection.query(statement, values, (err, res) => {
+	this.dbConnection.getMasterdata({
+		acronym: statement,
+		query: values
+	}, (err, res) => {
 		if (err) {
 			result(err, null)
 			return
@@ -281,8 +299,17 @@ Model.prototype.getArrayRequestUpdateOrCreate = function (record, skipKeys) {
  * @returns invoca function cno dos parametros uno con error y el otro con id si el registro existe o -1 si no xiste
  */
 Model.prototype.validRegisterUniqued = function (fieldsUniquied, fieldsUniquiedValues, result) {
-	const statementSelect = `SELECT ${this.columnId} FROM ${this.tableName} WHERE ${fieldsUniquied.join(' AND ')} AND ${this.tableName}.deleted=0 LIMIT 1`;
-	this.dbConnection.query(statementSelect, fieldsUniquiedValues, (err, res) => {
+	const statementSelect = this.tableName;
+	let qr={};
+
+	for (var i = 0; i < fieldsUniquied.length; i++) {
+		qr[fieldsUniquied[i]]= fieldsUniquiedValues[i];
+	}
+
+	this.dbConnection.getMasterdata({
+		acronym: statement,
+		query: qr
+	}, (err, res) => {
 		if(!err){
 			if(res.length > 0){
 				result(null, res[0][this.columnId])
