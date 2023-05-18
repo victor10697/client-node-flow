@@ -111,12 +111,126 @@ VtexModel.prototype.getMasterdata= function({acronym=null, _sort=null, _fields="
 	}
 }
 
-VtexModel.prototype.createMasterdata= function(){
-	return this.titleApp;
+/**
+ * Eliminar data masterdata 
+ * @param acronym (*)  String
+ * @param id (*)  String
+ * @param callback (*) Function
+ **/
+VtexModel.prototype.deleteMasterdata= function({acronym=null, id=null}, callback){
+	if(acronym && id){
+		let requestOptions={
+			url: `${this.getUrl()}/api/dataentities/${this.getStartEntity()}_${acronym}/documents/${id}`,
+			method: "DELETE",
+			responseType: "json",
+			headers: {
+				"X-VTEX-API-AppKey": this.getApiKey(),
+				"X-VTEX-API-AppToken": this.getApiToken(),
+				'Cache-Control': 'no-cache',
+			  	'Pragma': 'no-cache',
+			  	'Expires': '0'
+			},
+			params: {
+				_schema: this.getNameApp()
+			}
+		};
+
+		axios(requestOptions)
+		.then(async (result) => {
+			callback(null,true); 
+			return true;
+		})
+		.catch(async (error) => {
+			callback(error,false); 
+			return false; 
+		});
+	}else if(callback){
+		callback(null, false);
+	}else{
+		callback(null, false);
+	}
 }
 
-VtexModel.prototype.deleteMasterdata= function(){
-	return this.titleApp;
+/**
+ * Crear data masterdata 
+ * @param acronym (*)  String
+ * @param body    (*)  Object
+ * @param callback (*) Function
+ **/
+VtexModel.prototype.createMasterdata= function({acronym=null, body=null}, callback){
+	if(acronym && body){
+		let requestOptions={
+			url: `${this.getUrl()}/api/dataentities/${this.getStartEntity()}_${acronym}/documents`,
+			method: "PATCH",
+			responseType: "json",
+			headers: {
+				"X-VTEX-API-AppKey": this.getApiKey(),
+				"X-VTEX-API-AppToken": this.getApiToken(),
+				'Cache-Control': 'no-cache',
+			  	'Pragma': 'no-cache',
+			  	'Expires': '0'
+			},
+			data: body,
+			params: {
+				_schema: this.getNameApp()
+			}
+		};
+
+		axios(requestOptions)
+		.then(async (result) => {
+			callback(null,result.data); 
+			return true;
+		})
+		.catch(async (error) => {
+			callback(error,[]); 
+			return false; 
+		});
+	}else if(callback){
+		callback("error data request!", null);
+	}else{
+		return null;
+	}
+}
+
+/**
+ * Actualizar data masterdata 
+ * @param acronym (*)  String
+ * @param body    (*)  Object
+ * @param callback (*) Function
+ **/
+VtexModel.prototype.updateMasterdata= function({acronym=null, id=null, body=null}, callback){
+	if(acronym && body && id){
+		let requestOptions={
+			url: `${this.getUrl()}/api/dataentities/${this.getStartEntity()}_${acronym}/documents/${id}`,
+			method: "PUT",
+			responseType: "json",
+			headers: {
+				"X-VTEX-API-AppKey": this.getApiKey(),
+				"X-VTEX-API-AppToken": this.getApiToken(),
+				'Cache-Control': 'no-cache',
+			  	'Pragma': 'no-cache',
+			  	'Expires': '0'
+			},
+			data: body,
+			params: {
+				_schema: this.getNameApp()
+			}
+		};
+
+		axios(requestOptions)
+		.then(async (result) => {
+			callback(null,result.data); 
+			return true;
+		})
+		.catch(async (error) => {
+			callback(error,[]); 
+			return false; 
+		});
+	}else if(callback){
+		callback("error data request!", null);
+	}else{
+		return null;
+	}
 }
 
 module.exports = VtexModel;
