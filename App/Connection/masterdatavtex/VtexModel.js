@@ -65,7 +65,7 @@ VtexModel.prototype.getTitleApp= function(){
  * @param query        String
  * @param callback (*) Function
  **/
-VtexModel.prototype.getMasterdata= function({acronym=null, _fields="_all", _where=null, query=null}, callback){
+VtexModel.prototype.getMasterdata= function({acronym=null, _sort=null, _fields="_all", _where=null, query=null}, callback){
 	if(acronym){
 		let requestOptions={
 			url: `${this.getUrl()}/api/dataentities/${this.getStartEntity()}_${acronym}/search`,
@@ -85,6 +85,9 @@ VtexModel.prototype.getMasterdata= function({acronym=null, _fields="_all", _wher
 		};
 		if(_where){
 			requestOptions.params['_where']= encodeURIComponent(_where);
+		}
+		if(_sort){
+			requestOptions.params['_sort']= encodeURIComponent(_sort);	
 		}
 		if(query && typeof query == 'object'){
 			for(const param in query){

@@ -431,14 +431,42 @@ Model.prototype.deleteByActionId = function deleteByActionId(actionId) {
  *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta 
  **/
 Model.prototype.getActionPerNodeFlowId = function getActionPerNodeFlowId(nodeId, callback) {
-	const statement = `SELECT actions.*, act.name as action_type FROM actions INNER JOIN actions_types as act ON act.id=actions.action_type_id WHERE actions.nodes_flows_id=? AND actions.deleted=0 AND actions.actived=1 LIMIT 1`;
-	this.dbConnection.query(statement, [nodeId], (err, res) => {
-		if (err) {
-			callback(err, [])
-			return
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'actions',
+		query: {
+			nodes_flows_id: nodeId
 		}
-
-		callback(null, res)
+	}, (errAc, resAc) => {
+		if (errAc) {
+			callback(errAc, [])
+			return
+		}else{
+			if(typeof resAc == 'object' && resAc[0]){
+				_this.dbConnection.getMasterdata({
+					acronym: 'actions_types'
+				}, (errType, resType)=>{
+					if (errType) {
+						callback(errType, [])
+						return
+					}else{
+						let resEnd= [];
+						for (var i = resAc.length - 1; i >= 0; i--) {
+							let objAcT= resAc[i];
+							for (var j = 0; j < resType.length; j++) {
+								if(objAcT.action_type_id== resType[j].id){
+									objAcT.action_type= resType.name;
+								}
+							}
+							resEnd= [...resEnd,objAcT];
+						}
+						callback(null, resEnd)
+					}
+				});
+			}else{
+				callback(null, []);
+			}
+		}
 	})
 }
 
@@ -447,9 +475,14 @@ Model.prototype.getActionPerNodeFlowId = function getActionPerNodeFlowId(nodeId,
  *@param (*) actionId   -- es el id de una accion
  *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
  **/
-Model.prototype.getActionDatabaseRDS = function getActionDatabaseRDS(actionId, callback){
-	const statement = `SELECT * FROM databases_rds WHERE databases_rds.actions_id=? AND databases_rds.deleted=0 AND databases_rds.actived=1`;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+Model.prototype.getActionDatabaseRDS = function getActionDatabaseRDS(actions_idactions_id, callback){
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'databases_rds',
+		query: {
+			actions_id: actions_id
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, [])
 			return
@@ -464,8 +497,13 @@ Model.prototype.getActionDatabaseRDS = function getActionDatabaseRDS(actionId, c
  *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
  **/
 Model.prototype.getEmails = function getEmails(actionEmailId, callback){
-	const statement = `SELECT * FROM emails WHERE emails.action_type_emails_id=? AND emails.deleted=0 AND emails.actived=1`;
-	this.dbConnection.query(statement, [actionEmailId], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'emails',
+		query: {
+			action_type_emails_id: actionEmailId
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, [])
 			return
@@ -481,9 +519,13 @@ Model.prototype.getEmails = function getEmails(actionEmailId, callback){
  *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
  **/
 Model.prototype.getActionEmail = function getActionEmail(actionId, callback){
-	const statement = `SELECT * FROM action_type_emails WHERE action_type_emails.actions_id=? AND action_type_emails.deleted=0 AND action_type_emails.actived=1`;
-	let thisT= this;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'action_type_emails',
+		query: {
+			actions_id: actionId
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, [])
 			return
@@ -491,7 +533,7 @@ Model.prototype.getActionEmail = function getActionEmail(actionId, callback){
 
 		if(res.length > 0){
 			for (let index = 0; index < res.length; index++) {
-				thisT.getEmails(res[index].id, (error, response)=>{
+				_this.getEmails(res[index].id, (error, response)=>{
 					if (!error) {
 						res[index].emails=response;
 					} else {
@@ -515,8 +557,13 @@ Model.prototype.getActionEmail = function getActionEmail(actionId, callback){
  *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
  **/
 Model.prototype.getActionJWT = function getActionJWT(actionId, callback){
-	const statement = `SELECT * FROM actions_types_jwt WHERE actions_types_jwt.actions_id=? AND actions_types_jwt.deleted=0 AND actions_types_jwt.actived=1`;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'actions_types_jwt',
+		query: {
+			actions_id: actionId
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, [])
 			return
@@ -531,8 +578,13 @@ Model.prototype.getActionJWT = function getActionJWT(actionId, callback){
  *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
  **/
 Model.prototype.getActionMD5 = function getActionMD5(actionId, callback){
-	const statement = `SELECT * FROM actions_types_md5 WHERE actions_types_md5.actions_id=? AND actions_types_md5.deleted=0 AND actions_types_md5.actived=1`;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'actions_types_md5',
+		query: {
+			actions_id: actionId
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, [])
 			return
@@ -547,8 +599,13 @@ Model.prototype.getActionMD5 = function getActionMD5(actionId, callback){
  *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
  **/
 Model.prototype.getActionSFTP = function getActionSFTP(actionId, callback){
-	const statement = `SELECT * FROM actions_types_ssh2 WHERE actions_types_ssh2.actions_id=? AND actions_types_ssh2.deleted=0 AND actions_types_ssh2.actived=1`;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'actions_types_ssh2',
+		query: {
+			actions_id: actionId
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, [])
 			return
@@ -563,8 +620,13 @@ Model.prototype.getActionSFTP = function getActionSFTP(actionId, callback){
  *@param (*) result -- es la funcion para retornar la respuesta del proceso de consulta
  **/
 Model.prototype.validTypeAction = function validTypeAction(name, result) {
-	const statement = `SELECT * FROM actions_types WHERE actions_types.name=? AND actions_types.deleted=0 AND actions_types.actived=1`;
-	this.dbConnection.query(statement, [name], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'actions_types',
+		query: {
+			name: name
+		}
+	}, (err, res) => {
 		if (err) {
 			result(err, null)
 			return
@@ -581,8 +643,13 @@ Model.prototype.validTypeAction = function validTypeAction(name, result) {
  *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
  **/
 Model.prototype.getHeadersPerActionHttpRequest = function getHeadersPerActionHttpRequest(actionHttpId, callback){
-	const statement = `SELECT * FROM headers WHERE headers.action_type_http_request_id=? AND headers.deleted=0 AND headers.actived=1`;
-	this.dbConnection.query(statement, [actionHttpId], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'headers',
+		query: {
+			action_type_http_request_id: actionHttpId
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, [])
 			return
@@ -598,9 +665,13 @@ Model.prototype.getHeadersPerActionHttpRequest = function getHeadersPerActionHtt
  *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
  **/
 Model.prototype.getActionHttpRequest = function getActionHttpRequest(actionId, callback){
-	const statement = `SELECT * FROM action_type_http_request WHERE action_type_http_request.actions_id=? AND action_type_http_request.deleted=0 AND action_type_http_request.actived=1`;
-	let thisT= this;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'action_type_http_request',
+		query: {
+			actions_id: actionId
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, [])
 			return
@@ -608,7 +679,7 @@ Model.prototype.getActionHttpRequest = function getActionHttpRequest(actionId, c
 
 		if(res.length > 0){
 			for (let index = 0; index < res.length; index++) {
-				thisT.getHeadersPerActionHttpRequest(res[index].id, (error, response)=>{
+				_this.getHeadersPerActionHttpRequest(res[index].id, (error, response)=>{
 					if (!error) {
 						res[index].headers=response;
 					} else {
@@ -632,8 +703,13 @@ Model.prototype.getActionHttpRequest = function getActionHttpRequest(actionId, c
  *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
  **/
 Model.prototype.getActionProcessData = function getActionProcessData(actionId, callback){
-	const statement = `SELECT * FROM action_type_process_data WHERE action_type_process_data.actions_id=? AND action_type_process_data.deleted=0 AND action_type_process_data.actived=1`;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'action_type_process_data',
+		query: {
+			actions_id: actionId
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, [])
 			return
@@ -649,8 +725,11 @@ Model.prototype.getActionProcessData = function getActionProcessData(actionId, c
  *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
  **/
 Model.prototype.getCronJobs = function getCronJobs(regExpByDate, regExpGeneral, callback) {
-  const statement = `SELECT * FROM cron_jobs WHERE (cron REGEXP '${regExpByDate}' OR cron NOT REGEXP '${regExpGeneral}') AND deleted = 0 AND actived = 1`;
-  this.dbConnection.query(statement, [], (error, records) => {
+  // const statement = `SELECT * FROM cron_jobs WHERE (cron REGEXP '${regExpByDate}' OR cron NOT REGEXP '${regExpGeneral}') AND deleted = 0 AND actived = 1`;
+  let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'cron_jobs'
+	}, (error, records) => {
     if (error) callback(error, null)
     else callback(null, records)
   })
@@ -739,8 +818,13 @@ Model.prototype.selectHistory = function selectHistory(req, callback){
  *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
  **/
 Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(source_id, callback){
-	const statement = `SELECT * FROM nodes_flows WHERE nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
-	this.dbConnection.query(statement, [source_id], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'nodes_flows',
+		query: {
+			sources_id: source_id
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, [])
 			return
@@ -757,14 +841,19 @@ Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(sou
  *@param (*) sourceId -- es el id de la fuente
  **/
 Model.prototype.updateNodeParent = function updateNodeParent(nodeFlowId,nodeParent,sourceId){
-	const statement = `SELECT id FROM nodes_flows WHERE nodes_flows.name=? AND nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
-	let thisT= this;
-	this.dbConnection.query(statement, [nodeParent,sourceId], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'nodes_flows',
+		query: {
+			sources_id: sourceId,
+			name: nodeParent
+		}
+	}, (err, res) => {
 		if (err) {
 			return false;
 		}
 		if(res.length > 0){
-			thisT.update(nodeFlowId,{node_flow_id:res[0].id}, (errA,resA)=>{});
+			_this.update(nodeFlowId,{node_flow_id:res[0].id}, (errA,resA)=>{});
 		}
 		return true;
 	})
@@ -777,8 +866,14 @@ Model.prototype.updateNodeParent = function updateNodeParent(nodeFlowId,nodePare
  *@param (*) result -- funcion que retorna el proceso de la funcion
  **/
 Model.prototype.validSource = function validSource(key, token, result) {
-	const statement = `SELECT id FROM sources WHERE sources.key=? AND sources.token=? AND sources.deleted=0 AND sources.actived=1`;
-	this.dbConnection.query(statement, [key, token], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'sources',
+		query: {
+			key: key,
+			token: token
+		}
+	}, (err, res) => {
 		if (err) {
 			result(err, null)
 			return
@@ -795,8 +890,13 @@ Model.prototype.validSource = function validSource(key, token, result) {
  *@param (*) result -- funcion que retorna el proceso de la funcion
  **/
 Model.prototype.getSourcePerName = function getSourcePerName(sourceName, result) {
-	const statement = `SELECT id FROM sources WHERE sources.name=? AND sources.deleted=0 AND sources.actived=1`;
-	this.dbConnection.query(statement, [sourceName], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'sources',
+		query: {
+			name: sourceName
+		}
+	}, (err, res) => {
 		if (err) {
 			result(err, null)
 			return
@@ -816,8 +916,15 @@ Model.prototype.getSourcePerName = function getSourcePerName(sourceName, result)
  *@param (*) callback -- funcion que retorna el proceso de la funcion
  **/
 Model.prototype.getPerToken = function getPerToken(tokenAuthorization, callback){
-	const statement = `SELECT id,types_logins_id,codeVerify,state,email,name,userId,redirect_uri,stateVtex,password FROM logins_authorizations WHERE tokenAuthorization=? AND state='pending' AND actived = 1 AND deleted=0`;
-	this.dbConnection.query(statement, [tokenAuthorization], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'logins_authorizations',
+		_fields: "id,types_logins_id,codeVerify,state,email,name,userId,redirect_uri,stateVtex,password",
+		query: {
+			tokenAuthorization: tokenAuthorization,
+			state: "pending"
+		}
+	}, (err, res) => {
 		if (err) {
 			console.log(err);
 			callback('error',null);
@@ -835,8 +942,13 @@ Model.prototype.getPerToken = function getPerToken(tokenAuthorization, callback)
  *@param (*) callback -- funcion que retorna el proceso de la funcion
  **/
 Model.prototype.validAccessClient = function validAccessClient(accesToken, callback){
-	const statement = `SELECT * FROM logins_authorizations WHERE accessToken=? AND actived = 1 AND deleted=0`;
-	this.dbConnection.query(statement, [accesToken], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'logins_authorizations',
+		query: {
+			accessToken: accesToken
+		}
+	}, (err, res) => {
 		if (err) {
 			console.log(err);
 			callback('error',null);
@@ -874,8 +986,15 @@ Model.prototype.updateSolicitudVTEX = function updateSolicitudVTEX(id,token, cal
  *@param (*) callback -- funcion que retorna el proceso de la funcion
  **/
 Model.prototype.validCodeSolicitudVTEX = function validCodeSolicitudVTEX(code, callback){
-	const statement = `SELECT * FROM logins_authorizations WHERE codeAuthorization=? AND (state=? OR state=?) AND actived = 1 AND deleted=0`;
-	this.dbConnection.query(statement, [code,'processing','pending'], (err, res) => {
+	// const statement = `SELECT * FROM logins_authorizations WHERE codeAuthorization=? AND (state=? OR state=?) AND actived = 1 AND deleted=0`;
+	// (statement, [code,'processing','pending']
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'logins_authorizations',
+		query: {
+			codeAuthorization: code
+		}
+	}, (err, res) => {
 		if (err) {
 			console.log(err);
 			callback('error',null);
@@ -894,8 +1013,14 @@ Model.prototype.validCodeSolicitudVTEX = function validCodeSolicitudVTEX(code, c
  *@param (*) callback -- funcion que retorna el proceso de la funcion
  **/
 Model.prototype.getStepPerName = function getStepPerName(stepName, types_logins_id, callback){
-	const statement = `SELECT * FROM steps_logins WHERE steps_logins.name=? AND steps_logins.types_logins_id=? AND steps_logins.deleted=0 AND steps_logins.actived=1`;
-	this.dbConnection.query(statement, [stepName,types_logins_id], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'steps_logins',
+		query: {
+			name: stepName,
+			types_logins_id: types_logins_id
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, null)
 			return
@@ -911,8 +1036,16 @@ Model.prototype.getStepPerName = function getStepPerName(stepName, types_logins_
  *@param (*) callback -- funcion que retorna el proceso de la funcion
  **/
 Model.prototype.getListProviders = function getListProviders(callback){
-	const statement = `SELECT providerName,label,description,iconUrl FROM types_logins WHERE actived = 1 AND deleted=0 ORDER BY position ASC`;
-	this.dbConnection.query(statement, [], (err, res) => {
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'types_logins',
+		_fields: "providerName,label,description,iconUrl",
+		_sort: "position ASC", 
+		query: {
+			name: stepName,
+			types_logins_id: types_logins_id
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, null)
 			return
@@ -929,15 +1062,36 @@ Model.prototype.getListProviders = function getListProviders(callback){
  *@param (*) callback -- funcion que retorna el proceso de la funcion
  **/
 Model.prototype.generateTokenIntial = function generateTokenIntial(provider, callback){
-	const statement = `SELECT sl.sources_id, sl.types_logins_id FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? LIMIT 1`;
-	this.dbConnection.query(statement, [1,0,provider,1,0,1], (err, res) => {
+	// const statement = `SELECT sl.sources_id, sl.types_logins_id FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? LIMIT 1`;
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'types_logins',
+		query: {
+			providerName: provider
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, null)
 			return
 		}
 
-		res = res.length > 0 ? res : null;
-		callback(null, res)
+		if(res && typeof res == 'object' && res[0]){
+			_this.dbConnection.getMasterdata({
+				acronym: 'steps_logins',
+				query: {
+					types_logins_id: res[0].id
+				}
+			}, (errStep, resStep)=>{
+				if(errStep){
+					callback(errStep, null)
+					return
+				}
+				let resst = resStep.length > 0 ? res.map((it)=>({sources_id:it.sources_id, types_logins_id: it.types_logins_id})) : null;
+				callback(null, resst)
+			});
+		}else{
+			callback(null, null)
+		}
 	})
 }
 
@@ -947,15 +1101,36 @@ Model.prototype.generateTokenIntial = function generateTokenIntial(provider, cal
  *@param (*) callback -- funcion que retorna el proceso de la funcion
  **/
 Model.prototype.getProviderAvailablePerName = function getProviderAvailablePerName(provider, callback){
-	const statement = `SELECT sl.id, sl.name, sl.label, sl.description, sl.nameButtonSubmit, sl.nameButtonClose FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? ORDER BY sl.step ASC`;
-	this.dbConnection.query(statement, [1,0,provider,1,0,0], (err, res) => {
+	// const statement = `SELECT sl.id, sl.name, sl.label, sl.description, sl.nameButtonSubmit, sl.nameButtonClose FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? ORDER BY sl.step ASC`;
+	let _this= this;
+	_this.dbConnection.getMasterdata({
+		acronym: 'types_logins',
+		query: {
+			providerName: provider
+		}
+	}, (err, res) => {
 		if (err) {
 			callback(err, null)
 			return
 		}
 
-		res = res.length > 0 ? res : [];
-		callback(null, res)
+		if(res && typeof res=='object' && res[0]){
+			_this.dbConnection.getMasterdata({
+				acronym: 'steps_logins',
+				_sort: "step ASC",
+				query: {
+					types_logins_id: res[0].id
+				}
+			}, (errStep, resStep)=>{
+				if(errStep){
+					callback(errStep, null)
+					return
+				}
+
+				resStep = resStep.length > 0 ? resStep.map(it=>({ id:it.id, name: it.name, label: it.label, description: it.description, nameButtonSubmit: it.nameButtonSubmit, nameButtonClose: it.nameButtonClose })) : [];
+				callback(null, resStep)
+			});
+		}
 	})
 }
 
