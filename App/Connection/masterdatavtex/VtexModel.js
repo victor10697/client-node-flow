@@ -91,7 +91,12 @@ VtexModel.prototype.getMasterdata= function({acronym=null, _sort=null, _fields="
 		}
 		if(query && typeof query == 'object'){
 			for(const param in query){
-				requestOptions.params[param]= query[param];
+				if(param=='name'){
+					requestOptions.params[`${this.getStartEntity()}_name`]= query[param];
+				}else{
+					requestOptions.params[param]= query[param];
+				}
+		
 			}
 		}
 
@@ -159,6 +164,11 @@ VtexModel.prototype.deleteMasterdata= function({acronym=null, id=null}, callback
  **/
 VtexModel.prototype.createMasterdata= function({acronym=null, body=null}, callback){
 	if(acronym && body){
+		for(const it in body){
+			if(it=='name'){
+				body[`${this.getStartEntity()}_name`]= body[it];
+			}
+		}
 		let requestOptions={
 			url: `${this.getUrl()}/api/dataentities/${this.getStartEntity()}_${acronym}/documents`,
 			method: "PATCH",
@@ -200,6 +210,11 @@ VtexModel.prototype.createMasterdata= function({acronym=null, body=null}, callba
  **/
 VtexModel.prototype.updateMasterdata= function({acronym=null, id=null, body=null}, callback){
 	if(acronym && body && id){
+		for(const it in body){
+			if(it=='name'){
+				body[`${this.getStartEntity()}_name`]= body[it];
+			}
+		}
 		let requestOptions={
 			url: `${this.getUrl()}/api/dataentities/${this.getStartEntity()}_${acronym}/documents/${id}`,
 			method: "PUT",
