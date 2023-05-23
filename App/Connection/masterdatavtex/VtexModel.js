@@ -191,6 +191,9 @@ VtexModel.prototype.createMasterdata= function({acronym=null, body=null}, callba
 
 		axios(requestOptions)
 		.then(async (result) => {
+			if(result.data.DocumentId){
+				result.data.id= result.data.DocumentId;
+			}
 			callback(null,result.data); 
 			return true;
 		})
@@ -240,6 +243,9 @@ VtexModel.prototype.updateMasterdata= function({acronym=null, id=null, body=null
 
 		axios(requestOptions)
 		.then(async (result) => {
+			if(result.data.DocumentId){
+				result.data.id= result.data.DocumentId;
+			}
 			callback(null,result.data); 
 			return true;
 		})
