@@ -105,7 +105,7 @@ Model.prototype.insert = function (record, result) {
 			result(err, null)
 			return
 		}
-		result(null, { id: res.insertId, ...record })
+		result(null, { id: res.id, ...record })
 	})
 }
 
