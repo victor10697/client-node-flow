@@ -208,8 +208,8 @@ Model.prototype.createOrUpdate = function (record, skipKeys, result) {
 				}else{ // Registro para creacion
 					t.createRegister(arrOptionUpdateCreate.fields, arrOptionUpdateCreate.wildcards, arrOptionUpdateCreate.values, (errC, resC)=>{console.log(errC);
 						if(!errC){
-							if(resC.insertId){
-								record[t.columnId]= resC.insertId
+							if(resC.DocumentId){
+								record[t.columnId]= resC.DocumentId
 							}
 							result(null, record);
 						}else{
@@ -224,8 +224,8 @@ Model.prototype.createOrUpdate = function (record, skipKeys, result) {
 	}else if(arrOptionUpdateCreate.fields.length > 0 && arrOptionUpdateCreate.values.length > 0){
 		t.createRegister(arrOptionUpdateCreate.fields, arrOptionUpdateCreate.wildcards, arrOptionUpdateCreate.values, (errC, resC)=>{
 			if(!errC){
-				if(resC.insertId){
-					record[t.columnId]= resC.insertId
+				if(resC.DocumentId){
+					record[t.columnId]= resC.DocumentId
 				}
 				result(null, record);
 			}else{
