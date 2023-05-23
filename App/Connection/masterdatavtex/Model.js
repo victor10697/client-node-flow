@@ -195,7 +195,7 @@ Model.prototype.createOrUpdate = function (record, skipKeys, result) {
 	if(arrOptionUpdateCreate.fieldsUniquied.length > 0 && arrOptionUpdateCreate.fieldsUniquiedValues.length > 0){
 		t.validRegisterUniqued(arrOptionUpdateCreate.fieldsUniquied, arrOptionUpdateCreate.fieldsUniquiedValues, (err, res)=>{
 			if(!err){
-				if(res){ // Registro para actualizacion
+				if(res != "-1"){ // Registro para actualizacion
 					record[t.columnId]= res;
 					t.updateRegister(arrOptionUpdateCreate.fieldsUpdate, arrOptionUpdateCreate.valuesUpdates, res, (errU, resU)=>{
 						if(!errU){
@@ -303,7 +303,7 @@ Model.prototype.validRegisterUniqued = function (fieldsUniquied, fieldsUniquiedV
 				result(null, res[0][this.columnId])
 				return
 			}else{
-				result(null, -1)
+				result(null, "-1")
 				return
 			}
 		}else{
