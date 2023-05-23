@@ -976,8 +976,14 @@ Model.prototype.validAccessClient = function validAccessClient(accesToken, callb
  *@param (*) callback -- funcion que retorna el proceso de la funcion
  **/
 Model.prototype.updateSolicitudVTEX = function updateSolicitudVTEX(id,token, callback){
-	const statement = `UPDATE logins_authorizations SET accessToken=?, state=? WHERE id=?`;
-	this.dbConnection.query(statement, [token,'processed',id], (err, res) => {
+	this.dbConnection.updateMasterdata({
+		acronym: "logins_authorizations",
+		id: id,
+		body: {
+			accessToken: token,
+			state: "processed"
+		}
+	}, (err, res) => {
 		if (err) {
 			console.log(err);
 			callback('error',null);

@@ -168,6 +168,9 @@ VtexModel.prototype.createMasterdata= function({acronym=null, body=null}, callba
 			if(it=='name'){
 				body[`${this.getStartEntity()}_name`]= body[it];
 			}
+			if(body[it]===null){
+				body[it]="";
+			}
 		}
 		let requestOptions={
 			url: `${this.getUrl()}/api/dataentities/${this.getStartEntity()}_${acronym}/documents`,
@@ -213,6 +216,9 @@ VtexModel.prototype.updateMasterdata= function({acronym=null, id=null, body=null
 		for(const it in body){
 			if(it=='name'){
 				body[`${this.getStartEntity()}_name`]= body[it];
+			}
+			if(body[it]===null){
+				body[it]="";
 			}
 		}
 		let requestOptions={
