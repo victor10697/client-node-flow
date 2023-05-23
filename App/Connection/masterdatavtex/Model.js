@@ -464,7 +464,7 @@ Model.prototype.getActionPerNodeFlowId = function getActionPerNodeFlowId(nodeId,
 							let objAcT= resAc[i];
 							for (var j = 0; j < resType.length; j++) {
 								if(objAcT.action_type_id== resType[j].id){
-									objAcT.action_type= resType.name;
+									objAcT.action_type= resType[j].name;
 								}
 							}
 							resEnd= [...resEnd,objAcT];
