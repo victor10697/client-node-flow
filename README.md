@@ -43,7 +43,7 @@ Instalar proyecto con npm
 | errorEmail | Es el retorno de error de una accion de tipo email. | "scriptActionPost": "console.log('errorData',errorData)" |
 | $GLOBAL | Es un objeto donde almacenamos todas las respuestas de acciones anteriores. | "scriptActionPost": "console.log('Response name_nodo_action_1', $GLOBAL.name_nodo_action_1)" |
 | responseMessage | Es el mensaje que queremos que salga cuando arrojamos una respuesta sin seguir con el flujo. | "scriptActionPrev": "responseMessage= 'Error data';" |
-| responseCode | Es el cogigo que queremos retornal del servidor cuando tenemos un error. | "scriptActionPrev": "responseMessage= 403;  responseMessage= {error:'Error data'};" |
+| responseCode | Es el codigo que queremos retornal del servidor cuando tenemos un error. | "scriptActionPrev": "responseCode= 403;  responseMessage= {error:'Error data'};" |
 
 ## Consulta de acciones creadas
 
