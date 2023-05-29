@@ -8,11 +8,11 @@ const SourcesModel = require('../../Models/SourcesModel');
  * @param (Response Http) res -- Respuesta de la peticion
  */
 exports.insert = (req, res) => {
-    if (req.body && Object.keys(req.body).length > 0) {
+    if (req.body && Object.keys(req.body).length > 0 && req.params.sourceName) {
         if (req.headers['x-app-key'] && req.headers['x-app-token']) {
             // validamos credenciales de conexion
             SourcesModel.validSource(req.headers['x-app-key'], req.headers['x-app-token'], (error, validSourceT) => {
-                if (!error && validSourceT.state && validSourceT.state == 'success') {
+                if (!error && validSourceT.state && validSourceT.state == 'success' && validSourceT.source_name && typeof validSourceT.source_name == 'string' && validSourceT.source_name.toLocaleLowerCase() == req.params.sourceName.toLocaleLowerCase()) {
                     InputsUpdatesModel.saveInput(req.body, validSourceT.source_id, (error, response) => {
                         if (!error) {
                             NodesFlowsModel.ProcesingInputsNode([{
@@ -24,27 +24,76 @@ exports.insert = (req, res) => {
                                 if (!errorA) {
                                     if(code > 399){
                                         responseA= { 'state': 'error', 'error': responseA };
-                                        res.status(code).json(responseA)
+                                        if(typeof res == 'function'){
+                                            res({
+                                                statusCode: code,
+                                                body: JSON.stringify(responseA)
+                                            })
+                                        }else{
+                                            res.status(code).json(responseA)
+                                        }
                                     }else{
-                                        res.status(code).json({ 'state': 'success', 'result': responseA })
+                                        if(typeof res == 'function'){
+                                            res({
+                                                statusCode: code,
+                                                body: JSON.stringify(responseA)
+                                            })
+                                        }else{
+                                            res.status(code).json({ 'state': 'success', 'result': responseA })
+                                        }
                                     }
                                 } else {
-                                    res.status(code).json({ 'state': 'error', 'result': errorA })
+                                    if(typeof res == 'function'){
+                                        res({
+                                            statusCode: code,
+                                            body: JSON.stringify({ 'state': 'error', 'result': errorA })
+                                        })
+                                    }else{
+                                        res.status(code).json({ 'state': 'error', 'result': errorA })
+                                    }
                                 }
                             });
                         } else {
-                            res.status(400).json({ 'state': 'error', 'result': error })
+                            if(typeof res == 'function'){
+                                res({
+                                    statusCode: 400,
+                                    body: JSON.stringify({ 'state': 'error', 'result': error })
+                                })
+                            }else{
+                                res.status(400).json({ 'state': 'error', 'result': error })
+                            }
                         }
                     });
                 } else {
-                    res.status(401).json({ 'state': 'error', 'message': 'Unauthorized access!' })
+                    if(typeof res == 'function'){
+                        res({
+                            statusCode: 401,
+                            body: JSON.stringify({ 'state': 'error', 'message': 'Unauthorized access!' })
+                        })
+                    }else{
+                        res.status(401).json({ 'state': 'error', 'message': 'Unauthorized access!' })
+                    }
                 }
             })
         } else {
-            res.status(401).json({ 'state': 'error', 'message': 'Unauthorized access!' })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 401,
+                    body: JSON.stringify({ 'state': 'error', 'message': 'Unauthorized access!' })
+                })
+            }else{
+                res.status(401).json({ 'state': 'error', 'message': 'Unauthorized access!' })
+            }
         }
     } else {
-        res.status(500).json({ 'state': 'error', 'message': 'Content cannot be empty' })
+        if(typeof res == 'function'){
+            res({
+                statusCode: 400,
+                body: JSON.stringify({ 'state': 'error', 'message': 'Content cannot be empty' })
+            })
+        }else{
+            res.status(400).json({ 'state': 'error', 'message': 'Content cannot be empty' })
+        }
     }
 }
 
@@ -58,7 +107,7 @@ exports.insertSourceName = (req, res) => {
         if (req.headers['x-app-key'] && req.headers['x-app-token']) {
             // validamos credenciales de conexion
             SourcesModel.validSource(req.headers['x-app-key'], req.headers['x-app-token'], (error, validSourceT) => {
-                if (!error && validSourceT.state && validSourceT.state == 'success' && validSourceT.name && typeof validSourceT.name == 'string' && validSourceT.name.toLocaleLowerCase() == req.params.sourceName.toLocaleLowerCase()) {
+                if (!error && validSourceT.state && validSourceT.state == 'success' && validSourceT.source_name && typeof validSourceT.source_name == 'string' && validSourceT.source_name.toLocaleLowerCase() == req.params.sourceName.toLocaleLowerCase()) {
                     InputsUpdatesModel.saveInput(req.body, validSourceT.source_id, (error, response) => {
                         if (!error) {
                             NodesFlowsModel.ProcesingInputsNode([{
@@ -70,27 +119,76 @@ exports.insertSourceName = (req, res) => {
                                 if (!errorA) {
                                     if(code > 399){
                                         responseA= { 'state': 'error', 'error': responseA };
-                                        res.status(code).json(responseA)
+                                        if(typeof res == 'function'){
+                                            res({
+                                                statusCode: code,
+                                                body: JSON.stringify(responseA)
+                                            })
+                                        }else{
+                                            res.status(code).json(responseA)
+                                        }
                                     }else{
-                                        res.status(code).json({ 'state': 'success', 'result': responseA })
+                                        if(typeof res == 'function'){
+                                            res({
+                                                statusCode: code,
+                                                body: JSON.stringify(responseA)
+                                            })
+                                        }else{
+                                            res.status(code).json({ 'state': 'success', 'result': responseA })
+                                        }
                                     }
                                 } else {
-                                    res.status(code).json({ 'state': 'error', 'result': errorA })
+                                    if(typeof res == 'function'){
+                                        res({
+                                            statusCode: code,
+                                            body: JSON.stringify({ 'state': 'error', 'result': errorA })
+                                        })
+                                    }else{
+                                        res.status(code).json({ 'state': 'error', 'result': errorA })
+                                    }
                                 }
                             });
                         } else {
-                            res.status(400).json({ 'state': 'error', 'result': error })
+                            if(typeof res == 'function'){
+                                res({
+                                    statusCode: 400,
+                                    body: JSON.stringify({ 'state': 'error', 'result': error })
+                                })
+                            }else{
+                                res.status(400).json({ 'state': 'error', 'result': error })
+                            }
                         }
                     });
                 } else {
-                    res.status(401).json({ 'state': 'error', 'message': 'Unauthorized access!' })
+                    if(typeof res == 'function'){
+                        res({
+                            statusCode: 401,
+                            body: JSON.stringify({ 'state': 'error', 'message': 'Unauthorized access!' })
+                        })
+                    }else{
+                        res.status(401).json({ 'state': 'error', 'message': 'Unauthorized access!' })
+                    }
                 }
             })
         } else {
-            res.status(401).json({ 'state': 'error', 'message': 'Unauthorized access!' })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 401,
+                    body: JSON.stringify({ 'state': 'error', 'message': 'Unauthorized access!' })
+                })
+            }else{
+                res.status(401).json({ 'state': 'error', 'message': 'Unauthorized access!' })
+            }
         }
     } else {
-        res.status(500).json({ 'state': 'error', 'message': 'Content cannot be empty' })
+        if(typeof res == 'function'){
+            res({
+                statusCode: 400,
+                body: JSON.stringify({ 'state': 'error', 'message': 'Content cannot be empty' })
+            })
+        }else{
+            res.status(400).json({ 'state': 'error', 'message': 'Content cannot be empty' })
+        }
     }
 }
 
