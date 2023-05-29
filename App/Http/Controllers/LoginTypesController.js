@@ -4,13 +4,34 @@ exports.createLogin=(req, res)=>{
     if(req.body.providerName && req.body.providerName != ''){
         TypesLoginsModel.createLogin(req.body, (err, response)=>{
             if(!err){
-                res.status(200).json({ 'state': 'success', 'result': response });
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 200,
+                        body: JSON.stringify({ 'state': 'success', 'result': response })
+                    })
+                }else{
+                    res.status(200).json({ 'state': 'success', 'result': response });
+                }
             }else{
-                res.status(400).json({ 'state': 'error', 'message': 'Login type information cannot to be saved', 'result': err });
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 400,
+                        body: JSON.stringify({ 'state': 'error', 'message': 'Login type information cannot to be saved', 'result': err })
+                    })
+                }else{
+                    res.status(400).json({ 'state': 'error', 'message': 'Login type information cannot to be saved', 'result': err });
+                }
             }
         });
     }else{
-        res.status(400).json({ 'state': 'error', 'message': 'error request.' });
+        if(typeof res == 'function'){
+            res({
+                statusCode: 400,
+                body: JSON.stringify({ 'state': 'error', 'message': 'error request.' })
+            })
+        }else{
+            res.status(400).json({ 'state': 'error', 'message': 'error request.' });
+        }
     }
 };
 

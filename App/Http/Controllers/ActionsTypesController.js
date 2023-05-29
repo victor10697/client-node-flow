@@ -8,9 +8,23 @@ const ActionsTypesModel = require('../../Models/ActionsTypesModel')
  exports.findAll = (req, res) => {
     ActionsTypesModel.select((error, response)=>{
         if(!error){
-            res.status(200).json({ 'state': 'success', 'list': response })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 200,
+                    body: JSON.stringify({ 'state': 'success', 'list': response })
+                })
+            }else{
+                res.status(200).json({ 'state': 'success', 'list': response })
+            }
         }else{
-            res.status(500).json({ 'state': 'error', 'message': 'error list sources!' })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 500,
+                    body: JSON.stringify({ 'state': 'error', 'message': 'error list actions types!' })
+                })
+            }else{
+                res.status(500).json({ 'state': 'error', 'message': 'error list  actions types!' })
+            }
         }
     });
 }
@@ -42,13 +56,34 @@ exports.save = (req, res) => {
     if(req.params && req.params.id && req.body && Object.keys(req.body).length > 0){
         ActionsTypesModel.update(req.params.id, req.body, (error, response)=>{
             if(!error){
-                res.status(200).json({ 'state': 'success', 'result': response })
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 200,
+                        body: JSON.stringify({ 'state': 'success', 'result': response })
+                    })
+                }else{
+                    res.status(200).json({ 'state': 'success', 'result': response })
+                }
             }else{
-                res.status(500).json({ 'state': 'error', 'message': 'error updated register!' })
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 500,
+                        body: JSON.stringify({ 'state': 'error', 'message': 'error updated register!' })
+                    })
+                }else{
+                    res.status(500).json({ 'state': 'error', 'message': 'error updated register!' })
+                }
             }
         });
     }else{
-        res.status(500).json({ 'state': 'error', 'message': 'error updated!' })
+        if(typeof res == 'function'){
+            res({
+                statusCode: 500,
+                body: JSON.stringify({ 'state': 'error', 'message': 'error updated!' })
+            })
+        }else{
+            res.status(500).json({ 'state': 'error', 'message': 'error updated!' })
+        }
     }
 }
 
@@ -62,16 +97,44 @@ exports.save = (req, res) => {
         if(req.body.name){
             ActionsTypesModel.createOrUpdate(req.body, { name: true, 'created_at': true }, (error, response)=>{ 
                 if(!error){
-                    res.status(200).json({ 'state': 'success', 'result': response })
+                    if(typeof res == 'function'){
+                        res({
+                            statusCode: 200,
+                            body: JSON.stringify({ 'state': 'success', 'result': response })
+                        })
+                    }else{
+                        res.status(200).json({ 'state': 'success', 'result': response })
+                    }
                 }else{
-                    res.status(500).json({ 'state': 'error', 'message': 'error register!' })
+                    if(typeof res == 'function'){
+                        res({
+                            statusCode: 500,
+                            body: JSON.stringify({ 'state': 'error', 'message': 'error register!' })
+                        })
+                    }else{
+                        res.status(500).json({ 'state': 'error', 'message': 'error register!' })
+                    }
                 }
             });
         }else{ 
-            res.status(500).json({ 'state': 'error', 'message': 'error name is required!' })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 500,
+                    body: JSON.stringify({ 'state': 'error', 'message': 'error name is required!' })
+                })
+            }else{
+                res.status(500).json({ 'state': 'error', 'message': 'error name is required!' })
+            }
         }
     }else{
-        res.status(500).json({ 'state': 'error', 'message': 'Content cannot be empty' })
+        if(typeof res == 'function'){
+            res({
+                statusCode: 500,
+                body: JSON.stringify({ 'state': 'error', 'message': 'Content cannot be empty' })
+            })
+        }else{
+            res.status(500).json({ 'state': 'error', 'message': 'Content cannot be empty' })
+        }
     }
 }
 
@@ -85,12 +148,33 @@ exports.save = (req, res) => {
     if(req.params && req.params.id){
         ActionsTypesModel.remove(req.params.id, (error, response)=>{
             if(!error){
-                res.status(200).json({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 200,
+                        body: JSON.stringify({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
+                    })
+                }else{
+                    res.status(200).json({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
+                }
             }else{
-                res.status(500).json({ 'state': 'error', 'message': 'error deleted!' })
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 500,
+                        body: JSON.stringify({ 'state': 'error', 'message': 'error deleted!' })
+                    })
+                }else{
+                    res.status(500).json({ 'state': 'error', 'message': 'error deleted!' })
+                }
             }
         });
     }else{
-        res.status(500).json({ 'state': 'error', 'message': 'error deleted!' })
+        if(typeof res == 'function'){
+            res({
+                statusCode: 500,
+                body: JSON.stringify({ 'state': 'error', 'message': 'error deleted!' })
+            })
+        }else{
+            res.status(500).json({ 'state': 'error', 'message': 'error deleted!' })
+        }
     }
 }

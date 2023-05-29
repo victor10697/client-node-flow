@@ -8,9 +8,23 @@ const SourcesModel = require('../../Models/SourcesModel')
  exports.findAll = (req, res) => {
     SourcesModel.select((error, response)=>{
         if(!error){
-            res.status(200).json({ 'state': 'success', 'list': response })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 200,
+                    body: JSON.stringify({ 'state': 'success', 'list': response })
+                })
+            }else{
+                res.status(200).json({ 'state': 'success', 'list': response })
+            }
         }else{
-            res.status(500).json({ 'state': 'error', 'message': 'error list sources!' })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 400,
+                    body: JSON.stringify({ 'state': 'error', 'message': 'error list sources!' })
+                })
+            }else{
+                res.status(400).json({ 'state': 'error', 'message': 'error list sources!' })
+            }
         }
     });
 }
@@ -24,13 +38,34 @@ const SourcesModel = require('../../Models/SourcesModel')
     if(req.params && req.params.id && req.body && Object.keys(req.body).length > 0){
         SourcesModel.update(req.params.id, req.body, (error, response)=>{
             if(!error){
-                res.status(200).json({ 'state': 'success', 'result': response })
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 200,
+                        body: JSON.stringify({ 'state': 'success', 'result': response })
+                    })
+                }else{
+                    res.status(200).json({ 'state': 'success', 'result': response })
+                }
             }else{
-                res.status(500).json({ 'state': 'error', 'message': 'error updated register!' })
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 400,
+                        body: JSON.stringify({ 'state': 'error', 'message': 'error updated register!' })
+                    })
+                }else{
+                    res.status(400).json({ 'state': 'error', 'message': 'error updated register!' })
+                }
             }
         });
     }else{
-        res.status(500).json({ 'state': 'error', 'message': 'error updated!' })
+        if(typeof res == 'function'){
+            res({
+                statusCode: 400,
+                body: JSON.stringify({ 'state': 'error', 'message': 'error updated!' })
+            })
+        }else{
+            res.status(400).json({ 'state': 'error', 'message': 'error updated!' })
+        }
     }
 }
 
@@ -44,16 +79,44 @@ const SourcesModel = require('../../Models/SourcesModel')
         if(req.body.name && req.body.description){
             SourcesModel.createOrUpdate(req.body, { 'name': true }, (error, response)=>{
                 if(!error){
-                    res.status(200).json({ 'state': 'success', 'result': response })
+                    if(typeof res == 'function'){
+                        res({
+                            statusCode: 200,
+                            body: JSON.stringify({ 'state': 'success', 'result': response })
+                        })
+                    }else{
+                        res.status(200).json({ 'state': 'success', 'result': response })
+                    }
                 }else{
-                    res.status(500).json({ 'state': 'error', 'message': error })
+                    if(typeof res == 'function'){
+                        res({
+                            statusCode: 400,
+                            body: JSON.stringify({ 'state': 'error', 'message': error })
+                        })
+                    }else{
+                        res.status(400).json({ 'state': 'error', 'message': error })
+                    }
                 }
             });
         }else{
-            res.status(500).json({ 'state': 'error', 'message': 'error name, description is required!' })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 400,
+                    body: JSON.stringify({ 'state': 'error', 'message': 'error name, description is required!' })
+                })
+            }else{
+                res.status(400).json({ 'state': 'error', 'message': 'error name, description is required!' })
+            }
         }
     }else{
-        res.status(500).json({ 'state': 'error', 'message': 'Content cannot be empty' })
+        if(typeof res == 'function'){
+            res({
+                statusCode: 400,
+                body: JSON.stringify({ 'state': 'error', 'message': 'Content cannot be empty' })
+            })
+        }else{
+            res.status(400).json({ 'state': 'error', 'message': 'Content cannot be empty' })
+        }
     }
 }
 
@@ -66,12 +129,33 @@ const SourcesModel = require('../../Models/SourcesModel')
     if(req.params && req.params.id){
         SourcesModel.remove(req.params.id, (error, response)=>{
             if(!error){
-                res.status(200).json({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 200,
+                        body: JSON.stringify({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
+                    })
+                }else{
+                    res.status(200).json({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
+                }
             }else{
-                res.status(500).json({ 'state': 'error', 'message': 'error deleted!' })
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 400,
+                        body: JSON.stringify({ 'state': 'error', 'message': 'error deleted!' })
+                    })
+                }else{
+                    res.status(400).json({ 'state': 'error', 'message': 'error deleted!' })
+                }
             }
         });
     }else{
-        res.status(500).json({ 'state': 'error', 'message': 'error deleted!' })
+        if(typeof res == 'function'){
+            res({
+                statusCode: 400,
+                body: JSON.stringify({ 'state': 'error', 'message': 'error deleted!' })
+            })
+        }else{
+            res.status(400).json({ 'state': 'error', 'message': 'error deleted!' })
+        }
     }
 }

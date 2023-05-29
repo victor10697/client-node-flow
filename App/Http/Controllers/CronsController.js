@@ -9,9 +9,23 @@ const SourcesModel = require('../../Models/SourcesModel')
 exports.findAll = (req, res) => {
     CronModel.select((error, response) => {
         if (!error) {
-            res.status(200).json({ 'state': 'success', 'list': response })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 200,
+                    body: JSON.stringify({ 'state': 'success', 'list': response })
+                })
+            }else{
+                res.status(200).json({ 'state': 'success', 'list': response })
+            }
         } else {
-            res.status(500).json({ 'state': 'error', 'message': 'error list sources!' })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 400,
+                    body: JSON.stringify({ 'state': 'error', 'message': 'error list crons!' })
+                })
+            }else{
+                res.status(400).json({ 'state': 'error', 'message': 'error list crons!' })
+            }
         }
     });
 }
@@ -28,7 +42,7 @@ exports.insert = (req, res) => {
         if (sourceName && sourceName != '') {
             SourcesModel.getSourcePerName(sourceName, (err, resS) => {
                 if (err) {
-                    res.status(500).json({ 'state': 'error', 'message': 'error request!' })
+                    res.status(400).json({ 'state': 'error', 'message': 'error request!' })
                 } else if (Object.keys(resS).length > 0) {
                     if (cronName && cronTime) {
                         const cronJobRecord = {
@@ -41,23 +55,65 @@ exports.insert = (req, res) => {
                         // Se inserta o actualiza los datos del Cron Job
                         CronModel.createOrUpdate(cronJobRecord, { 'name': true }, (err, result) => {
                             if (!err) {
-                                res.status(200).json({ 'state': 'success', 'result': result })
+                                if(typeof res == 'function'){
+                                    res({
+                                        statusCode: 200,
+                                        body: JSON.stringify({ 'state': 'success', 'result': result })
+                                    })
+                                }else{
+                                    res.status(200).json({ 'state': 'success', 'result': result })
+                                }
                             } else {
-                                res.status(500).json({ 'state': 'error', 'message': 'error register!' })
+                                if(typeof res == 'function'){
+                                    res({
+                                        statusCode: 400,
+                                        body: JSON.stringify({ 'state': 'error', 'message': 'error register!' })
+                                    })
+                                }else{
+                                    res.status(400).json({ 'state': 'error', 'message': 'error register!' })
+                                }
                             }
                         });
                     } else {
-                        res.status(500).json({ 'state': 'error', 'message': 'error cronName, cronTime is required!' })
+                        if(typeof res == 'function'){
+                            res({
+                                statusCode: 400,
+                                body: JSON.stringify({ 'state': 'error', 'message': 'error cronName, cronTime is required!' })
+                            })
+                        }else{
+                            res.status(400).json({ 'state': 'error', 'message': 'error cronName, cronTime is required!' })
+                        }
                     }
                 } else {
-                    res.status(500).json({ 'state': 'error', 'message': 'error request!' })
+                    if(typeof res == 'function'){
+                        res({
+                            statusCode: 400,
+                            body: JSON.stringify({ 'state': 'error', 'message': 'error request!' })
+                        })
+                    }else{
+                        res.status(400).json({ 'state': 'error', 'message': 'error request!' })
+                    }
                 }
             });
         } else {
-            res.status(500).json({ 'state': 'error', 'message': 'error name, label, sources_id is required!' })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 400,
+                    body: JSON.stringify({ 'state': 'error', 'message': 'error name, label, sources_id is required!' })
+                })
+            }else{
+                res.status(400).json({ 'state': 'error', 'message': 'error name, label, sources_id is required!' })
+            }
         }
     } else {
-        res.status(500).json({ 'state': 'error', 'message': 'Content cannot be empty' })
+        if(typeof res == 'function'){
+            res({
+                statusCode: 400,
+                body: JSON.stringify({ 'state': 'error', 'message': 'Content cannot be empty' })
+            })
+        }else{
+            res.status(400).json({ 'state': 'error', 'message': 'Content cannot be empty' })
+        }
     }
 }
 
@@ -70,13 +126,34 @@ exports.delete = (req, res) => {
     if (req.params && req.params.id) {
         CronModel.remove(req.params.id, (error, response) => {
             if (!error) {
-                res.status(200).json({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 200,
+                        body: JSON.stringify({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
+                    })
+                }else{
+                    res.status(200).json({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
+                }
             } else {
-                res.status(500).json({ 'state': 'error', 'message': 'error deleted!' })
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 400,
+                        body: JSON.stringify({ 'state': 'error', 'message': 'error deleted!' })
+                    })
+                }else{
+                    res.status(400).json({ 'state': 'error', 'message': 'error deleted!' })
+                }
             }
         });
     } else {
-        res.status(500).json({ 'state': 'error', 'message': 'error deleted!' })
+        if(typeof res == 'function'){
+            res({
+                statusCode: 400,
+                body: JSON.stringify({ 'state': 'error', 'message': 'error deleted!' })
+            })
+        }else{
+            res.status(400).json({ 'state': 'error', 'message': 'error deleted!' })
+        }
     }
 }
 

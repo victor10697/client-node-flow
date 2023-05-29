@@ -18,9 +18,23 @@ const ActionsTypeSftpModel= require('../../Models/ActionsTypeSftpModel')
  exports.findAll = (req, res) => {
     ActionsModel.select((error, response)=>{
         if(!error){
-            res.status(200).json({ 'state': 'success', 'list': response })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 200,
+                    body: JSON.stringify({ 'state': 'success', 'list': response })
+                })
+            }else{
+                res.status(200).json({ 'state': 'success', 'list': response })
+            }
         }else{
-            res.status(500).json({ 'state': 'error', 'message': 'error list sources!' })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 500,
+                    body: JSON.stringify({ 'state': 'error', 'message': 'error list sources!' })
+                })
+            }else{
+                res.status(500).json({ 'state': 'error', 'message': 'error list sources!' })
+            }
         }
     });
 }
@@ -53,13 +67,34 @@ exports.save = (req, res) => {
     if(req.params && req.params.id){
         ActionsModel.remove(req.params.id, (error, response)=>{
             if(!error){
-                res.status(200).json({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 200,
+                        body: JSON.stringify({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
+                    })
+                }else{
+                    res.status(200).json({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
+                }
             }else{
-                res.status(500).json({ 'state': 'error', 'message': 'error deleted!' })
+                if(typeof res == 'function'){
+                    res({
+                        statusCode: 500,
+                        body: JSON.stringify({ 'state': 'error', 'message': 'error deleted!' })
+                    })
+                }else{
+                    res.status(500).json({ 'state': 'error', 'message': 'error deleted!' })
+                }
             }
         });
     }else{
-        res.status(500).json({ 'state': 'error', 'message': 'error deleted!' })
+        if(typeof res == 'function'){
+            res({
+                statusCode: 500,
+                body: JSON.stringify({ 'state': 'error', 'message': 'error deleted!' })
+            })
+        }else{
+            res.status(500).json({ 'state': 'error', 'message': 'error deleted!' })
+        }
     }
 }
 

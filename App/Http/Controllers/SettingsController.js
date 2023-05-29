@@ -3,7 +3,14 @@ const settingsModel = require('../../Models/SettingsModel')
 exports.findAll = (req, res) => {
 	settingsModel.select((err, data) => {
 		if (err) {
-			res.status(500).json({ 'message': err.message || 'Some error ocurred while retrieving' })
+			if(typeof res == 'function'){
+                res({
+                    statusCode: 400,
+                    body: JSON.stringify({ 'message': err.message || 'Some error ocurred while retrieving' })
+                })
+            }else{
+				res.status(400).json({ 'message': err.message || 'Some error ocurred while retrieving' })
+			}
 			return
 		}
 
@@ -17,9 +24,23 @@ exports.findAll = (req, res) => {
 					}
 				}
 			})
-			res.json(jsonList)
+			if(typeof res == 'function'){
+                res({
+                    statusCode: 200,
+                    body: JSON.stringify(jsonList)
+                })
+            }else{
+				res.json(jsonList)
+			}
 		} else {
-			res.json(data)
+			if(typeof res == 'function'){
+                res({
+                    statusCode: 200,
+                    body: JSON.stringify(data)
+                })
+            }else{
+				res.json(data)
+			}
 		}
 	})
 }
@@ -27,21 +48,49 @@ exports.findAll = (req, res) => {
 exports.insert = (req, res) => {
 	// Se valida el cuerpo de la petición
 	if (!req.body) {
-		res.status(400).json({ 'message': 'Content cannot be empty' })
+		if(typeof res == 'function'){
+            res({
+                statusCode: 400,
+                body: JSON.stringify({ 'message': 'Content cannot be empty' })
+            })
+        }else{
+			res.status(400).json({ 'message': 'Content cannot be empty' })
+		}
 		return
 	}
 
 	// Se valida el cuerpo de la petición
 	if (!req.body.name) {
-		res.status(400).json({ 'message': 'Settings name is not defined' })
+		if(typeof res == 'function'){
+            res({
+                statusCode: 400,
+                body: JSON.stringify({ 'message': 'Settings name is not defined' })
+            })
+        }else{
+			res.status(400).json({ 'message': 'Settings name is not defined' })
+		}
 		return
 	}
  
 	settingsModel.createOrUpdate(req.body, { 'name': true, 'created_at': true }, (err, data) => {
 		if (err) {
-			res.status(500).json({ 'message': err.message || 'Some error ocurred while creating' })
+			if(typeof res == 'function'){
+                res({
+                    statusCode: 400,
+                    body: JSON.stringify({ 'message': err.message || 'Some error ocurred while creating' })
+                })
+            }else{
+				res.status(400).json({ 'message': err.message || 'Some error ocurred while creating' })
+			}
 		} else {
-			res.status(200).json(data)
+			if(typeof res == 'function'){
+                res({
+                    statusCode: 200,
+                    body: JSON.stringify(data)
+                })
+            }else{
+				res.status(200).json(data)
+			}
 		}
 	})
 }
@@ -49,15 +98,36 @@ exports.insert = (req, res) => {
 exports.save = (req, res) => {
 	// Se valida el cuerpo de la petición
 	if (!req.body) {
-		res.status(400).json({ 'message': 'Content cannot be empty' })
+		if(typeof res == 'function'){
+            res({
+                statusCode: 400,
+                body: JSON.stringify({ 'message': 'Content cannot be empty' })
+            })
+        }else{
+			res.status(400).json({ 'message': 'Content cannot be empty' })
+		}
 		return
 	}
 
 	settingsModel.saveRecords(req.body, (err, data) => {
 		if (err) {
-			res.status(500).json({ 'message': err.message || 'Some error ocurred while creating' })
+			if(typeof res == 'function'){
+                res({
+                    statusCode: 400,
+                    body: JSON.stringify({ 'message': err.message || 'Some error ocurred while creating' })
+                })
+            }else{
+				res.status(400).json({ 'message': err.message || 'Some error ocurred while creating' })
+			}
 		} else {
-			res.json({ message: 'Settings was updated successfully',data:data })
+			if(typeof res == 'function'){
+                res({
+                    statusCode: 200,
+                    body: JSON.stringify({ message: 'Settings was updated successfully',data:data })
+                })
+            }else{
+				res.json({ message: 'Settings was updated successfully',data:data })
+			}
 		}
 	})
 }

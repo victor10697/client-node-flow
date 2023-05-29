@@ -8,9 +8,23 @@ const HistoryFlowModel = require('../../Models/HistoryFlowModel')
  exports.findAll = (req, res) => {
 	HistoryFlowModel.selectHistory(req,(error, response)=>{
         if(!error){
-            res.status(200).json({ 'state': 'success', 'list': response })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 200,
+                    body: JSON.stringify({ 'state': 'success', 'list': response })
+                })
+            }else{
+                res.status(200).json({ 'state': 'success', 'list': response })
+            }
         }else{
-            res.status(500).json({ 'state': 'error', 'message': 'error list hisroty flow!' })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 500,
+                    body: JSON.stringify({ 'state': 'error', 'message': 'error list hisroty flow!' })
+                })
+            }else{
+                res.status(500).json({ 'state': 'error', 'message': 'error list hisroty flow!' })
+            }
         }
     });
 }

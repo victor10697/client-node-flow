@@ -12,7 +12,7 @@ exports.create = (req, res) => {
         if (req.body.name && req.body.label && req.body.sourceName && req.body.sourceName != '') {
             SourcesModel.getSourcePerName(req.body.sourceName, (err, resS) => {
                 if (err) {
-                    res.status(500).json({ 'state': 'error', 'message': 'error request!' })
+                    res.status(400).json({ 'state': 'error', 'message': 'error request!' })
                 } else if (Object.keys(resS).length > 0) {
                     NodesFlowsModel.createOrUpdate({
                         "name": req.body.name,
@@ -27,29 +27,78 @@ exports.create = (req, res) => {
                             if (req.body.actionNode && typeof req.body.actionNode == 'object' && Object.keys(req.body.actionNode).length > 0) {
                                 ActionsController.createAction(response.id, req.body.actionNode);
                             }
-                            res.status(200).json({ 'state': 'success', 'result': response })
+                            if(typeof res == 'function'){
+                                res({
+                                    statusCode: 200,
+                                    body: JSON.stringify({ 'state': 'success', 'result': response })
+                                })
+                            }else{
+                                res.status(200).json({ 'state': 'success', 'result': response })
+                            }
                         } else {
-                            res.status(500).json({ 'state': 'error', 'message': 'error register!' })
+                            if(typeof res == 'function'){
+                                res({
+                                    statusCode: 400,
+                                    body: JSON.stringify({ 'state': 'error', 'message': 'error register!' })
+                                })
+                            }else{
+                                res.status(400).json({ 'state': 'error', 'message': 'error register!' })
+                            }
                         }
                     });
                 } else {
-                    res.status(500).json({ 'state': 'error', 'message': 'error request!' })
+                    if(typeof res == 'function'){
+                        res({
+                            statusCode: 400,
+                            body: JSON.stringify({ 'state': 'error', 'message': 'error request!' })
+                        })
+                    }else{
+                        res.status(400).json({ 'state': 'error', 'message': 'error request!' })
+                    }
                 }
             });
         } else {
-            res.status(500).json({ 'state': 'error', 'message': 'error name, label, sources_id is required!' })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 400,
+                    body: JSON.stringify({ 'state': 'error', 'message': 'error name, label, sources_id is required!' })
+                })
+            }else{
+                res.status(400).json({ 'state': 'error', 'message': 'error name, label, sources_id is required!' })
+            }
         }
     } else {
-        res.status(500).json({ 'state': 'error', 'message': 'Content cannot be empty' })
+        if(typeof res == 'function'){
+            res({
+                statusCode: 400,
+                body: JSON.stringify({ 'state': 'error', 'message': 'Content cannot be empty' })
+            })
+        }else{
+            res.status(400).json({ 'state': 'error', 'message': 'Content cannot be empty' })
+        }
     }
 }
 
 exports.getTreeNode = (req, res) => {
     NodesFlowsModel.getTreeNode(req.params.sources_id, (error, response) => {
         if (!error) {
-            res.status(200).json({ tree: response })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 200,
+                    body: JSON.stringify({ tree: response })
+                })
+            }else{
+                res.status(200).json({ tree: response })
+            }
         } else {
-            res.status(200).json({ error: error })
+            if(typeof res == 'function'){
+                res({
+                    statusCode: 400,
+                    body: JSON.stringify({ error: error })
+                })
+            }else{
+                res.status(400).json({ error: error })
+            }
         }
     })
 }
