@@ -888,7 +888,7 @@ Model.prototype.validSource = function validSource(key, token, result) {
 			return
 		}
 
-		res = res.length > 0 ? {state: 'success', source_id: res[0].id} : {state: 'error', source_id:null};
+		res = res.length > 0 ? {state: 'success', source_id: res[0].id, source_name: res[0].name} : {state: 'error', source_id:null};
 		result(null, res)
 	})
 }
