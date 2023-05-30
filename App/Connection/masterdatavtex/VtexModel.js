@@ -35,8 +35,8 @@ VtexModel.prototype.getUrl= function(){
 	return this.url;
 }
 
-VtexModel.prototype.getUrl= function(){
-	return this.url;
+VtexModel.prototype.getApiKey= function(){
+	return this.apiKey;
 }
 
 VtexModel.prototype.getRestRange= function(){
