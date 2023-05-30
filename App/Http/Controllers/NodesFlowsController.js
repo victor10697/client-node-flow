@@ -12,7 +12,14 @@ exports.create = (req, res) => {
         if (req.body.name && req.body.label && req.body.sourceName && req.body.sourceName != '') {
             SourcesModel.getSourcePerName(req.body.sourceName, (err, resS) => {
                 if (err) {
-                    res.status(400).json({ 'state': 'error', 'message': 'error request!' })
+                    if(typeof res == 'function'){
+                        res({
+                            statusCode: 400,
+                            body: JSON.stringify({ 'state': 'error', 'message': 'error request!' })
+                        })
+                    }else{
+                        res.status(400).json({ 'state': 'error', 'message': 'error request!' })
+                    }
                 } else if (Object.keys(resS).length > 0) {
                     NodesFlowsModel.createOrUpdate({
                         "name": req.body.name,
