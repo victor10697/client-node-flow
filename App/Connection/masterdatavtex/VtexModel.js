@@ -18,7 +18,8 @@ VtexModel.prototype.createConnection= function({
 	DB_VTEX_START_ENTITY= null,
 	DB_VTEX_VERSION= null,
 	DB_VTEX_NAME= null,
-	DB_VTEX_TITLE= null
+	DB_VTEX_TITLE= null,
+	DB_VTEX_REST_RANGE= null
 }){
 	this.url= DB_VTEX_URL;
 	this.apiKey= DB_VTEX_APIKEY;
@@ -27,14 +28,19 @@ VtexModel.prototype.createConnection= function({
 	this.version= DB_VTEX_VERSION;
 	this.nameApp= DB_VTEX_NAME;
 	this.titleApp= DB_VTEX_TITLE;
+	this.restRangeApp= DB_VTEX_REST_RANGE;
 };
 
 VtexModel.prototype.getUrl= function(){
 	return this.url;
 }
 
-VtexModel.prototype.getApiKey= function(){
-	return this.apiKey;
+VtexModel.prototype.getUrl= function(){
+	return this.url;
+}
+
+VtexModel.prototype.getRestRange= function(){
+	return this.restRangeApp;
 }
 
 VtexModel.prototype.getApiToken= function(){
@@ -74,6 +80,7 @@ VtexModel.prototype.getMasterdata= function({acronym=null, _sort=null, _fields="
 			headers: {
 				"X-VTEX-API-AppKey": this.getApiKey(),
 				"X-VTEX-API-AppToken": this.getApiToken(),
+				"REST-Range": this.getRestRange(),
 				'Cache-Control': 'no-cache',
 			  	'Pragma': 'no-cache',
 			  	'Expires': '0'

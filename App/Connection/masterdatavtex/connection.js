@@ -11,6 +11,7 @@ const paramsConexion = {
 	DB_VTEX_START_ENTITY: env.DB_VTEX_START_ENTITY || 'lgbr',
 	DB_VTEX_VERSION: env.DB_VTEX_VERSION || 'v1',
 	DB_VTEX_NAME: env.DB_VTEX_NAME || 'login_brandlive',
+	DB_VTEX_REST_RANGE: env.DB_VTEX_REST_RANGE || 'resources=0-1000',
 	DB_VTEX_TITLE: env.DB_VTEX_TITLE || 'Login BRANDLIVE'
 }
 connection.createConnection(paramsConexion)
