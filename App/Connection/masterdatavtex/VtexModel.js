@@ -63,6 +63,17 @@ VtexModel.prototype.getTitleApp= function(){
 	return this.titleApp;
 }
 
+VtexModel.prototype.setApiKey= function(ApiKey){
+	if(ApiKey){
+		this.apiKey=ApiKey;
+	}
+}
+
+VtexModel.prototype.setApiToken= function(ApiToken){
+	if(ApiToken){
+		this.apiToken=ApiToken;
+	}
+}
 /**
  * Obtener data masterdata 
  * @param acronym (*)  String

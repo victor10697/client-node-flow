@@ -5,6 +5,18 @@ function Model() {
 	this.dbConnection = dbConnection
 }
 
+Model.prototype.setApiKey= function(ApiKey){
+	if(ApiKey){
+		this.dbConnection.setApiKey(ApiKey)
+	}
+}
+
+Model.prototype.setApiToken= function(ApiToken){
+	if(ApiToken){
+		this.dbConnection.setApiToken(ApiToken)
+	}
+}
+
 /**
  * Ejecuta la consulta de registros en la base de datos.
  * @param {Function} result Función callback a la que se establece el resultado de la ejecución.
