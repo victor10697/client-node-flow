@@ -221,3 +221,27 @@ exports.insertInternal = (bodyR, res) => {
         res('error', null, 403)
     }
 }
+
+exports.setApiKey = (key) => {
+    if(key){
+        InputsUpdatesModel.setApiKey(key);
+        NodesFlowsModel.setApiKey(key); 
+        SourcesModel.setApiKey(key);
+    }
+}
+
+exports.setApiToken = (token) => {
+    if(token){
+        InputsUpdatesModel.setApiToken(token);
+        NodesFlowsModel.setApiToken(token);
+        SourcesModel.setApiToken(token);    
+    }
+}
+
+exports.setUrl = (url) => {
+    if(url){
+        InputsUpdatesModel.setUrl(url);
+        NodesFlowsModel.setUrl(url);
+        SourcesModel.setUrl(url);    
+    }
+}

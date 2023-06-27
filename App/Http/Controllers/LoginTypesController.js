@@ -35,3 +35,21 @@ exports.createLogin=(req, res)=>{
     }
 };
 
+
+exports.setApiKey = (key) => {
+    if(key){
+        TypesLoginsModel.setApiKey(key);    
+    }
+}
+
+exports.setApiToken = (token) => {
+    if(token){
+        TypesLoginsModel.setApiToken(token);    
+    }
+}
+
+exports.setUrl = (url) => {
+    if(url){
+        TypesLoginsModel.setUrl(url);    
+    }
+}

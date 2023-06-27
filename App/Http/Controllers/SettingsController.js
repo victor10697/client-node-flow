@@ -131,3 +131,21 @@ exports.save = (req, res) => {
 		}
 	})
 }
+
+exports.setApiKey = (key) => {
+    if(key){
+        settingsModel.setApiKey(key);    
+    }
+}
+
+exports.setApiToken = (token) => {
+    if(token){
+        settingsModel.setApiToken(token);    
+    }
+}
+
+exports.setUrl = (url) => {
+    if(url){
+        settingsModel.setUrl(url);    
+    }
+}

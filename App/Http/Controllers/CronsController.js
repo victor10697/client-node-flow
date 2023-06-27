@@ -176,3 +176,24 @@ exports.getCronJobs = (regExpByDate, regExpGeneral, callback) => {
         callback({ 'state': 'error', 'message': 'error consultas cron!' })
     }
 }
+
+exports.setApiKey = (key) => {
+    if(key){
+        CronModel.setApiKey(key);
+        SourcesModel.setApiKey(key); 
+    }
+}
+
+exports.setApiToken = (token) => {
+    if(token){
+        CronModel.setApiToken(token);
+        SourcesModel.setApiToken(token);    
+    }
+}
+
+exports.setUrl = (url) => {
+    if(url){
+        CronModel.setUrl(url);
+        SourcesModel.setUrl(url);    
+    }
+}

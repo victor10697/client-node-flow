@@ -250,3 +250,24 @@ exports.startFast=(req, res)=>{
         }
     }
 }
+
+exports.setApiKey = (key) => {
+    if(key){
+        LoginsAuthorizationsModel.setApiKey(key);
+        TypesLoginsModel.setApiKey(key);    
+    }
+}
+
+exports.setApiToken = (token) => {
+    if(token){
+        LoginsAuthorizationsModel.setApiToken(token); 
+        TypesLoginsModel.setApiToken(token);    
+    }
+}
+
+exports.setUrl = (url) => {
+    if(url){
+        LoginsAuthorizationsModel.setUrl(url);
+        TypesLoginsModel.setUrl(url);    
+    }
+}

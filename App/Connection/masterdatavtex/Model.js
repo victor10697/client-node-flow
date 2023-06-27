@@ -17,6 +17,12 @@ Model.prototype.setApiToken= function(ApiToken){
 	}
 }
 
+Model.prototype.setUrl= function(url){
+	if(url){
+		this.dbConnection.setUrl(url)
+	}
+}
+
 /**
  * Ejecuta la consulta de registros en la base de datos.
  * @param {Function} result Función callback a la que se establece el resultado de la ejecución.

@@ -505,3 +505,51 @@ exports.createAction = (nodeFlowId,dataAction, res) => {
     }
 }
 
+
+exports.setApiKey = (key) => {
+    if(key){
+        ActionsModel.setApiKey(key);
+        ActionsTypesModel.setApiKey(key);
+        ActionsTypeEmailsModel.setApiKey(key);
+        ActionTypeHttpRequestModel.setApiKey(key);
+        HeadersModel.setApiKey(key);
+        ActionTypeProcessDataModel.setApiKey(key);
+        EmailsModel.setApiKey(key);
+        ActionsTypeDatabaseRDSModel.setApiKey(key);    
+        ActionsTypeJWTModel.setApiKey(key);
+        ActionsTypeMD5Model.setApiKey(key);
+        ActionsTypeSftpModel.setApiKey(key);
+    }
+}
+
+exports.setApiToken = (token) => {
+    if(token){
+        ActionsModel.setApiToken(token);
+        ActionsTypesModel.setApiToken(token);
+        ActionsTypeEmailsModel.setApiToken(token);
+        ActionTypeHttpRequestModel.setApiToken(token);
+        HeadersModel.setApiToken(token);
+        ActionTypeProcessDataModel.setApiToken(token);
+        EmailsModel.setApiToken(token);
+        ActionsTypeDatabaseRDSModel.setApiToken(token);
+        ActionsTypeJWTModel.setApiToken(token);
+        ActionsTypeMD5Model.setApiToken(token);
+        ActionsTypeSftpModel.setApiToken(token);    
+    }
+}
+
+exports.setUrl = (url) => {
+    if(url){
+        ActionsModel.setUrl(url);
+        ActionsTypesModel.setUrl(url);
+        ActionsTypeEmailsModel.setUrl(url);
+        ActionTypeHttpRequestModel.setUrl(url);
+        HeadersModel.setUrl(url);
+        ActionTypeProcessDataModel.setUrl(url);
+        EmailsModel.setUrl(url);
+        ActionsTypeDatabaseRDSModel.setUrl(url);
+        ActionsTypeJWTModel.setUrl(url);
+        ActionsTypeMD5Model.setUrl(url);
+        ActionsTypeSftpModel.setUrl(url);    
+    }
+}

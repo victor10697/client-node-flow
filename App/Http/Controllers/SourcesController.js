@@ -159,3 +159,21 @@ const SourcesModel = require('../../Models/SourcesModel')
         }
     }
 }
+
+exports.setApiKey = (key) => {
+    if(key){
+        SourcesModel.setApiKey(key);    
+    }
+}
+
+exports.setApiToken = (token) => {
+    if(token){
+        SourcesModel.setApiToken(token);    
+    }
+}
+
+exports.setUrl = (url) => {
+    if(url){
+        SourcesModel.setUrl(url);    
+    }
+}

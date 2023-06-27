@@ -74,6 +74,13 @@ VtexModel.prototype.setApiToken= function(ApiToken){
 		this.apiToken=ApiToken;
 	}
 }
+
+VtexModel.prototype.setUrl= function(url){
+	if(url){
+		this.url=url;
+	}
+}
+
 /**
  * Obtener data masterdata 
  * @param acronym (*)  String

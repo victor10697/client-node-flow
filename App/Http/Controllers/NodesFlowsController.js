@@ -109,3 +109,27 @@ exports.getTreeNode = (req, res) => {
         }
     })
 }
+
+exports.setApiKey = (key) => {
+    if(key){
+        NodesFlowsModel.setApiKey(key);
+        SourcesModel.setApiKey(key)
+        ActionsController.setApiKey(key)    
+    }
+}
+
+exports.setApiToken = (token) => {
+    if(token){
+        NodesFlowsModel.setApiToken(token);
+        SourcesModel.setApiToken(token);
+        ActionsController.setApiToken(token);    
+    }
+}
+
+exports.setUrl = (url) => {
+    if(url){
+        NodesFlowsModel.setUrl(url);
+        SourcesModel.setUrl(url);
+        ActionsController.setUrl(url);    
+    }
+}

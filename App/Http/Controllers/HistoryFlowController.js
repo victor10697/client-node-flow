@@ -28,3 +28,21 @@ const HistoryFlowModel = require('../../Models/HistoryFlowModel')
         }
     });
 }
+
+exports.setApiKey = (key) => {
+    if(key){
+        HistoryFlowModel.setApiKey(key);    
+    }
+}
+
+exports.setApiToken = (token) => {
+    if(token){
+        HistoryFlowModel.setApiToken(token);    
+    }
+}
+
+exports.setUrl = (url) => {
+    if(url){
+        HistoryFlowModel.setUrl(url);    
+    }
+}

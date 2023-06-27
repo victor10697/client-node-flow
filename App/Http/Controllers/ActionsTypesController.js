@@ -178,3 +178,21 @@ exports.save = (req, res) => {
         }
     }
 }
+
+exports.setApiKey = (key) => {
+    if(key){
+        ActionsTypesModel.setApiKey(key);    
+    }
+}
+
+exports.setApiToken = (token) => {
+    if(token){
+        ActionsTypesModel.setApiToken(token);    
+    }
+}
+
+exports.setUrl = (url) => {
+    if(url){
+        ActionsTypesModel.setUrl(url);    
+    }
+}
