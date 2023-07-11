@@ -127,10 +127,12 @@ VtexModel.prototype.getMasterdata= function({acronym=null, _sort=null, _fields="
 
 		axios(requestOptions)
 		.then(async (result) => {
+			console.log(result);
 			callback(null,result.data); 
 			return true;
 		})
 		.catch(async (error) => {
+			console.log(error);
 			callback(error,[]); 
 			return false; 
 		});
@@ -167,10 +169,12 @@ VtexModel.prototype.deleteMasterdata= function({acronym=null, id=null}, callback
 
 		axios(requestOptions)
 		.then(async (result) => {
+			console.log(result);
 			callback(null,true); 
 			return true;
 		})
 		.catch(async (error) => {
+			console.log(error);
 			callback(error,false); 
 			return false; 
 		});
@@ -216,6 +220,7 @@ VtexModel.prototype.createMasterdata= function({acronym=null, body=null}, callba
 
 		axios(requestOptions)
 		.then(async (result) => {
+			console.log(result);
 			if(result.data.DocumentId){
 				result.data.id= result.data.DocumentId;
 			}
@@ -223,6 +228,7 @@ VtexModel.prototype.createMasterdata= function({acronym=null, body=null}, callba
 			return true;
 		})
 		.catch(async (error) => {
+			console.log(error);
 			callback(error,[]); 
 			return false; 
 		});
@@ -268,6 +274,7 @@ VtexModel.prototype.updateMasterdata= function({acronym=null, id=null, body=null
 
 		axios(requestOptions)
 		.then(async (result) => {
+			console.log(result);
 			if(result.data.DocumentId){
 				result.data.id= result.data.DocumentId;
 			}
@@ -275,6 +282,7 @@ VtexModel.prototype.updateMasterdata= function({acronym=null, id=null, body=null
 			return true;
 		})
 		.catch(async (error) => {
+			console.log(error);
 			callback(error,[]); 
 			return false; 
 		});
