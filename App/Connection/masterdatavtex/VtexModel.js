@@ -255,9 +255,10 @@ VtexModel.prototype.updateMasterdata= function({acronym=null, id=null, body=null
 				body[it]="";
 			}
 		}
+		body.id=id;
 		let requestOptions={
-			url: `${this.getUrl()}/api/dataentities/${this.getStartEntity()}_${acronym}/documents/${id}`,
-			method: "PUT",
+			url: `${this.getUrl()}/api/dataentities/${this.getStartEntity()}_${acronym}/documents`,
+			method: "PATCH",
 			responseType: "json",
 			headers: {
 				"X-VTEX-API-AppKey": this.getApiKey(),
