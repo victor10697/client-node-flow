@@ -269,7 +269,7 @@ VtexModel.prototype.updateMasterdata= function({acronym=null, id=null, body=null
 			},
 			data: body,
 			params: {
-				_schema: this.getNameApp()
+				//_schema: this.getNameApp()
 			}
 		};
 

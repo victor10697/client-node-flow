@@ -34,14 +34,16 @@ exports.create = (req, res) => {
                             if (req.body.actionNode && typeof req.body.actionNode == 'object' && Object.keys(req.body.actionNode).length > 0) {
                                 ActionsController.createAction(response.id, req.body.actionNode);
                             }
-                            if(typeof res == 'function'){
-                                res({
-                                    statusCode: 200,
-                                    body: JSON.stringify({ 'state': 'success', 'result': response })
-                                })
-                            }else{
-                                res.status(200).json({ 'state': 'success', 'result': response })
-                            }
+                            setTimeout(function() {
+                                if(typeof res == 'function'){
+                                    res({
+                                        statusCode: 200,
+                                        body: JSON.stringify({ 'state': 'success', 'result': response })
+                                    })
+                                }else{
+                                    res.status(200).json({ 'state': 'success', 'result': response })
+                                }
+                            }, 5000);
                         } else {
                             if(typeof res == 'function'){
                                 res({
