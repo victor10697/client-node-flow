@@ -8,11 +8,11 @@ const SourcesModel = require('../../Models/SourcesModel');
  * @param (Response Http) res -- Respuesta de la peticion
  */
 exports.insert = (req, res) => {
-    if (req.body && Object.keys(req.body).length > 0 && req.params.sourceName) {
+    if (req.body && Object.keys(req.body).length > 0) {
         if (req.headers['x-app-key'] && req.headers['x-app-token']) {
             // validamos credenciales de conexion
             SourcesModel.validSource(req.headers['x-app-key'], req.headers['x-app-token'], (error, validSourceT) => {
-                if (!error && validSourceT.state && validSourceT.state == 'success' && validSourceT.source_name && typeof validSourceT.source_name == 'string' && validSourceT.source_name.toLocaleLowerCase() == req.params.sourceName.toLocaleLowerCase()) {
+                if (!error && validSourceT.state && validSourceT.state == 'success' && validSourceT.source_name && typeof validSourceT.source_name == 'string') {
                     InputsUpdatesModel.saveInput(req.body, validSourceT.source_id, (error, response) => {
                         if (!error) {
                             NodesFlowsModel.ProcesingInputsNode([{
