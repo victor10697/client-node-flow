@@ -414,7 +414,7 @@ const ProcessActionTypeHTTPRequest= async (action, input, inputId, responsePrev,
 	await ActionTypeHttpRequestModel.getActionHttpRequest(action.id, async (error, response)=>{
 		if(!error){
 			for (let index = 0; index < response.length; index++) {
-				await ProcessHttpRequest(response[index], input, inputId, responsePrev, (errorHttp, responseNow)=>{
+				await ProcessHttpRequest(response[index], input, inputId, responsePrev, (errorHttp, responseNow, responseHeadersNow)=>{
 					if(!errorHttp){
 						console.log('response Http',responseNow);
 					}
@@ -423,6 +423,7 @@ const ProcessActionTypeHTTPRequest= async (action, input, inputId, responsePrev,
 					}
 					if(response.length == (parseInt(index)+1)){
 						$GLOBAL[action.name]= responseNow;
+						$GLOBAL[action.name+'_headers']= responseHeadersNow;
 						callback(null, responseNow);
 						return true;
 					}
@@ -481,7 +482,7 @@ const ProcessHttpRequest= async (httpProcess, input, inputId, responsePrev, call
 			actions_id: httpProcess.actions_id,
 			inputs_updates_id:  inputId
 		}, (errorIn,resIn)=>{});
-		callback(null,result.data); 
+		callback(null,result.data, result.headers); 
 		return true;
 	})
 	.catch(async (error) => {console.log('error HTTP',error);
@@ -491,7 +492,7 @@ const ProcessHttpRequest= async (httpProcess, input, inputId, responsePrev, call
 			actions_id: httpProcess.actions_id,
 			inputs_updates_id:  inputId
 		}, (errorIn,resIn)=>{});
-		callback(error,{}); 
+		callback(error,{}, {}); 
 		return false; 
 	});
 }
