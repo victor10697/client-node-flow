@@ -499,16 +499,19 @@ const ProcessHttpRequest= async (httpProcess, input, inputId, responsePrev, call
 
 const ProcessDataAction= async (action, input, inputId, responsePrev, callback)=>{
 	let returnAction={};
-	eval(`${action.functionProcessData}`);
+	eval(`(async function() {
+		${action.functionProcessData}
 
-	HistoryFlowModel.insert({
-		response: typeof returnAction === 'object' ? JSON.stringify(returnAction) : returnAction,
-		request: typeof responsePrev === 'object' ? JSON.stringify(responsePrev) : responsePrev,
-		actions_id: action.actions_id,
-		inputs_updates_id:  inputId
-	}, (errorIn,resIn)=>{});
+		HistoryFlowModel.insert({
+			response: typeof returnAction === 'object' ? JSON.stringify(returnAction) : returnAction,
+			request: typeof responsePrev === 'object' ? JSON.stringify(responsePrev) : responsePrev,
+			actions_id: action.actions_id,
+			inputs_updates_id:  inputId
+		}, (errorIn,resIn)=>{});
 
-	callback(null, returnAction);
+		callback(null, returnAction);
+
+	})()`);
 }
 
 const ProcessJWTAction= async (action, input, inputId, responsePrev, callback)=>{
