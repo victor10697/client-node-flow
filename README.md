@@ -41,7 +41,7 @@ Instalar proyecto con npm
 | errorSSH | Es el retorno de error de una ccion de tipo SSH. | "scriptActionPost": "console.log('errorSSH',errorSSH)" |
 | errorData | Es el retorno de error de una accion de tipo procesamiento de datos. | "scriptActionPost": "console.log('errorData',errorData)" |
 | errorEmail | Es el retorno de error de una accion de tipo email. | "scriptActionPost": "console.log('errorData',errorData)" |
-| $GLOBAL | Es un objeto donde almacenamos todas las respuestas de acciones anteriores. | "scriptActionPost": "console.log('Response name_nodo_action_1', $GLOBAL.name_nodo_action_1)" |
+| $GLOBAL | Es un objeto donde almacenamos todas las respuestas de acciones anteriores. Para acciones de tipo http pordemos obtener las propiedades de los headers del response concatenando la palabra "_headers" enseguida del nombre de la acción. | "scriptActionPost": "console.log('Response name_nodo_action_1', $GLOBAL.name_nodo_action_1)" |
 | responseMessage | Es el mensaje que queremos que salga cuando arrojamos una respuesta sin seguir con el flujo. | "scriptActionPrev": "responseMessage= 'Error data';" |
 | responseCode | Es el codigo que queremos retornal del servidor cuando tenemos un error. | "scriptActionPrev": "responseCode= 403;  responseMessage= {error:'Error data'};" |
 
