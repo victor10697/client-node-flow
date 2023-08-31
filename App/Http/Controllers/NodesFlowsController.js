@@ -8,8 +8,8 @@ const ActionsController = require('./ActionsController')
  * @param (Response Http) res -- Respuesta de la peticion
  */
 exports.create = (req, res) => {
-    if (req.body && Object.keys(req.body).length > 0) {
-        if (req.body.name && req.body.label && req.body.sourceName && req.body.sourceName != '') {
+    if (req?.body && Object.keys(req?.body).length > 0) {
+        if (req?.body?.name && req?.body?.label && req?.body?.sourceName && req?.body?.sourceName != '') {
             SourcesModel.getSourcePerName(req.body.sourceName, (err, resS) => {
                 if (err) {
                     if(typeof res == 'function'){
@@ -89,7 +89,7 @@ exports.create = (req, res) => {
 }
 
 exports.getTreeNode = (req, res) => {
-    NodesFlowsModel.getTreeNode(req.params.sources_id, (error, response) => {
+    NodesFlowsModel.getTreeNode(req?.params?.sources_id, (error, response) => {
         if (!error) {
             if(typeof res == 'function'){
                 res({

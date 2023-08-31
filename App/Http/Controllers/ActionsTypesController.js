@@ -53,7 +53,7 @@ exports.save = (req, res) => {
  * @param (Response Http) res -- Respuesta de la peticion
  */
  exports.update = (req, res) => {
-    if(req.params && req.params.id && req.body && Object.keys(req.body).length > 0){
+    if(req?.params && req?.params?.id && req.body && Object.keys(req?.body).length > 0){
         ActionsTypesModel.update(req.params.id, req.body, (error, response)=>{
             if(!error){
                 if(typeof res == 'function'){
@@ -93,8 +93,8 @@ exports.save = (req, res) => {
  * @param (Response Http) res -- Respuesta de la peticion
  */
  exports.create = (req, res) => {
-    if(req.body && Object.keys(req.body).length > 0){
-        if(req.body.name){
+    if(req?.body && Object.keys(req?.body).length > 0){
+        if(req?.body?.name){
             ActionsTypesModel.createOrUpdate(req.body, { name: true, 'created_at': true }, (error, response)=>{ 
                 if(!error){
                     if(typeof res == 'function'){
@@ -145,7 +145,7 @@ exports.save = (req, res) => {
  */
  exports.delete = (req, res) => {
 	
-    if(req.params && req.params.id){
+    if(req?.params && req?.params?.id){
         ActionsTypesModel.remove(req.params.id, (error, response)=>{
             if(!error){
                 if(typeof res == 'function'){

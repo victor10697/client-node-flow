@@ -15,7 +15,7 @@ exports.findAll = (req, res) => {
 		}
 
 		// Se valida si en la URL se define como parámetro de tipo GET que los registros se envíen en formato JSON
-		if (req.query.type == 'JSON') {
+		if (req?.query?.type == 'JSON') {
 			let jsonList = {}
 			data.forEach(setting => {
 				if (setting.name) {
@@ -47,7 +47,7 @@ exports.findAll = (req, res) => {
 
 exports.insert = (req, res) => {
 	// Se valida el cuerpo de la petición
-	if (!req.body) {
+	if (!req?.body) {
 		if(typeof res == 'function'){
             res({
                 statusCode: 400,
@@ -60,7 +60,7 @@ exports.insert = (req, res) => {
 	}
 
 	// Se valida el cuerpo de la petición
-	if (!req.body.name) {
+	if (!req?.body?.name) {
 		if(typeof res == 'function'){
             res({
                 statusCode: 400,
@@ -97,7 +97,7 @@ exports.insert = (req, res) => {
 
 exports.save = (req, res) => {
 	// Se valida el cuerpo de la petición
-	if (!req.body) {
+	if (!req?.body) {
 		if(typeof res == 'function'){
             res({
                 statusCode: 400,

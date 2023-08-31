@@ -35,7 +35,7 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Response Http) res -- Respuesta de la peticion
  */
  exports.update = (req, res) => {
-    if(req.params && req.params.id && req.body && Object.keys(req.body).length > 0){
+    if(req?.params && req?.params?.id && req?.body && Object.keys(req?.body).length > 0){
         SourcesModel.update(req.params.id, req.body, (error, response)=>{
             if(!error){
                 if(typeof res == 'function'){
@@ -75,8 +75,8 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Response Http) res -- Respuesta de la peticion
  */
  exports.create = (req, res) => {
-    if(req.body && Object.keys(req.body).length > 0){
-        if(req.body.name && req.body.description){
+    if(req?.body && Object.keys(req?.body).length > 0){
+        if(req?.body?.name && req?.body?.description){
             SourcesModel.createOrUpdate(req.body, { 'name': true }, (error, response)=>{
                 if(!error){
                     if(typeof res == 'function'){
@@ -126,7 +126,7 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Response Http) res -- Respuesta de la peticion
  */
  exports.delete = (req, res) => {
-    if(req.params && req.params.id){
+    if(req?.params && req?.params?.id){
         SourcesModel.remove(req.params.id, (error, response)=>{
             if(!error){
                 if(typeof res == 'function'){

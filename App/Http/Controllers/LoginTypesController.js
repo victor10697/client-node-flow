@@ -1,7 +1,7 @@
 const TypesLoginsModel = require('../../Models/TypesLoginsModel')
 
 exports.createLogin=(req, res)=>{
-    if(req.body.providerName && req.body.providerName != ''){
+    if(req?.body?.providerName && req?.body?.providerName != ''){
         TypesLoginsModel.createLogin(req.body, (err, response)=>{
             if(!err){
                 if(typeof res == 'function'){

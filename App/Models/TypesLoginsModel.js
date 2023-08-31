@@ -46,7 +46,8 @@ TypesLoginsModel.prototype.selectAvailable = function (token,callback) {
 							btnNotFast: settings && settings.btnNotFast ? settings.btnNotFast : '',
 							setTimeoutAlerts: settings && settings.setTimeoutAlerts ? settings.setTimeoutAlerts : 10000,
 							daysExpiresPassword: settings && settings.daysExpiresPassword ? settings.daysExpiresPassword : '',
-							providerDefault: settings && settings.providerDefault ? settings.providerDefault : ''
+							providerDefault: settings && settings.providerDefault ? settings.providerDefault : '',
+							logoLink: settings && settings.logoLink ? settings.logoLink : ''
 						}});
 						return true;
 					}

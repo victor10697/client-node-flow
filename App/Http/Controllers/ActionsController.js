@@ -64,7 +64,7 @@ exports.save = (req, res) => {
  */
  exports.delete = (req, res) => {
 	
-    if(req.params && req.params.id){
+    if(req?.params && req?.params?.id){
         ActionsModel.remove(req.params.id, (error, response)=>{
             if(!error){
                 if(typeof res == 'function'){
