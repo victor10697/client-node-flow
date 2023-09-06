@@ -471,29 +471,6 @@ const updateLoginAuthorizationAccessVTEX= (resAction,registroLogin)=>{
 
 const savePasswordVTEX= async (registroLogin,settings)=>{
 	let requestOptions = {
-		url: settings.urlEntityPassword,
-		method: 'PATCH',
-		responseType: 'json',
-		data: {
-		  id:registroLogin.userId,
-		  confirmation:registroLogin.codeVerify,
-		  password:registroLogin.password
-		},
-		headers: {
-			'X-VTEX-API-AppKey': settings.apiKeyVtex,
-			'X-VTEX-API-AppToken': settings.apiTokenVtex
-		}
-	};
-	
-	await axios(requestOptions)
-
-	//contituar con la eliminacion con asociaciones por telefono
-
-
-}
-
-const savePasswordVTEX= async (registroLogin,settings)=>{
-	let requestOptions = {
 		url: settings?.urlEntityPassword,
 		method: 'PATCH',
 		responseType: 'json',
@@ -511,7 +488,7 @@ const savePasswordVTEX= async (registroLogin,settings)=>{
 	await axios(requestOptions)
 
 	//contituar con la eliminacion con asociaciones por telefono
-	if(settings?.urlEntityClients && settings?.relationClients && settings?.clearClients && settings?.clearClients != '' && (settings?.clearClients==true || settings?.clearClients=='true' || settings?.clearClients== 1 || settings?.clearClients == '1')){
+	if(settings?.urlEntityClients && settings?.relationClients && settings?.clearClients && settings?.clearClients != '' && (settings?.clearClients==true || settings?.clearClients=='true' || settings?.clearClients== 1 || settings?.clearClients == '1') ){
 		clearClients({id:registroLogin?.userId, settings:settings});
 	}
 	
