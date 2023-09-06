@@ -529,6 +529,7 @@ const deletePasswordVTEX= async ({id=null, settings=null})=>{
 		
 		try {
 			await axios(requestOptions)
+			console.log('delete client', id);
 		} catch (error) {
 			// Handle errors
 			console.log('error delete client', error);
@@ -552,6 +553,7 @@ const getClientsVTEX= async ({key=null, value=null, fields= 'id', settings=null}
 		
 		try {
 			let res = await axios(requestOptions);
+			console.log('clients', res?.data);
 			return res?.data ?? [];
 		} catch (error) {
 			// Handle errors
