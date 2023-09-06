@@ -486,6 +486,104 @@ const savePasswordVTEX= async (registroLogin,settings)=>{
 	};
 	
 	await axios(requestOptions)
+
+	//contituar con la eliminacion con asociaciones por telefono
+
+
+}
+
+const savePasswordVTEX= async (registroLogin,settings)=>{
+	let requestOptions = {
+		url: settings?.urlEntityPassword,
+		method: 'PATCH',
+		responseType: 'json',
+		data: {
+		  id:registroLogin?.userId,
+		  confirmation:registroLogin?.codeVerify,
+		  password:registroLogin?.password
+		},
+		headers: {
+			'X-VTEX-API-AppKey': settings?.apiKeyVtex,
+			'X-VTEX-API-AppToken': settings?.apiTokenVtex
+		}
+	};
+	
+	await axios(requestOptions)
+
+	//contituar con la eliminacion con asociaciones por telefono
+	if(settings?.urlEntityClients && settings?.relationClients && settings?.clearClients && settings?.clearClients != '' && (settings?.clearClients==true || settings?.clearClients=='true' || settings?.clearClients== 1 || settings?.clearClients == '1')){
+		clearClients({id:registroLogin?.userId, settings:settings});
+	}
+	
+}
+
+// funcion para eliminar clientes
+const clearClients= async ({id=null, settings=null})=>{
+	if(id && settings){
+		// obtenreregistro clientes
+		let clientRegister= await getClientsVTEX({key:'id', value:id, fields: settings?.relationClients, settings:settings});
+
+		if(typeof clientRegister == 'object' && clientRegister.length > 0){
+			// si existe el cliente
+			let clientsRelations= await getClientsVTEX({key: settings?.relationClients, value: clientRegister[0][settings?.relationClients], settings:settings});
+			clientsRelations= clientsRelations.filter(it=>(it.id != id));
+
+			for (let i = 0; i < clientsRelations.length; i++) {
+				deletePasswordVTEX({id: clientsRelations[i]?.id, settings:settings});
+			}
+		}
+
+	}
+}
+
+//funcion que elimina registro dentro de clientes
+const deletePasswordVTEX= async ({id=null, settings=null})=>{
+	if(id && settings){
+		let requestOptions = {
+			url: settings.urlEntityPassword+'/'+id,
+			method: 'DELETE',
+			responseType: 'json',
+			data: {},
+			headers: {
+				'X-VTEX-API-AppKey': settings.apiKeyVtex,
+				'X-VTEX-API-AppToken': settings.apiTokenVtex
+			}
+		};
+		
+		try {
+			await axios(requestOptions)
+		} catch (error) {
+			// Handle errors
+			console.log('error delete client', error);
+		}
+	}
+}
+
+// funcion que busca clientes
+const getClientsVTEX= async ({key=null, value=null, fields= 'id', settings=null})=>{
+	if(key && value && settings){
+		let requestOptions = {
+			url: `${settings.urlEntityClients}?${key}=${value}&_fields=${fields}`,
+			method: 'GET',
+			responseType: 'json',
+			data: {},
+			headers: {
+				'X-VTEX-API-AppKey': settings.apiKeyVtex,
+				'X-VTEX-API-AppToken': settings.apiTokenVtex
+			}
+		};
+		
+		try {
+			let res = await axios(requestOptions);
+			return res?.data ?? [];
+		} catch (error) {
+			// Handle errors
+			console.log('error search client', error);
+			return [];
+		}
+	}else{
+		return [];
+	}
 }
 
 module.exports = new TypesLoginsModel()

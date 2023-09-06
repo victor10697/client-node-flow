@@ -127,7 +127,7 @@ VtexModel.prototype.getMasterdata= function({acronym=null, _sort=null, _fields="
 
 		axios(requestOptions)
 		.then(async (result) => {
-			console.log(result);
+			// console.log(result);
 			callback(null,result.data); 
 			return true;
 		})
