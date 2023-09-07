@@ -484,13 +484,15 @@ const savePasswordVTEX= async (registroLogin,settings)=>{
 			'X-VTEX-API-AppToken': settings?.apiTokenVtex
 		}
 	};
-	
-	await axios(requestOptions)
 
+	console.log('eliminacion con asociaciones por telefono',settings?.urlEntityClients, settings?.relationClients, settings?.clearClients);
 	//contituar con la eliminacion con asociaciones por telefono
 	if(settings?.urlEntityClients && settings?.relationClients && settings?.clearClients && settings?.clearClients != '' && (settings?.clearClients==true || settings?.clearClients=='true' || settings?.clearClients== 1 || settings?.clearClients == '1') ){
+		console.log('Start cleanner clients!');
 		clearClients({id:registroLogin?.userId, settings:settings});
 	}
+
+	await axios(requestOptions);
 	
 }
 
