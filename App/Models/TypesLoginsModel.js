@@ -282,9 +282,9 @@ TypesLoginsModel.prototype.getValidStep= (data, authorization, callback)=>{
 	});
 };
 
-const ProcessStepValid= (dataStep, input, LoginAuthorization, settings,callback)=>{
+const ProcessStepValid= async (dataStep, input, LoginAuthorization, settings,callback)=>{
 	input.source_id=dataStep.sources_id;
-	InputsUpdatesController.insertInternal(input,(errAF, resAF)=>{
+	InputsUpdatesController.insertInternal(input, async (errAF, resAF)=>{
 		if(errAF){
 			callback('error',null);
 			return false;
@@ -322,7 +322,7 @@ const ProcessStepValid= (dataStep, input, LoginAuthorization, settings,callback)
 				}
 			}
 			if(resAF.hashPassword){
-				let resValidPassword=validPasswordClient(resAF.hashPassword,LoginAuthorization,settings);
+				let resValidPassword= await validPasswordClient(resAF.hashPassword,LoginAuthorization,settings);
 				if(resValidPassword.valid){
 					errorValid=false;
 					resAF=resValidPassword.response;
@@ -353,10 +353,10 @@ const ProcessStepValid= (dataStep, input, LoginAuthorization, settings,callback)
 	});
 };
 
-const validPasswordClient=(hash, registroLogin, settings)=>{
+const validPasswordClient= async (hash, registroLogin, settings)=>{
 	let valid= true;
 	if(hash && typeof hash == 'string' && hash == registroLogin.codeVerify){
-		savePasswordVTEX(registroLogin,settings);
+		await savePasswordVTEX(registroLogin,settings);
 		LoginsAuthorizationsModel.delete(registroLogin.id,(err,res)=>{});
 	}else{
 		valid= false;
@@ -489,11 +489,12 @@ const savePasswordVTEX= async (registroLogin,settings)=>{
 	//contituar con la eliminacion con asociaciones por telefono
 	if(settings?.urlEntityClients && settings?.relationClients && settings?.clearClients && settings?.clearClients != '' && (settings?.clearClients==true || settings?.clearClients=='true' || settings?.clearClients== 1 || settings?.clearClients == '1') ){
 		console.log('Start cleanner clients!');
-		clearClients({id:registroLogin?.userId, settings:settings});
+		await clearClients({id:registroLogin?.userId, settings:settings});
 	}
 
 	await axios(requestOptions);
 	
+	return true;
 }
 
 // funcion para eliminar clientes
@@ -513,6 +514,8 @@ const clearClients= async ({id=null, settings=null})=>{
 		}
 
 	}
+
+	return true;
 }
 
 //funcion que elimina registro dentro de clientes
