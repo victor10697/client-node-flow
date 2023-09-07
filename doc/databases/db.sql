@@ -1,18 +1,3 @@
-/*
-Navicat MySQL Data Transfer
-
-Source Server         : login_mdlz_ar_prod
-Source Server Version : 80032
-Source Host           : login-mdlz-ar-prod.chyvomzozqhd.us-west-2.rds.amazonaws.com:3306
-Source Database       : login_mdlz_ar_prod
-
-Target Server Type    : MYSQL
-Target Server Version : 80032
-File Encoding         : 65001
-
-Date: 2023-09-07 13:22:38
-*/
-
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
