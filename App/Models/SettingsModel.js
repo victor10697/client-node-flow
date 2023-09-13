@@ -74,7 +74,7 @@ SettingsModel.prototype.saveLog = function (error, response, id) {
 				objSettings[res[index].name]= res[index].value;
 			}
 			
-			if(objSettings?.urlLog && objSettings?.methodLog && objSettings?.activeLog && (objSettings?.activeLog=='1' || objSettings?.activeLog== 1 || objSettings?.activeLog==true || objSettings?.activeLog=='true') && ){
+			if(objSettings?.urlLog && objSettings?.methodLog && objSettings?.activeLog && (objSettings?.activeLog=='1' || objSettings?.activeLog== 1 || objSettings?.activeLog==true || objSettings?.activeLog=='true') ){
 
 				let log= null;
 				if(response && typeof response == "object"){
