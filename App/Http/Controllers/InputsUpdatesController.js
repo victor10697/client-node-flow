@@ -112,6 +112,7 @@ exports.insert = (req, res) => {
  * @param (Response Http) res -- Respuesta de la peticion
  */
 exports.insertSourceName = (req, res) => {
+    const idInput= req?.body?.id ? req?.body?.id : null;
     if (req?.body && Object.keys(req?.body).length > 0 && req?.params?.sourceName) {
         if (req?.headers['x-app-key'] && req?.headers['x-app-token']) {
             // validamos credenciales de conexion
@@ -124,6 +125,7 @@ exports.insertSourceName = (req, res) => {
                                 input: JSON.parse(response.bodyRequest),
                                 source_id: response.source_id
                             }], (errorA, responseA, code=200) => {
+                                SettingsModel.saveLog(errorA, responseA, idInput);
                                 InputsUpdatesModel.delete(response.id, (eRi, rRi) => { console.log('eRi', eRi); });
                                 if (!errorA) {
                                     if(code > 399){
@@ -158,6 +160,7 @@ exports.insertSourceName = (req, res) => {
                                 }
                             });
                         } else {
+                            SettingsModel.saveLog(error, null, idInput);
                             if(typeof res == 'function'){
                                 res({
                                     statusCode: 400,
@@ -169,6 +172,7 @@ exports.insertSourceName = (req, res) => {
                         }
                     });
                 } else {
+                    SettingsModel.saveLog('Unauthorized access!', null, idInput);
                     if(typeof res == 'function'){
                         res({
                             statusCode: 401,
@@ -180,6 +184,7 @@ exports.insertSourceName = (req, res) => {
                 }
             })
         } else {
+            SettingsModel.saveLog('Unauthorized access!', null, idInput);
             if(typeof res == 'function'){
                 res({
                     statusCode: 401,
@@ -190,6 +195,7 @@ exports.insertSourceName = (req, res) => {
             }
         }
     } else {
+        SettingsModel.saveLog('Unauthorized access!', null, idInput);
         if(typeof res == 'function'){
             res({
                 statusCode: 400,
