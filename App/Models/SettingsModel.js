@@ -75,12 +75,26 @@ SettingsModel.prototype.saveLog = function (error, response, id) {
 			}
 			
 			if(objSettings?.urlLog && objSettings?.methodLog && objSettings?.activeLog && (objSettings?.activeLog=='1' || objSettings?.activeLog== 1 || objSettings?.activeLog==true || objSettings?.activeLog=='true') && ){
+
+				let log= null;
+				if(response && typeof response == "object"){
+					log= JSON.stringify(response);
+				}else if(response) {
+					log= response;
+				}else if(error && typeof error == "object"){
+					log= JSON.stringify(error);
+				}else if(error){
+					log= error;
+				}else{
+					log= "Not found error";
+				}
+
 				let options= {
 					url: objSettings?.urlLog,
 					method: objSettings?.methodLog,
 					data: {
 						id: id ? id : (new Date().getTime()),
-						log: response ?? error
+						log: log
 					},
 					headers: objSettings?.headersLog ? JSON.parse(objSettings?.headersLog) : {},
 					responseType: 'json'
