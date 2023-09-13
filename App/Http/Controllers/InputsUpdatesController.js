@@ -1,6 +1,7 @@
 const InputsUpdatesModel = require('../../Models/InputsUpdatesModel');
 const NodesFlowsModel = require('../../Models/NodesFlowsModel');
 const SourcesModel = require('../../Models/SourcesModel');
+const SettingsModel = require('../../Models/SettingsModel');
 
 /**
  * Metodo para insertar registro
@@ -8,6 +9,7 @@ const SourcesModel = require('../../Models/SourcesModel');
  * @param (Response Http) res -- Respuesta de la peticion
  */
 exports.insert = (req, res) => {
+    const idInput= req?.body?.id ? req?.body?.id : null;
     if (req?.body && Object.keys(req?.body).length > 0) {
         if (req?.headers['x-app-key'] && req?.headers['x-app-token']) {
             // validamos credenciales de conexion
@@ -21,6 +23,8 @@ exports.insert = (req, res) => {
                                 source_id: response.source_id
                             }], (errorA, responseA, code=200) => {
                                 InputsUpdatesModel.delete(response.id, (eRi, rRi) => { console.log('eRi', eRi); });
+                                // Save log 
+                                SettingsModel.saveLog(errorA, responseA, idInput);
                                 if (!errorA) {
                                     if(code > 399){
                                         responseA= { 'state': 'error', 'error': responseA };
@@ -54,6 +58,8 @@ exports.insert = (req, res) => {
                                 }
                             });
                         } else {
+                            // Save log 
+                            SettingsModel.saveLog(error, null, idInput);
                             if(typeof res == 'function'){
                                 res({
                                     statusCode: 400,
@@ -65,6 +71,7 @@ exports.insert = (req, res) => {
                         }
                     });
                 } else {
+                    SettingsModel.saveLog('Unauthorized access!', null, idInput);
                     if(typeof res == 'function'){
                         res({
                             statusCode: 401,
@@ -76,6 +83,7 @@ exports.insert = (req, res) => {
                 }
             })
         } else {
+            SettingsModel.saveLog('Unauthorized access!', null, idInput);
             if(typeof res == 'function'){
                 res({
                     statusCode: 401,
@@ -86,6 +94,7 @@ exports.insert = (req, res) => {
             }
         }
     } else {
+        SettingsModel.saveLog('Unauthorized access!', null, idInput);
         if(typeof res == 'function'){
             res({
                 statusCode: 400,

@@ -1,5 +1,6 @@
 // Referencia al modelo base de la aplicación
 const Model = require('../Model')
+const axios = require('axios').default;
 
 function SettingsModel() {
 	Model.call(this)
@@ -52,6 +53,51 @@ SettingsModel.prototype.getSettings = function (callback) {
 		
 		callback(null, objSettings)
 	})
+}
+
+/**
+ * Salvar log en fuente externa
+ * @param error // error del proceso
+ * @param response // respuesta del proceso
+ * @param code // codigo generado 
+ **/
+SettingsModel.prototype.saveLog = function (error, response, id) {
+	if((error || response)){
+		this.select((err, res) => {
+			let objSettings={};
+			if (err) {
+				callback(err, null)
+				return
+			}
+
+			for (let index = 0; index < res.length; index++) {
+				objSettings[res[index].name]= res[index].value;
+			}
+			
+			if(objSettings?.urlLog && objSettings?.methodLog && objSettings?.activeLog && (objSettings?.activeLog=='1' || objSettings?.activeLog== 1 || objSettings?.activeLog==true || objSettings?.activeLog=='true') && ){
+				let options= {
+					url: objSettings?.urlLog,
+					method: objSettings?.methodLog,
+					data: {
+						id: id ? id : (new Date().getTime()),
+						log: response ?? error
+					},
+					headers: objSettings?.headersLog ? JSON.parse(objSettings?.headersLog) : {},
+					responseType: 'json'
+				};
+				
+				axios(options)
+				.then(async (result) => {
+					console.log('Response log', result);
+				})
+				.catch(async (error) => {
+					console.log('Error log', error);
+				});
+
+			}
+		})
+	}
+	
 }
 
 module.exports = new SettingsModel()
