@@ -66,8 +66,7 @@ SettingsModel.prototype.saveLog = function (error, response, id) {
 		this.select((err, res) => {
 			let objSettings={};
 			if (err) {
-				callback(err, null)
-				return
+				console.log(err, null);
 			}
 
 			for (let index = 0; index < res.length; index++) {
