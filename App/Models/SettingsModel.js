@@ -62,8 +62,7 @@ SettingsModel.prototype.getSettings = function (callback) {
  * @param code // codigo generado 
  **/
 SettingsModel.prototype.saveLog = function (error, response, id) {
-	console.log("save log function",error, response, id);
-	if((error || response)){
+	if((error || response) && id){
 		this.select((err, res) => {
 			let objSettings={};
 			if (err) {
