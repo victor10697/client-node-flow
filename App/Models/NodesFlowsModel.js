@@ -123,7 +123,7 @@ const processInputNodeFlowForSource= async (input, inputId, source_id, callback)
 	})
 }
 /** Metodos Procesamiento de arbol de accion */
-var countFlow={},$GLOBAL={},responseCode=null,responseMessage=null;
+var countFlow={},$GLOBALG={},responseCode=null,responseMessage=null;
 /**
  * Metodo de inicio procesamiento arbol de accion
  * @param {*} input
@@ -132,6 +132,7 @@ var countFlow={},$GLOBAL={},responseCode=null,responseMessage=null;
  */
 const ProcessTreeNode= async (input, inputId, treeNode, callback, lengthListFlow) => {
 	countFlow['input_'+inputId]=0;
+	$GLOBALG['input_'+inputId]={};
 	responseCode=null;
 	responseMessage=null;
 	for (var tree in treeNode){
@@ -165,6 +166,8 @@ const ProcessActionNode= async (node,input, inputId,responseAnt,callback,lengthL
 
 const ProcessActionPerType= async (action, input, inputId, responsePrev, callback)=>{
 	let returnEmpty= false;
+	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
+
 	if(responseCode && responseCode != ''){
 		callback(null, responseMessage, responseCode); return false;		
 	}
@@ -269,10 +272,11 @@ const ProcessActionTypeEmail= async (action, input, inputId, responsePrev, callb
 						console.log('response Email',responseNow);
 					}
 					if(action.scriptActionPost){
+						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 						eval(`${action.scriptActionPost}`);
 					}
 					if(response.length == (parseInt(index)+1)){
-						$GLOBAL[action.name]= responseNow;
+						$GLOBALG['input_'+inputId][action.name]= responseNow;
 						callback(null, responseNow);
 						return true;
 					}
@@ -294,10 +298,11 @@ const ProcessActionTypeDatabaseRDS= async (action, input, inputId, responsePrev,
 						console.log('response database',responseNow);
 					}
 					if(action.scriptActionPost){
+						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 						eval(`${action.scriptActionPost}`);
 					}
 					if(response.length == (parseInt(index)+1)){
-						$GLOBAL[action.name]= responseNow;
+						$GLOBALG['input_'+inputId][action.name]= responseNow;
 						callback(null, responseNow);
 						return true;
 					}
@@ -319,10 +324,11 @@ const ProcessActionTypeJWT= async (action, input, inputId, responsePrev, callbac
 						console.log('response Process Data',responseNow);
 					}
 					if(action.scriptActionPost){
+						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 						eval(`${action.scriptActionPost}`);
 					}
 					if(response.length == (parseInt(index)+1)){
-						$GLOBAL[action.name]= responseNow;
+						$GLOBALG['input_'+inputId][action.name]= responseNow;
 						callback(null, responseNow);
 						return true;
 					}
@@ -344,10 +350,11 @@ const ProcessActionTypeMD5= async (action, input, inputId, responsePrev, callbac
 						console.log('response Process MD5',responseNow);
 					}
 					if(action.scriptActionPost){
+						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 						eval(`${action.scriptActionPost}`);
 					}
 					if(response.length == (parseInt(index)+1)){
-						$GLOBAL[action.name]= responseNow;
+						$GLOBALG['input_'+inputId][action.name]= responseNow;
 						callback(null, responseNow);
 						return true;
 					}
@@ -369,10 +376,11 @@ const ProcessActionTypeSSH2= async (action, input, inputId, responsePrev, callba
 						console.log('response Process SSH2',responseNow);
 					}
 					if(action.scriptActionPost){
+						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 						eval(`${action.scriptActionPost}`);
 					}
 					if(response.length == (parseInt(index)+1)){
-						$GLOBAL[action.name]= responseNow;
+						$GLOBALG['input_'+inputId][action.name]= responseNow;
 						callback(null, responseNow);
 						return true;
 					}
@@ -394,10 +402,11 @@ const ProcessActionTypeProcessData= async (action, input, inputId, responsePrev,
 						console.log('response Process Data',responseNow);
 					}
 					if(action.scriptActionPost){
+						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 						eval(`${action.scriptActionPost}`);
 					}
 					if(response.length == (parseInt(index)+1)){
-						$GLOBAL[action.name]= responseNow;
+						$GLOBALG['input_'+inputId][action.name]= responseNow;
 						callback(null, responseNow);
 						return true;
 					}
@@ -419,11 +428,12 @@ const ProcessActionTypeHTTPRequest= async (action, input, inputId, responsePrev,
 						console.log('response Http',responseNow);
 					}
 					if(action.scriptActionPost){
+						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 						eval(`${action.scriptActionPost}`);
 					}
 					if(response.length == (parseInt(index)+1)){
-						$GLOBAL[action.name]= responseNow;
-						$GLOBAL[action.name+'_headers']= responseHeadersNow;
+						$GLOBALG['input_'+inputId][action.name]= responseNow;
+						$GLOBALG['input_'+inputId][action.name+'_headers']= responseHeadersNow;
 						callback(null, responseNow);
 						return true;
 					}
@@ -442,6 +452,8 @@ const ProcessHttpRequest= async (httpProcess, input, inputId, responsePrev, call
 		responseType: 'json'
 	};
 	let bodyHttp= {};
+	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
+
 	eval(`bodyHttp=${httpProcess.body}`)
 	switch (httpProcess.method.toUpperCase()) {
 		case 'GET':
@@ -499,6 +511,8 @@ const ProcessHttpRequest= async (httpProcess, input, inputId, responsePrev, call
 
 const ProcessDataAction= async (action, input, inputId, responsePrev, callback)=>{
 	let returnAction={};
+	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
+
 	eval(`(async function() {
 		${action.functionProcessData}
 
@@ -515,6 +529,8 @@ const ProcessDataAction= async (action, input, inputId, responsePrev, callback)=
 }
 
 const ProcessJWTAction= async (action, input, inputId, responsePrev, callback)=>{
+	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
+
 	if(action.type=='sign'){
 		ActionsTypeJWTModel.singJWT(action, input, responsePrev, (err, res)=>{
 			HistoryFlowModel.insert({
@@ -544,6 +560,7 @@ const ProcessJWTAction= async (action, input, inputId, responsePrev, callback)=>
 }
 
 const ProcessMD5Action= async (action, input, inputId, responsePrev, callback)=>{
+	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 	let returnMD5={};
 	let valueMD5= "";
 	eval(`valueMD5=${action.value}`)
@@ -560,6 +577,7 @@ const ProcessMD5Action= async (action, input, inputId, responsePrev, callback)=>
 }
 
 const ProcessSSH2Action= async (action, input, inputId, responsePrev, callback)=>{
+	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 	let actionType="";
 	let objectConfig= {};
 	let objectAction= {};
@@ -582,6 +600,7 @@ const ProcessSSH2Action= async (action, input, inputId, responsePrev, callback)=
 }
 
 const ProcessEmail= async (emailProcess, input, inputId, responsePrev, callback) => {
+	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 	let settingsEmail= {
 		mail_host: emailProcess.MAIL_HOST,
 		mail_port: emailProcess.MAIL_PORT,
@@ -651,6 +670,7 @@ const ProcessEmail= async (emailProcess, input, inputId, responsePrev, callback)
 }
 
 const ProcessDatabaseRDS= async (rdsProcess, input, inputId, responsePrev, callback) => {
+	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 	if(rdsProcess.DB_CONNECTION && rdsProcess.DB_CONNECTION != '' && rdsProcess.query != '' && rdsProcess.query){
 		let conection= require('../Connection/'+rdsProcess.DB_CONNECTION.toLocaleLowerCase()+'/connectionDynamic');
 			let valuesQueyProcess=[];
