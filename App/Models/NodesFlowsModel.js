@@ -622,16 +622,20 @@ const ProcessEmail= async (emailProcess, input, inputId, responsePrev, callback)
 		}
 		let optionsEmail= {
 			to: listEmails.join(','),
-			subject: emailProcess.MAIL_FROM_NAME,
+			subject: emailProcess.subject,
 			html: emailProcess.template,
-			from: emailProcess.MAIL_FROM_ADDRESS
+			from: {
+				name: emailProcess.MAIL_FROM_NAME || '',
+				address: emailProcess.MAIL_FROM_ADDRESS
+			}
 		};
 
 		if(typeof responsePrev == 'object' && !Array.isArray(responsePrev)){
 			for (var resPrev in responsePrev){
 				if(typeof resPrev == 'string' && resPrev != 0){
 					let varReplace= typeof responsePrev[resPrev] == 'object' ? JSON.stringify(responsePrev[resPrev]) : responsePrev[resPrev];
-					optionsEmail.html= optionsEmail.html.replace(new RegExp('{responsePrev.'+resPrev+'}', 'g'), varReplace);
+					optionsEmail.html = optionsEmail.html.replace(new RegExp('{responsePrev.' + resPrev + '}', 'g'), varReplace);
+					optionsEmail.subject = optionsEmail.subject.replace(new RegExp('{responsePrev.' + resPrev + '}', 'g'), varReplace);
 				}
 			}
 		}
@@ -640,7 +644,8 @@ const ProcessEmail= async (emailProcess, input, inputId, responsePrev, callback)
 			for (var inp in input){
 				if(typeof inp == 'string' && inp != 0){
 					let varReplace2= typeof input[inp] == 'object' ? JSON.stringify(input[inp]) : input[inp];
-					optionsEmail.html= optionsEmail.html.replace(new RegExp('{input.'+inp+'}', 'g'), varReplace2);
+					optionsEmail.html = optionsEmail.html.replace(new RegExp('{input.' + inp + '}', 'g'), varReplace2);
+					optionsEmail.subject = optionsEmail.subject.replace(new RegExp('{input.'+inp+'}', 'g'), varReplace2);
 				}
 			}
 		}
