@@ -470,6 +470,10 @@ const updateLoginAuthorizationAccessVTEX= (resAction,registroLogin)=>{
 };
 
 const savePasswordVTEX= async (registroLogin,settings)=>{
+	if(!registroLogin?.userId){
+		return false;	
+	}
+
 	let requestOptions = {
 		url: settings?.urlEntityPassword,
 		method: 'PATCH',
