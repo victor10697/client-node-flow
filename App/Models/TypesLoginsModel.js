@@ -297,7 +297,7 @@ const ProcessStepValid= async (dataStep, input, LoginAuthorization, settings,cal
 			} 
 			if(resAF.authorizedUserIdLogin){
 				LoginAuthorization.userId= resAF.authorizedUserIdLogin;
-				delete resAF.authorizedUserIdLogin;
+				delete resAF.authorizedUserIdLogin; 
 			}
 			if(resAF.authorizedNameLogin){
 				LoginAuthorization.name= resAF.authorizedNameLogin;
@@ -470,10 +470,10 @@ const updateLoginAuthorizationAccessVTEX= (resAction,registroLogin)=>{
 };
 
 const savePasswordVTEX= async (registroLogin,settings)=>{
-	if(!registroLogin?.userId){
+	if(!registroLogin?.userId || registroLogin?.userId == ''){
 		return false;	
 	}
-
+	console.log('start save password', registroLogin, settings);
 	let requestOptions = {
 		url: settings?.urlEntityPassword,
 		method: 'PATCH',
@@ -481,7 +481,8 @@ const savePasswordVTEX= async (registroLogin,settings)=>{
 		data: {
 		  id:registroLogin?.userId,
 		  confirmation:registroLogin?.codeVerify,
-		  password:registroLogin?.password
+		  password:registroLogin?.password,
+		  accesskey: registroLogin?.userId
 		},
 		headers: {
 			'X-VTEX-API-AppKey': settings?.apiKeyVtex,

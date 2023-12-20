@@ -18,3 +18,17 @@ Variables Globales Utilidad
     errorEmail:
         - Es el mensaje de error que suge en el procesamiento de envio de un email.
     
+    authorizedUserIdLogin: 
+        - Es el id de usuario que hace el proceso de inicio de sesion
+    authorizedEmailLogin:
+        - Es el email del cliente que hace el proceso de inicio de sesion
+    authorizedNameLogin:
+        - Es el nombre de cliente que hace el proceso de inicio de sesion
+    hashPassword:
+        - Es el hash de la contraseña que desea crear el cliente
+    sendCodeValidate:
+        - Es el hash del codigo de verificacion enviado al cliente
+    codeAuthorization:
+        - Es el token del provedor de autenticacion seleccionado por el cliente para proceso de inicio de sesion.
+    authorizedPassword
+        - Es el hash de la contraseña que creo el cliente para su inicio de sesion
