@@ -9,21 +9,21 @@ const SourcesModel = require('../../Models/SourcesModel')
 exports.findAll = (req, res) => {
     CronModel.select((error, response) => {
         if (!error) {
-            if(typeof res == 'function'){
+            if (typeof res == 'function') {
                 res({
                     statusCode: 200,
                     body: JSON.stringify({ 'state': 'success', 'list': response })
                 })
-            }else{
+            } else {
                 res.status(200).json({ 'state': 'success', 'list': response })
             }
         } else {
-            if(typeof res == 'function'){
+            if (typeof res == 'function') {
                 res({
                     statusCode: 400,
                     body: JSON.stringify({ 'state': 'error', 'message': 'error list crons!' })
                 })
-            }else{
+            } else {
                 res.status(400).json({ 'state': 'error', 'message': 'error list crons!' })
             }
         }
@@ -38,7 +38,7 @@ exports.findAll = (req, res) => {
 exports.insert = (req, res) => {
     if (req.body && Object.keys(req.body).length > 0) {
         // Desestructurar los valores del cuerpo de la petición
-        const { sourceName, cronName, cronDescription, cronTime, cronValues } = req.body
+        const { sourceName, cronName, cronDescription, cronTime, cronValues, actived = 0 } = req.body
         if (sourceName && sourceName != '') {
             SourcesModel.getSourcePerName(sourceName, (err, resS) => {
                 if (err) {
@@ -50,68 +50,69 @@ exports.insert = (req, res) => {
                             description: cronDescription ?? null,
                             cron: cronTime,
                             sources_id: resS.id,
-                            values: cronValues ?? null
+                            values: cronValues ?? null,
+                            actived: actived
                         };
                         // Se inserta o actualiza los datos del Cron Job
                         CronModel.createOrUpdate(cronJobRecord, { 'name': true }, (err, result) => {
                             if (!err) {
-                                if(typeof res == 'function'){
+                                if (typeof res == 'function') {
                                     res({
                                         statusCode: 200,
                                         body: JSON.stringify({ 'state': 'success', 'result': result })
                                     })
-                                }else{
+                                } else {
                                     res.status(200).json({ 'state': 'success', 'result': result })
                                 }
                             } else {
-                                if(typeof res == 'function'){
+                                if (typeof res == 'function') {
                                     res({
                                         statusCode: 400,
                                         body: JSON.stringify({ 'state': 'error', 'message': 'error register!' })
                                     })
-                                }else{
+                                } else {
                                     res.status(400).json({ 'state': 'error', 'message': 'error register!' })
                                 }
                             }
                         });
                     } else {
-                        if(typeof res == 'function'){
+                        if (typeof res == 'function') {
                             res({
                                 statusCode: 400,
                                 body: JSON.stringify({ 'state': 'error', 'message': 'error cronName, cronTime is required!' })
                             })
-                        }else{
+                        } else {
                             res.status(400).json({ 'state': 'error', 'message': 'error cronName, cronTime is required!' })
                         }
                     }
                 } else {
-                    if(typeof res == 'function'){
+                    if (typeof res == 'function') {
                         res({
                             statusCode: 400,
                             body: JSON.stringify({ 'state': 'error', 'message': 'error request!' })
                         })
-                    }else{
+                    } else {
                         res.status(400).json({ 'state': 'error', 'message': 'error request!' })
                     }
                 }
             });
         } else {
-            if(typeof res == 'function'){
+            if (typeof res == 'function') {
                 res({
                     statusCode: 400,
                     body: JSON.stringify({ 'state': 'error', 'message': 'error name, label, sources_id is required!' })
                 })
-            }else{
+            } else {
                 res.status(400).json({ 'state': 'error', 'message': 'error name, label, sources_id is required!' })
             }
         }
     } else {
-        if(typeof res == 'function'){
+        if (typeof res == 'function') {
             res({
                 statusCode: 400,
                 body: JSON.stringify({ 'state': 'error', 'message': 'Content cannot be empty' })
             })
-        }else{
+        } else {
             res.status(400).json({ 'state': 'error', 'message': 'Content cannot be empty' })
         }
     }
@@ -126,32 +127,32 @@ exports.delete = (req, res) => {
     if (req.params && req.params.id) {
         CronModel.remove(req.params.id, (error, response) => {
             if (!error) {
-                if(typeof res == 'function'){
+                if (typeof res == 'function') {
                     res({
                         statusCode: 200,
                         body: JSON.stringify({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
                     })
-                }else{
+                } else {
                     res.status(200).json({ 'state': 'success', 'message': `Register ${req.params.id} deleted!` })
                 }
             } else {
-                if(typeof res == 'function'){
+                if (typeof res == 'function') {
                     res({
                         statusCode: 400,
                         body: JSON.stringify({ 'state': 'error', 'message': 'error deleted!' })
                     })
-                }else{
+                } else {
                     res.status(400).json({ 'state': 'error', 'message': 'error deleted!' })
                 }
             }
         });
     } else {
-        if(typeof res == 'function'){
+        if (typeof res == 'function') {
             res({
                 statusCode: 400,
                 body: JSON.stringify({ 'state': 'error', 'message': 'error deleted!' })
             })
-        }else{
+        } else {
             res.status(400).json({ 'state': 'error', 'message': 'error deleted!' })
         }
     }
@@ -178,22 +179,22 @@ exports.getCronJobs = (regExpByDate, regExpGeneral, callback) => {
 }
 
 exports.setApiKey = (key) => {
-    if(key){
+    if (key) {
         CronModel.setApiKey(key);
-        SourcesModel.setApiKey(key); 
+        SourcesModel.setApiKey(key);
     }
 }
 
 exports.setApiToken = (token) => {
-    if(token){
+    if (token) {
         CronModel.setApiToken(token);
-        SourcesModel.setApiToken(token);    
+        SourcesModel.setApiToken(token);
     }
 }
 
 exports.setUrl = (url) => {
-    if(url){
+    if (url) {
         CronModel.setUrl(url);
-        SourcesModel.setUrl(url);    
+        SourcesModel.setUrl(url);
     }
 }
