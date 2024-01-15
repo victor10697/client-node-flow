@@ -1,2 +1,8 @@
 package-lock.json
 node_modules
+
+# Ejecutables de windows
+*.bat
+
+# SonarQube
+.scannerwork/
