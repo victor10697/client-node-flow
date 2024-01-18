@@ -9,15 +9,9 @@ function LoginsAuthorizationsModel() {
 }
 LoginsAuthorizationsModel.prototype = new Model();
 
-const deleteSolicitudVTEX=(id)=>{
-	LoginsAuthorizationsModel.prototype.delete(id, (err, res) => {
-		if (err) {
-			console.log(err)
-		}
-	})
-};
 LoginsAuthorizationsModel.prototype.getUserInfoValid= function(accesToken, callback){
-	this.validAccessClient(accesToken, (err,dataLogin)=>{
+	let thisT= this;
+	thisT.validAccessClient(accesToken, (err,dataLogin)=>{
 		if(err){
 			callback('access denied.', null);
 		}else{
@@ -27,7 +21,7 @@ LoginsAuthorizationsModel.prototype.getUserInfoValid= function(accesToken, callb
 						callback('Token Expired Error', null);
 						return false;
 					}else{
-						deleteSolicitudVTEX(dataLogin.id);
+						thisT?.delete(dataLogin.id, (err, res) => {if (err) {console.log(err);} });
 						callback(null, {
 							id: dataLogin.userId,
 							email: dataLogin.email,

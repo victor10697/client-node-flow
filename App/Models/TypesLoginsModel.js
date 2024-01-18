@@ -481,8 +481,7 @@ const savePasswordVTEX= async (registroLogin,settings)=>{
 		data: {
 		  id:registroLogin?.userId,
 		  confirmation:registroLogin?.codeVerify,
-		  password:registroLogin?.password,
-		  accesskey: registroLogin?.userId
+		  password:registroLogin?.password
 		},
 		headers: {
 			'X-VTEX-API-AppKey': settings?.apiKeyVtex,
