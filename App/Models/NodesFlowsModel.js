@@ -172,7 +172,11 @@ const ProcessActionPerType= async (action, input, inputId, responsePrev, callbac
 		callback(null, responseMessage, responseCode); return false;		
 	}
 	if(action.scriptActionPrev){
-		eval(`${action.scriptActionPrev}`);
+		try{
+			eval(`${action.scriptActionPrev}`);
+		}catch(e){
+			console.error('error function custom client!',e);
+		}
 	}
 	if(responseCode && responseCode != ''){
 		callback(null, responseMessage, responseCode); return false;		
@@ -273,7 +277,11 @@ const ProcessActionTypeEmail= async (action, input, inputId, responsePrev, callb
 					}
 					if(action.scriptActionPost){
 						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
-						eval(`${action.scriptActionPost}`);
+						try{
+							eval(`${action.scriptActionPost}`);
+						}catch(e){
+							console.error('error function custom client!',e);
+						}
 					}
 					if(response.length == (parseInt(index)+1)){
 						$GLOBALG['input_'+inputId][action.name]= responseNow;
@@ -299,7 +307,11 @@ const ProcessActionTypeDatabaseRDS= async (action, input, inputId, responsePrev,
 					}
 					if(action.scriptActionPost){
 						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
-						eval(`${action.scriptActionPost}`);
+						try{
+							eval(`${action.scriptActionPost}`);
+						}catch(e){
+							console.error('error function custom client!',e);
+						}
 					}
 					if(response.length == (parseInt(index)+1)){
 						$GLOBALG['input_'+inputId][action.name]= responseNow;
@@ -325,7 +337,11 @@ const ProcessActionTypeJWT= async (action, input, inputId, responsePrev, callbac
 					}
 					if(action.scriptActionPost){
 						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
-						eval(`${action.scriptActionPost}`);
+						try{
+							eval(`${action.scriptActionPost}`);
+						}catch(e){
+							console.error('error function custom client!',e);
+						}
 					}
 					if(response.length == (parseInt(index)+1)){
 						$GLOBALG['input_'+inputId][action.name]= responseNow;
@@ -351,7 +367,11 @@ const ProcessActionTypeMD5= async (action, input, inputId, responsePrev, callbac
 					}
 					if(action.scriptActionPost){
 						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
-						eval(`${action.scriptActionPost}`);
+						try{
+							eval(`${action.scriptActionPost}`);
+						}catch(e){
+							console.error('error function custom client!',e);
+						}
 					}
 					if(response.length == (parseInt(index)+1)){
 						$GLOBALG['input_'+inputId][action.name]= responseNow;
@@ -377,7 +397,11 @@ const ProcessActionTypeSSH2= async (action, input, inputId, responsePrev, callba
 					}
 					if(action.scriptActionPost){
 						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
-						eval(`${action.scriptActionPost}`);
+						try{
+							eval(`${action.scriptActionPost}`);
+						}catch(e){
+							console.error('error function custom client!',e);
+						}
 					}
 					if(response.length == (parseInt(index)+1)){
 						$GLOBALG['input_'+inputId][action.name]= responseNow;
@@ -403,7 +427,11 @@ const ProcessActionTypeProcessData= async (action, input, inputId, responsePrev,
 					}
 					if(action.scriptActionPost){
 						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
-						eval(`${action.scriptActionPost}`);
+						try{
+							eval(`${action.scriptActionPost}`);
+						}catch(e){
+							console.error('error function custom client!',e);
+						}
 					}
 					if(response.length == (parseInt(index)+1)){
 						$GLOBALG['input_'+inputId][action.name]= responseNow;
@@ -429,7 +457,11 @@ const ProcessActionTypeHTTPRequest= async (action, input, inputId, responsePrev,
 					}
 					if(action.scriptActionPost){
 						let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
-						eval(`${action.scriptActionPost}`);
+						try{
+							eval(`${action.scriptActionPost}`);
+						}catch(e){
+							console.error('error function custom client!',e);
+						}
 					}
 					if(response.length == (parseInt(index)+1)){
 						$GLOBALG['input_'+inputId][action.name]= responseNow;
@@ -454,7 +486,11 @@ const ProcessHttpRequest= async (httpProcess, input, inputId, responsePrev, call
 	let bodyHttp= {};
 	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 
-	eval(`bodyHttp=${httpProcess.body}`)
+	try{
+		eval(`bodyHttp=${httpProcess.body}`)
+	}catch(e){
+		console.error('error function custom client!',e);
+	}
 	switch (httpProcess.method.toUpperCase()) {
 		case 'GET':
 				requestOptions.params= bodyHttp;
@@ -513,19 +549,23 @@ const ProcessDataAction= async (action, input, inputId, responsePrev, callback)=
 	let returnAction={};
 	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 
-	eval(`(async function() {
-		${action.functionProcessData}
+	try{
+		eval(`(async function() {
+			${action.functionProcessData}
 
-		HistoryFlowModel.insert({
-			response: typeof returnAction === 'object' ? JSON.stringify(returnAction) : returnAction,
-			request: typeof responsePrev === 'object' ? JSON.stringify(responsePrev) : responsePrev,
-			actions_id: action.actions_id,
-			inputs_updates_id:  inputId
-		}, (errorIn,resIn)=>{});
+			HistoryFlowModel.insert({
+				response: typeof returnAction === 'object' ? JSON.stringify(returnAction) : returnAction,
+				request: typeof responsePrev === 'object' ? JSON.stringify(responsePrev) : responsePrev,
+				actions_id: action.actions_id,
+				inputs_updates_id:  inputId
+			}, (errorIn,resIn)=>{});
 
-		callback(null, returnAction);
+			callback(null, returnAction);
 
-	})()`);
+		})()`);
+	}catch(e){
+		console.error('error function custom client!',e);
+	}
 }
 
 const ProcessJWTAction= async (action, input, inputId, responsePrev, callback)=>{
@@ -563,7 +603,12 @@ const ProcessMD5Action= async (action, input, inputId, responsePrev, callback)=>
 	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 	let returnMD5={};
 	let valueMD5= "";
-	eval(`valueMD5=${action.value}`)
+
+	try{
+		eval(`valueMD5=${action.value}`);
+	}catch(e){
+		console.error('error function custom client!',e);
+	}
 
 	returnMD5.encrypt= md5(action.secret+valueMD5);
 	HistoryFlowModel.insert({
@@ -581,8 +626,14 @@ const ProcessSSH2Action= async (action, input, inputId, responsePrev, callback)=
 	let actionType="";
 	let objectConfig= {};
 	let objectAction= {};
-	eval(`objectConfig=${action.objectConfig}`);
-	eval(`objectAction=${action.objectAction}`);
+
+	try{
+		eval(`objectConfig=${action.objectConfig}`);
+		eval(`objectAction=${action.objectAction}`);
+	}catch(e){
+		console.error('error function custom client!',e);
+	}
+
 	actionType= action.actionType;
 
 	if(typeof objectConfig == 'object' && typeof objectAction == 'object' && Object.keys(objectConfig).length > 0 && Object.keys(objectAction).length > 0 && actionType != ''){
@@ -609,7 +660,11 @@ const ProcessEmail= async (emailProcess, input, inputId, responsePrev, callback)
 		mail_encryption: emailProcess.MAIL_ENCRYPTION
 	},
 	listEmailsT=[];
-	eval(`listEmailsT=${emailProcess.listEmails};`)
+	try{
+		eval(`listEmailsT=${emailProcess.listEmails};`);
+	}catch(e){
+		console.error('error function custom client!',e);
+	}
 	if(typeof listEmailsT == 'object'){
 		for (let i = 0; i < listEmailsT.length; i++) {
 			emailProcess.emails.push({email:listEmailsT[i]});
@@ -680,8 +735,11 @@ const ProcessDatabaseRDS= async (rdsProcess, input, inputId, responsePrev, callb
 		let conection= require('../Connection/'+rdsProcess.DB_CONNECTION.toLocaleLowerCase()+'/connectionDynamic');
 			let valuesQueyProcess=[];
 
-			eval(`valuesQueyProcess=${rdsProcess.valuesQuey};`);
-			
+			try{
+				eval(`valuesQueyProcess=${rdsProcess.valuesQuey};`);
+			}catch(e){
+				console.error('error function custom client!',e);
+			}
 			conection({
 				host: rdsProcess.DB_HOST,
 				port: rdsProcess.DB_PORT,
