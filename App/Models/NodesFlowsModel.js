@@ -564,7 +564,7 @@ const ProcessDataAction= async (action, input, inputId, responsePrev, callback)=
 
 		})()`);
 	}catch(e){
-		console.error('error function custom client!',e);
+		console.error('error function custom client!',e, 'data action', action);
 	}
 }
 
