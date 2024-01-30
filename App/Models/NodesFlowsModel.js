@@ -175,7 +175,7 @@ const ProcessActionPerType= async (action, input, inputId, responsePrev, callbac
 		try{
 			eval(`${action.scriptActionPrev}`);
 		}catch(e){
-			console.error('error function custom client!',e);
+			console.error('error function custom client!',e, 'data action', action);
 		}
 	}
 	if(responseCode && responseCode != ''){
@@ -280,7 +280,7 @@ const ProcessActionTypeEmail= async (action, input, inputId, responsePrev, callb
 						try{
 							eval(`${action.scriptActionPost}`);
 						}catch(e){
-							console.error('error function custom client!',e);
+							console.error('error function custom client!',e, 'data action', action);
 						}
 					}
 					if(response.length == (parseInt(index)+1)){
@@ -310,7 +310,7 @@ const ProcessActionTypeDatabaseRDS= async (action, input, inputId, responsePrev,
 						try{
 							eval(`${action.scriptActionPost}`);
 						}catch(e){
-							console.error('error function custom client!',e);
+							console.error('error function custom client!',e, 'data action', action);
 						}
 					}
 					if(response.length == (parseInt(index)+1)){
@@ -340,7 +340,7 @@ const ProcessActionTypeJWT= async (action, input, inputId, responsePrev, callbac
 						try{
 							eval(`${action.scriptActionPost}`);
 						}catch(e){
-							console.error('error function custom client!',e);
+							console.error('error function custom client!',e, 'data action', action);
 						}
 					}
 					if(response.length == (parseInt(index)+1)){
@@ -370,7 +370,7 @@ const ProcessActionTypeMD5= async (action, input, inputId, responsePrev, callbac
 						try{
 							eval(`${action.scriptActionPost}`);
 						}catch(e){
-							console.error('error function custom client!',e);
+							console.error('error function custom client!',e, 'data action', action);
 						}
 					}
 					if(response.length == (parseInt(index)+1)){
@@ -400,7 +400,7 @@ const ProcessActionTypeSSH2= async (action, input, inputId, responsePrev, callba
 						try{
 							eval(`${action.scriptActionPost}`);
 						}catch(e){
-							console.error('error function custom client!',e);
+							console.error('error function custom client!',e, 'data action', action);
 						}
 					}
 					if(response.length == (parseInt(index)+1)){
@@ -430,7 +430,7 @@ const ProcessActionTypeProcessData= async (action, input, inputId, responsePrev,
 						try{
 							eval(`${action.scriptActionPost}`);
 						}catch(e){
-							console.error('error function custom client!',e);
+							console.error('error function custom client!',e, 'data action', action);
 						}
 					}
 					if(response.length == (parseInt(index)+1)){
@@ -460,7 +460,7 @@ const ProcessActionTypeHTTPRequest= async (action, input, inputId, responsePrev,
 						try{
 							eval(`${action.scriptActionPost}`);
 						}catch(e){
-							console.error('error function custom client!',e);
+							console.error('error function custom client!',e, 'data action', action);
 						}
 					}
 					if(response.length == (parseInt(index)+1)){
