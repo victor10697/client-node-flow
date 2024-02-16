@@ -8,7 +8,8 @@ const paramsConexion = {
 	port: env.DB_PORT || '3306',
 	database: env.DB_DATABASE || '',
 	user: env.DB_USERNAME || 'root',
-	password: env.DB_PASSWORD || ''
+	password: env.DB_PASSWORD || '',
+	connectTimeout: env.DB_CONNECT_TIMEOUT || 3600
 }
 const connection = mysql.createConnection(paramsConexion)
 
