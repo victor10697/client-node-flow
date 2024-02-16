@@ -9,7 +9,7 @@ const paramsConexion = {
 	database: env.DB_DATABASE || '',
 	user: env.DB_USERNAME || 'root',
 	password: env.DB_PASSWORD || '',
-	connectTimeout: env.DB_CONNECT_TIMEOUT || 3600
+	connectTimeout: env.DB_CONNECT_TIMEOUT || 3600000
 }
 const connection = mysql.createConnection(paramsConexion)
 
