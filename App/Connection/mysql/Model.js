@@ -965,4 +965,24 @@ Model.prototype.getProviderAvailablePerName = function getProviderAvailablePerNa
 	})
 }
 
+/**
+ * Metodo para limpiar datos de una tabla
+ **/
+Model.prototype.truncate = function truncate(){
+	const statement = `TRUNCATE TABLE ${this.tableName}`;
+	let conect= this.dbConnection;
+
+	return new Promise(async(resp, er)=>{
+		conect.query(statement, (err, res) => {
+			if (err) {
+				console.log(err);
+				er(err)
+			}
+
+			res = res.length > 0 ? res : [];
+			resp(res);
+		});
+	});
+}
+
 module.exports = Model

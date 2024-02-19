@@ -9,6 +9,7 @@ const NodesFlowsController = require('./App/Http/Controllers/NodesFlowsControlle
 const OauthController = require('./App/Http/Controllers/OauthController')
 const SettingsController = require('./App/Http/Controllers/SettingsController')
 const SourcesController = require('./App/Http/Controllers/SourcesController')
+const SuportController = require('./App/Http/Controllers/SuportController')
 
 module.exports = {
   ActionsController,
@@ -20,5 +21,6 @@ module.exports = {
   NodesFlowsController,
   OauthController,
   SettingsController,
-  SourcesController
+  SourcesController,
+  SuportController
 };
