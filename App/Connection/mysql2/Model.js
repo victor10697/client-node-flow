@@ -38,7 +38,7 @@ Model.prototype.getRegister = async function (id) {
 	}
 
 	return new Promise((resolve, reject) => connectDB.query(statement, [id], (err, results) => {
-      connectDB.end();
+      
       if (err) {
       	console.error(err);
         reject(err)
@@ -65,7 +65,7 @@ Model.prototype.getRegisterRelacion = async function (campoRelacion, id, active=
 	}
 
 	return new Promise((resolve, reject) => connectDB.query(statement, [id,active], (err, results) => {
-      connectDB.end();
+      
       if (err) {
       	console.error(err);
         reject(err)
@@ -111,7 +111,7 @@ Model.prototype.insert = async function (record, result) {
 	}
 
 	connectDB.query(statement, values, (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			result(err, null)
@@ -148,7 +148,7 @@ Model.prototype.update = async function (id, record, result) {
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, values, (err, res) => {
-		connectDB.end();
+		
 		_this.callbackUpdateRecord(err, res, result)
 	})
 }
@@ -171,7 +171,7 @@ Model.prototype.remove = async function (id, result) {
 	}
 
 	connectDB.query(statement, values, (err, res) => {
-		connectDB.end();
+		
 		_this.callbackDeleteRecord(err, res, result)
 	})
 }
@@ -201,7 +201,7 @@ Model.prototype.replace = async function (record, result) {
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, values, (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			result(err, null)
@@ -219,7 +219,7 @@ Model.prototype.callbackSelect = async function (statement, values, result) {
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, values, (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			result(err, null)
@@ -237,7 +237,7 @@ Model.prototype.callbackSelectOne = async function (statement, values, result) {
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, values, (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			result(err, null)
@@ -356,7 +356,7 @@ Model.prototype.validRegisterUniqued = async function (fieldsUniquied, fieldsUni
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statementSelect, fieldsUniquiedValues, (err, res) => {
-		connectDB.end();
+		
 		if(!err){
 			if(res.length > 0){
 				result(null, res[0][this.columnId])
@@ -390,7 +390,7 @@ Model.prototype.updateRegister = async function (fieldsUpdate, values, registreI
 	}
 
 	connectDB.query(statement, values, (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			result(err, null)
@@ -418,7 +418,7 @@ Model.prototype.createRegister = async function (fields, wildcards, values, resu
 	}
 
 	connectDB.query(statement, values, (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			result(err, null)
@@ -515,7 +515,7 @@ Model.prototype.getActionPerNodeFlowId = async function getActionPerNodeFlowId(n
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [nodeId], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, [])
@@ -540,7 +540,7 @@ Model.prototype.getActionDatabaseRDS = async function getActionDatabaseRDS(actio
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [actionId], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, [])
@@ -564,7 +564,7 @@ Model.prototype.getEmails = async function getEmails(actionEmailId, callback){
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [actionEmailId], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, [])
@@ -590,7 +590,7 @@ Model.prototype.getActionEmail = async function getActionEmail(actionId, callbac
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [actionId], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, [])
@@ -631,7 +631,7 @@ Model.prototype.getActionJWT = async function getActionJWT(actionId, callback){
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [actionId], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, [])
@@ -655,7 +655,7 @@ Model.prototype.getActionMD5 = async function getActionMD5(actionId, callback){
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [actionId], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, [])
@@ -679,7 +679,7 @@ Model.prototype.getActionSFTP = async function getActionSFTP(actionId, callback)
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [actionId], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, [])
@@ -703,7 +703,7 @@ Model.prototype.validTypeAction = async function validTypeAction(name, result) {
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [name], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			result(err, null)
@@ -729,7 +729,7 @@ Model.prototype.getHeadersPerActionHttpRequest = async function getHeadersPerAct
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [actionHttpId], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			callback(err, [])
 			return
@@ -754,7 +754,7 @@ Model.prototype.getActionHttpRequest = async function getActionHttpRequest(actio
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [actionId], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, [])
@@ -795,7 +795,7 @@ Model.prototype.getActionProcessData = async function getActionProcessData(actio
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [actionId], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, [])
@@ -820,7 +820,7 @@ Model.prototype.getCronJobs = async function getCronJobs(regExpByDate, regExpGen
 			console.error('errDB', errDB);
 	}
   connectDB.query(statement, [], (error, records) => {
-  	connectDB.end();
+  	
     if (error) callback(error, null)
     else callback(null, records)
   })
@@ -900,7 +900,7 @@ Model.prototype.selectHistory = async function selectHistory(req, callback){
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [0,1,req.params.source_id].concat(w.params), (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, [])
@@ -925,7 +925,7 @@ Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(sou
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [source_id], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, [])
@@ -952,7 +952,7 @@ Model.prototype.updateNodeParent = async function updateNodeParent(nodeFlowId,no
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [nodeParent,sourceId], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			return false;
@@ -979,7 +979,7 @@ Model.prototype.validSource = async function validSource(key, token, result) {
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [key, token], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			result(err, null)
@@ -1005,7 +1005,7 @@ Model.prototype.getSourcePerName = async function getSourcePerName(sourceName, r
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [sourceName], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			result(err, null)
@@ -1034,7 +1034,7 @@ Model.prototype.getPerToken = async function getPerToken(tokenAuthorization, cal
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [tokenAuthorization], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback('error',null);
@@ -1060,7 +1060,7 @@ Model.prototype.validAccessClient = async function validAccessClient(accesToken,
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [accesToken], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback('error',null);
@@ -1087,7 +1087,7 @@ Model.prototype.updateSolicitudVTEX = async function updateSolicitudVTEX(id,toke
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [token,'processed',id], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback('error',null);
@@ -1113,7 +1113,7 @@ Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(c
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [code,'processing','pending'], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback('error',null);
@@ -1140,7 +1140,7 @@ Model.prototype.getStepPerName = async function getStepPerName(stepName, types_l
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [stepName,types_logins_id], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, null)
@@ -1165,7 +1165,7 @@ Model.prototype.getListProviders = async function getListProviders(callback){
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, null)
@@ -1191,7 +1191,7 @@ Model.prototype.generateTokenIntial = async function generateTokenIntial(provide
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [1,0,provider,1,0,1], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, null)
@@ -1217,7 +1217,7 @@ Model.prototype.getProviderAvailablePerName = async function getProviderAvailabl
 			console.error('errDB', errDB);
 	}
 	connectDB.query(statement, [1,0,provider,1,0,0], (err, res) => {
-		connectDB.end();
+		
 		if (err) {
 			console.error(err);
 			callback(err, null)
@@ -1243,7 +1243,7 @@ Model.prototype.truncate = async function truncate(){
 
 	return new Promise(async(resp, er)=>{
 		connectDB.query(statement, (err, res) => {
-			connectDB.end();
+			
 			if (err) {
 				console.error(err);
 				er(err)
