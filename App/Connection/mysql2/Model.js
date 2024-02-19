@@ -30,10 +30,17 @@ Model.prototype.get = function (id, result) {
  */
 Model.prototype.getRegister = async function (id) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE id = ? AND deleted = 0`;
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
 
-	return new Promise((resolve, reject) => this.dbConnection.query(statement, [id], (err, results) => {
+	return new Promise((resolve, reject) => connectDB.query(statement, [id], (err, results) => {
       if (err) {
-      	console.log(err);
+      	console.error(err);
         reject(err)
       } else if(results[0]){
         resolve(results[0]);
@@ -50,10 +57,17 @@ Model.prototype.getRegister = async function (id) {
  */
 Model.prototype.getRegisterRelacion = async function (campoRelacion, id, active=1) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE ${campoRelacion} = ? AND deleted = 0 AND actived=?`;
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
 
-	return new Promise((resolve, reject) => this.dbConnection.query(statement, [id,active], (err, results) => {
+	return new Promise((resolve, reject) => connectDB.query(statement, [id,active], (err, results) => {
       if (err) {
-      	console.log(err);
+      	console.error(err);
         reject(err)
       } else {
         resolve(results);
@@ -89,9 +103,17 @@ Model.prototype.insert = function (record, result) {
 	}
 
 	const statement = `INSERT INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
-	this.dbConnection.query(statement, values, (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+
+	connectDB.query(statement, values, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -107,6 +129,7 @@ Model.prototype.insert = function (record, result) {
  */
 Model.prototype.update = function (id, record, result) {
 	setCurrentDate(record, false)
+	const _this= this;
 
 	let wildcards = [], values = []
 	for (let i in record) {
@@ -118,8 +141,15 @@ Model.prototype.update = function (id, record, result) {
 	values.push(id)
 
 	let statement = `UPDATE ${this.tableName} SET ${wildcards.toString()} WHERE ${this.columnId} = ? AND deleted = 0`
-	this.dbConnection.query(statement, values, (err, res) => {
-		this.callbackUpdateRecord(err, res, result)
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, values, (err, res) => {
+		_this.callbackUpdateRecord(err, res, result)
 	})
 }
 
@@ -131,9 +161,18 @@ Model.prototype.update = function (id, record, result) {
 Model.prototype.remove = function (id, result) {
 	const statement = `UPDATE ${this.tableName} SET deleted = 1, actived = 0 WHERE ${this.columnId} = ? AND deleted = 0`
 	const values = [id]
+	const _this= this;
 
-	this.dbConnection.query(statement, values, (err, res) => {
-		this.callbackDeleteRecord(err, res, result)
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+
+	connectDB.query(statement, values, (err, res) => {
+		_this.callbackDeleteRecord(err, res, result)
 	})
 }
 
@@ -155,9 +194,16 @@ Model.prototype.replace = function (record, result) {
 	}
 
 	let statement = `REPLACE INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
-	this.dbConnection.query(statement, values, (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, values, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -166,9 +212,16 @@ Model.prototype.replace = function (record, result) {
 }
 
 Model.prototype.callbackSelect = function (statement, values, result) {
-	this.dbConnection.query(statement, values, (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, values, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -177,9 +230,16 @@ Model.prototype.callbackSelect = function (statement, values, result) {
 }
 
 Model.prototype.callbackSelectOne = function (statement, values, result) {
-	this.dbConnection.query(statement, values, (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, values, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -288,7 +348,15 @@ Model.prototype.getArrayRequestUpdateOrCreate = function (record, skipKeys) {
  */
 Model.prototype.validRegisterUniqued = function (fieldsUniquied, fieldsUniquiedValues, result) {
 	const statementSelect = `SELECT ${this.columnId} FROM ${this.tableName} WHERE ${fieldsUniquied.join(' AND ')} AND ${this.tableName}.deleted=0 LIMIT 1`;
-	this.dbConnection.query(statementSelect, fieldsUniquiedValues, (err, res) => {
+
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statementSelect, fieldsUniquiedValues, (err, res) => {
 		if(!err){
 			if(res.length > 0){
 				result(null, res[0][this.columnId])
@@ -314,10 +382,17 @@ Model.prototype.validRegisterUniqued = function (fieldsUniquied, fieldsUniquiedV
 Model.prototype.updateRegister = function (fieldsUpdate, values, registreId, result) {
 	values.push(registreId);
 	const statement = `UPDATE ${this.tableName} SET ${fieldsUpdate} WHERE ${this.columnId}=? AND deleted = 0`
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
 
-	this.dbConnection.query(statement, values, (err, res) => {
+	connectDB.query(statement, values, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}else{
@@ -335,10 +410,17 @@ Model.prototype.updateRegister = function (fieldsUpdate, values, registreId, res
  **/
 Model.prototype.createRegister = function (fields, wildcards, values, result) {
 	const statement = `INSERT INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
 
-	this.dbConnection.query(statement, values, (err, res) => {
+	connectDB.query(statement, values, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}else{
@@ -409,7 +491,14 @@ Model.prototype.getCurrentDate = getCurrentDate
  **/
 Model.prototype.deleteByActionId = function deleteByActionId(actionId) {
 	const statement = `DELETE FROM ${this.tableName} WHERE action_id = ?`
-	return this.dbConnection.query(statement, [actionId],(err, res)=>{})
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	return connectDB.query(statement, [actionId],(err, res)=>{})
 }
 
 /**
@@ -419,9 +508,16 @@ Model.prototype.deleteByActionId = function deleteByActionId(actionId) {
  **/
 Model.prototype.getActionPerNodeFlowId = function getActionPerNodeFlowId(nodeId, callback) {
 	const statement = `SELECT actions.*, act.name as action_type FROM actions INNER JOIN actions_types as act ON act.id=actions.action_type_id WHERE actions.nodes_flows_id=? AND actions.deleted=0 AND actions.actived=1 LIMIT 1`;
-	this.dbConnection.query(statement, [nodeId], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [nodeId], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -437,9 +533,16 @@ Model.prototype.getActionPerNodeFlowId = function getActionPerNodeFlowId(nodeId,
  **/
 Model.prototype.getActionDatabaseRDS = function getActionDatabaseRDS(actionId, callback){
 	const statement = `SELECT * FROM databases_rds WHERE databases_rds.actions_id=? AND databases_rds.deleted=0 AND databases_rds.actived=1`;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -454,9 +557,16 @@ Model.prototype.getActionDatabaseRDS = function getActionDatabaseRDS(actionId, c
  **/
 Model.prototype.getEmails = function getEmails(actionEmailId, callback){
 	const statement = `SELECT * FROM emails WHERE emails.action_type_emails_id=? AND emails.deleted=0 AND emails.actived=1`;
-	this.dbConnection.query(statement, [actionEmailId], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionEmailId], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -473,9 +583,16 @@ Model.prototype.getEmails = function getEmails(actionEmailId, callback){
 Model.prototype.getActionEmail = function getActionEmail(actionId, callback){
 	const statement = `SELECT * FROM action_type_emails WHERE action_type_emails.actions_id=? AND action_type_emails.deleted=0 AND action_type_emails.actived=1`;
 	let thisT= this;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -507,9 +624,16 @@ Model.prototype.getActionEmail = function getActionEmail(actionId, callback){
  **/
 Model.prototype.getActionJWT = function getActionJWT(actionId, callback){
 	const statement = `SELECT * FROM actions_types_jwt WHERE actions_types_jwt.actions_id=? AND actions_types_jwt.deleted=0 AND actions_types_jwt.actived=1`;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -524,9 +648,16 @@ Model.prototype.getActionJWT = function getActionJWT(actionId, callback){
  **/
 Model.prototype.getActionMD5 = function getActionMD5(actionId, callback){
 	const statement = `SELECT * FROM actions_types_md5 WHERE actions_types_md5.actions_id=? AND actions_types_md5.deleted=0 AND actions_types_md5.actived=1`;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -541,9 +672,16 @@ Model.prototype.getActionMD5 = function getActionMD5(actionId, callback){
  **/
 Model.prototype.getActionSFTP = function getActionSFTP(actionId, callback){
 	const statement = `SELECT * FROM actions_types_ssh2 WHERE actions_types_ssh2.actions_id=? AND actions_types_ssh2.deleted=0 AND actions_types_ssh2.actived=1`;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -558,9 +696,16 @@ Model.prototype.getActionSFTP = function getActionSFTP(actionId, callback){
  **/
 Model.prototype.validTypeAction = function validTypeAction(name, result) {
 	const statement = `SELECT * FROM actions_types WHERE actions_types.name=? AND actions_types.deleted=0 AND actions_types.actived=1`;
-	this.dbConnection.query(statement, [name], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [name], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -577,7 +722,14 @@ Model.prototype.validTypeAction = function validTypeAction(name, result) {
  **/
 Model.prototype.getHeadersPerActionHttpRequest = function getHeadersPerActionHttpRequest(actionHttpId, callback){
 	const statement = `SELECT * FROM headers WHERE headers.action_type_http_request_id=? AND headers.deleted=0 AND headers.actived=1`;
-	this.dbConnection.query(statement, [actionHttpId], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.dbConnection.query(statement, [actionHttpId], (err, res) => {
 		if (err) {
 			callback(err, [])
 			return
@@ -595,9 +747,16 @@ Model.prototype.getHeadersPerActionHttpRequest = function getHeadersPerActionHtt
 Model.prototype.getActionHttpRequest = function getActionHttpRequest(actionId, callback){
 	const statement = `SELECT * FROM action_type_http_request WHERE action_type_http_request.actions_id=? AND action_type_http_request.deleted=0 AND action_type_http_request.actived=1`;
 	let thisT= this;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -629,9 +788,16 @@ Model.prototype.getActionHttpRequest = function getActionHttpRequest(actionId, c
  **/
 Model.prototype.getActionProcessData = function getActionProcessData(actionId, callback){
 	const statement = `SELECT * FROM action_type_process_data WHERE action_type_process_data.actions_id=? AND action_type_process_data.deleted=0 AND action_type_process_data.actived=1`;
-	this.dbConnection.query(statement, [actionId], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -647,7 +813,14 @@ Model.prototype.getActionProcessData = function getActionProcessData(actionId, c
  **/
 Model.prototype.getCronJobs = function getCronJobs(regExpByDate, regExpGeneral, callback) {
   const statement = `SELECT * FROM cron_jobs WHERE (cron REGEXP '${regExpByDate}' OR cron NOT REGEXP '${regExpGeneral}') AND deleted = 0 AND actived = 1`;
-  this.dbConnection.query(statement, [], (error, records) => {
+  const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+  connectDB.query(statement, [], (error, records) => {
     if (error) callback(error, null)
     else callback(null, records)
   })
@@ -720,9 +893,16 @@ Model.prototype.selectHistory = function selectHistory(req, callback){
 							history_flow.actived=? AND
 							inp.source_id=? 
 							${w.where}`;
-	this.dbConnection.query(statement, [0,1,req.params.source_id].concat(w.params), (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [0,1,req.params.source_id].concat(w.params), (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -738,9 +918,16 @@ Model.prototype.selectHistory = function selectHistory(req, callback){
  **/
 Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(source_id, callback){
 	const statement = `SELECT * FROM nodes_flows WHERE nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
-	this.dbConnection.query(statement, [source_id], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [source_id], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -758,9 +945,16 @@ Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(sou
 Model.prototype.updateNodeParent = function updateNodeParent(nodeFlowId,nodeParent,sourceId){
 	const statement = `SELECT id FROM nodes_flows WHERE nodes_flows.name=? AND nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
 	let thisT= this;
-	this.dbConnection.query(statement, [nodeParent,sourceId], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [nodeParent,sourceId], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			return false;
 		}
 		if(res.length > 0){
@@ -778,9 +972,16 @@ Model.prototype.updateNodeParent = function updateNodeParent(nodeFlowId,nodePare
  **/
 Model.prototype.validSource = function validSource(key, token, result) {
 	const statement = `SELECT id,name FROM sources WHERE sources.key=? AND sources.token=? AND sources.deleted=0 AND sources.actived=1`;
-	this.dbConnection.query(statement, [key, token], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [key, token], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -797,9 +998,16 @@ Model.prototype.validSource = function validSource(key, token, result) {
  **/
 Model.prototype.getSourcePerName = function getSourcePerName(sourceName, result) {
 	const statement = `SELECT id FROM sources WHERE sources.name=? AND sources.deleted=0 AND sources.actived=1`;
-	this.dbConnection.query(statement, [sourceName], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [sourceName], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -819,9 +1027,16 @@ Model.prototype.getSourcePerName = function getSourcePerName(sourceName, result)
  **/
 Model.prototype.getPerToken = function getPerToken(tokenAuthorization, callback){
 	const statement = `SELECT id,types_logins_id,codeVerify,state,email,name,userId,redirect_uri,stateVtex,password FROM logins_authorizations WHERE tokenAuthorization=? AND state='pending' AND actived = 1 AND deleted=0`;
-	this.dbConnection.query(statement, [tokenAuthorization], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [tokenAuthorization], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback('error',null);
 			return false;
 		}else{
@@ -838,9 +1053,16 @@ Model.prototype.getPerToken = function getPerToken(tokenAuthorization, callback)
  **/
 Model.prototype.validAccessClient = function validAccessClient(accesToken, callback){
 	const statement = `SELECT * FROM logins_authorizations WHERE accessToken=? AND actived = 1 AND deleted=0`;
-	this.dbConnection.query(statement, [accesToken], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [accesToken], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback('error',null);
 			return false;
 		}else{
@@ -858,9 +1080,16 @@ Model.prototype.validAccessClient = function validAccessClient(accesToken, callb
  **/
 Model.prototype.updateSolicitudVTEX = function updateSolicitudVTEX(id,token, callback){
 	const statement = `UPDATE logins_authorizations SET accessToken=?, state=? WHERE id=?`;
-	this.dbConnection.query(statement, [token,'processed',id], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [token,'processed',id], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback('error',null);
 			return false;
 		}else{
@@ -877,9 +1106,16 @@ Model.prototype.updateSolicitudVTEX = function updateSolicitudVTEX(id,token, cal
  **/
 Model.prototype.validCodeSolicitudVTEX = function validCodeSolicitudVTEX(code, callback){
 	const statement = `SELECT * FROM logins_authorizations WHERE codeAuthorization=? AND (state=? OR state=?) AND actived = 1 AND deleted=0`;
-	this.dbConnection.query(statement, [code,'processing','pending'], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [code,'processing','pending'], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback('error',null);
 			return false;
 		}else{
@@ -897,9 +1133,16 @@ Model.prototype.validCodeSolicitudVTEX = function validCodeSolicitudVTEX(code, c
  **/
 Model.prototype.getStepPerName = function getStepPerName(stepName, types_logins_id, callback){
 	const statement = `SELECT * FROM steps_logins WHERE steps_logins.name=? AND steps_logins.types_logins_id=? AND steps_logins.deleted=0 AND steps_logins.actived=1`;
-	this.dbConnection.query(statement, [stepName,types_logins_id], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [stepName,types_logins_id], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, null)
 			return
 		}
@@ -915,9 +1158,16 @@ Model.prototype.getStepPerName = function getStepPerName(stepName, types_logins_
  **/
 Model.prototype.getListProviders = function getListProviders(callback){
 	const statement = `SELECT providerName,label,description,iconUrl FROM types_logins WHERE actived = 1 AND deleted=0 ORDER BY position ASC`;
-	this.dbConnection.query(statement, [], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, null)
 			return
 		}
@@ -934,9 +1184,16 @@ Model.prototype.getListProviders = function getListProviders(callback){
  **/
 Model.prototype.generateTokenIntial = function generateTokenIntial(provider, callback){
 	const statement = `SELECT sl.sources_id, sl.types_logins_id FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? LIMIT 1`;
-	this.dbConnection.query(statement, [1,0,provider,1,0,1], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [1,0,provider,1,0,1], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, null)
 			return
 		}
@@ -953,9 +1210,16 @@ Model.prototype.generateTokenIntial = function generateTokenIntial(provider, cal
  **/
 Model.prototype.getProviderAvailablePerName = function getProviderAvailablePerName(provider, callback){
 	const statement = `SELECT sl.id, sl.name, sl.label, sl.description, sl.nameButtonSubmit, sl.nameButtonClose FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? ORDER BY sl.step ASC`;
-	this.dbConnection.query(statement, [1,0,provider,1,0,0], (err, res) => {
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [1,0,provider,1,0,0], (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, null)
 			return
 		}
@@ -970,12 +1234,18 @@ Model.prototype.getProviderAvailablePerName = function getProviderAvailablePerNa
  **/
 Model.prototype.truncate = function truncate(){
 	const statement = `TRUNCATE TABLE ${this.tableName}`;
-	let conect= this.dbConnection;
+	const connectDB= this.dbConnection;
+	try{
+		connectDB.connect();
+		setTimeout(connectDB.end, 100);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
 
 	return new Promise(async(resp, er)=>{
-		conect.query(statement, (err, res) => {
+		connectDB.query(statement, (err, res) => {
 			if (err) {
-				console.log(err);
+				console.error(err);
 				er(err)
 			}
 

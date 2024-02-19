@@ -54,7 +54,7 @@ Model.prototype.getRegister = async function (id) {
 		query: {id:id}
 	}, (err, results) => {
       if (err) {
-      	console.log(err);
+      	console.error(err);
         reject(err)
       } else if(results[0]){
         resolve(results[0]);
@@ -83,7 +83,7 @@ Model.prototype.getRegisterRelacion = async function (campoRelacion, id, active=
 		query: qr
 	}, (err, results) => {
       if (err) {
-      	console.log(err);
+      	console.error(err);
         reject(err)
       } else {
         resolve(results);
@@ -102,7 +102,7 @@ Model.prototype.getRegisterRelacion = async function (campoRelacion, id, active=
 		id: id
 	}, (err, res)=>{
 		if(err){
-			console.log(err);
+			console.error(err);
 			result(err, null);
 			return;
 		}
@@ -123,7 +123,7 @@ Model.prototype.insert = function (record, result) {
 		body: record
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -148,7 +148,7 @@ Model.prototype.update = function (id, record, result) {
 		id: id
 	}, (err, res) => {
 		if(err){
-			console.log(err);
+			console.error(err);
 			result(err, null);
 			return;
 		}
@@ -167,7 +167,7 @@ Model.prototype.remove = function (id, result) {
 		id: id
 	}, (err, res)=>{
 		if(err){
-			console.log(err);
+			console.error(err);
 			result(err, null);
 			return;
 		}
@@ -192,7 +192,7 @@ Model.prototype.callbackSelect = function (statement, values, result) {
 		query: values
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -206,7 +206,7 @@ Model.prototype.callbackSelectOne = function (statement, values, result) {
 		query: values
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -359,7 +359,7 @@ Model.prototype.updateRegister = function (fieldsUpdate, values, registreId, res
 		id: registreId
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}else{
@@ -386,7 +386,7 @@ Model.prototype.createRegister = function (fields, wildcards, values, result) {
 
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}else{
@@ -521,7 +521,7 @@ Model.prototype.getActionDatabaseRDS = function getActionDatabaseRDS(actions_ida
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -543,7 +543,7 @@ Model.prototype.getEmails = function getEmails(actionEmailId, callback){
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -566,7 +566,7 @@ Model.prototype.getActionEmail = function getActionEmail(actionId, callback){
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -605,7 +605,7 @@ Model.prototype.getActionJWT = function getActionJWT(actionId, callback){
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -627,7 +627,7 @@ Model.prototype.getActionMD5 = function getActionMD5(actionId, callback){
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -649,7 +649,7 @@ Model.prototype.getActionSFTP = function getActionSFTP(actionId, callback){
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -671,7 +671,7 @@ Model.prototype.validTypeAction = function validTypeAction(name, result) {
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -695,7 +695,7 @@ Model.prototype.getHeadersPerActionHttpRequest = function getHeadersPerActionHtt
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -718,7 +718,7 @@ Model.prototype.getActionHttpRequest = function getActionHttpRequest(actionId, c
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -757,7 +757,7 @@ Model.prototype.getActionProcessData = function getActionProcessData(actionId, c
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -851,7 +851,7 @@ Model.prototype.selectHistory = function selectHistory(req, callback){
 							${w.where}`;
 	this.dbConnection.query(statement, [0,1,req.params.source_id].concat(w.params), (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -874,7 +874,7 @@ Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(sou
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, [])
 			return
 		}
@@ -899,7 +899,7 @@ Model.prototype.updateNodeParent = function updateNodeParent(nodeFlowId,nodePare
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			return false;
 		}
 		if(res.length > 0){
@@ -925,7 +925,7 @@ Model.prototype.validSource = function validSource(key, token, result) {
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -949,7 +949,7 @@ Model.prototype.getSourcePerName = function getSourcePerName(sourceName, result)
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			result(err, null)
 			return
 		}
@@ -978,7 +978,7 @@ Model.prototype.getPerToken = function getPerToken(tokenAuthorization, callback)
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback('error',null);
 			return false;
 		}else{
@@ -1002,7 +1002,7 @@ Model.prototype.validAccessClient = function validAccessClient(accesToken, callb
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback('error',null);
 			return false;
 		}else{
@@ -1028,7 +1028,7 @@ Model.prototype.updateSolicitudVTEX = function updateSolicitudVTEX(id,token, cal
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback('error',null);
 			return false;
 		}else{
@@ -1054,7 +1054,7 @@ Model.prototype.validCodeSolicitudVTEX = function validCodeSolicitudVTEX(code, c
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback('error',null);
 			return false;
 		}else{
@@ -1080,7 +1080,7 @@ Model.prototype.getStepPerName = function getStepPerName(stepName, types_logins_
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, null)
 			return
 		}
@@ -1106,7 +1106,7 @@ Model.prototype.getListProviders = function getListProviders(callback){
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, null)
 			return
 		}
@@ -1131,7 +1131,7 @@ Model.prototype.generateTokenIntial = function generateTokenIntial(provider, cal
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, null)
 			return
 		}
@@ -1171,7 +1171,7 @@ Model.prototype.getProviderAvailablePerName = function getProviderAvailablePerNa
 		}
 	}, (err, res) => {
 		if (err) {
-			console.log(err);
+			console.error(err);
 			callback(err, null)
 			return
 		}
