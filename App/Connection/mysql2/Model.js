@@ -1,5 +1,4 @@
 const dbConnection = require('./connection')
-const mysql = require('mysql2');
 
 function Model() {
 	this.columnId = 'id'
@@ -31,7 +30,7 @@ Model.prototype.get = function (id, result) {
  */
 Model.prototype.getRegister = async function (id) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE id = ? AND deleted = 0`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -58,7 +57,7 @@ Model.prototype.getRegister = async function (id) {
  */
 Model.prototype.getRegisterRelacion = async function (campoRelacion, id, active=1) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE ${campoRelacion} = ? AND deleted = 0 AND actived=?`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -104,7 +103,7 @@ Model.prototype.insert = async function (record, result) {
 	}
 
 	const statement = `INSERT INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -142,7 +141,7 @@ Model.prototype.update = async function (id, record, result) {
 	values.push(id)
 
 	let statement = `UPDATE ${this.tableName} SET ${wildcards.toString()} WHERE ${this.columnId} = ? AND deleted = 0`
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -164,7 +163,7 @@ Model.prototype.remove = async function (id, result) {
 	const values = [id]
 	const _this= this;
 
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -195,7 +194,7 @@ Model.prototype.replace = async function (record, result) {
 	}
 
 	let statement = `REPLACE INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -213,7 +212,7 @@ Model.prototype.replace = async function (record, result) {
 }
 
 Model.prototype.callbackSelect = async function (statement, values, result) {
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -231,7 +230,7 @@ Model.prototype.callbackSelect = async function (statement, values, result) {
 }
 
 Model.prototype.callbackSelectOne = async function (statement, values, result) {
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -350,7 +349,7 @@ Model.prototype.getArrayRequestUpdateOrCreate = function (record, skipKeys) {
 Model.prototype.validRegisterUniqued = async function (fieldsUniquied, fieldsUniquiedValues, result) {
 	const statementSelect = `SELECT ${this.columnId} FROM ${this.tableName} WHERE ${fieldsUniquied.join(' AND ')} AND ${this.tableName}.deleted=0 LIMIT 1`;
 
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -383,7 +382,7 @@ Model.prototype.validRegisterUniqued = async function (fieldsUniquied, fieldsUni
 Model.prototype.updateRegister = async function (fieldsUpdate, values, registreId, result) {
 	values.push(registreId);
 	const statement = `UPDATE ${this.tableName} SET ${fieldsUpdate} WHERE ${this.columnId}=? AND deleted = 0`
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -411,7 +410,7 @@ Model.prototype.updateRegister = async function (fieldsUpdate, values, registreI
  **/
 Model.prototype.createRegister = async function (fields, wildcards, values, result) {
 	const statement = `INSERT INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -492,7 +491,7 @@ Model.prototype.getCurrentDate = getCurrentDate
  **/
 Model.prototype.deleteByActionId = async function deleteByActionId(actionId) {
 	const statement = `DELETE FROM ${this.tableName} WHERE action_id = ?`
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 		setTimeout(connectDB.end, 1500);
@@ -509,7 +508,7 @@ Model.prototype.deleteByActionId = async function deleteByActionId(actionId) {
  **/
 Model.prototype.getActionPerNodeFlowId = async function getActionPerNodeFlowId(nodeId, callback) {
 	const statement = `SELECT actions.*, act.name as action_type FROM actions INNER JOIN actions_types as act ON act.id=actions.action_type_id WHERE actions.nodes_flows_id=? AND actions.deleted=0 AND actions.actived=1 LIMIT 1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -534,7 +533,7 @@ Model.prototype.getActionPerNodeFlowId = async function getActionPerNodeFlowId(n
  **/
 Model.prototype.getActionDatabaseRDS = async function getActionDatabaseRDS(actionId, callback){
 	const statement = `SELECT * FROM databases_rds WHERE databases_rds.actions_id=? AND databases_rds.deleted=0 AND databases_rds.actived=1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -558,7 +557,7 @@ Model.prototype.getActionDatabaseRDS = async function getActionDatabaseRDS(actio
  **/
 Model.prototype.getEmails = async function getEmails(actionEmailId, callback){
 	const statement = `SELECT * FROM emails WHERE emails.action_type_emails_id=? AND emails.deleted=0 AND emails.actived=1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -584,7 +583,7 @@ Model.prototype.getEmails = async function getEmails(actionEmailId, callback){
 Model.prototype.getActionEmail = async function getActionEmail(actionId, callback){
 	const statement = `SELECT * FROM action_type_emails WHERE action_type_emails.actions_id=? AND action_type_emails.deleted=0 AND action_type_emails.actived=1`;
 	let thisT= this;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -625,7 +624,7 @@ Model.prototype.getActionEmail = async function getActionEmail(actionId, callbac
  **/
 Model.prototype.getActionJWT = async function getActionJWT(actionId, callback){
 	const statement = `SELECT * FROM actions_types_jwt WHERE actions_types_jwt.actions_id=? AND actions_types_jwt.deleted=0 AND actions_types_jwt.actived=1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -649,7 +648,7 @@ Model.prototype.getActionJWT = async function getActionJWT(actionId, callback){
  **/
 Model.prototype.getActionMD5 = async function getActionMD5(actionId, callback){
 	const statement = `SELECT * FROM actions_types_md5 WHERE actions_types_md5.actions_id=? AND actions_types_md5.deleted=0 AND actions_types_md5.actived=1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -673,7 +672,7 @@ Model.prototype.getActionMD5 = async function getActionMD5(actionId, callback){
  **/
 Model.prototype.getActionSFTP = async function getActionSFTP(actionId, callback){
 	const statement = `SELECT * FROM actions_types_ssh2 WHERE actions_types_ssh2.actions_id=? AND actions_types_ssh2.deleted=0 AND actions_types_ssh2.actived=1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -697,7 +696,7 @@ Model.prototype.getActionSFTP = async function getActionSFTP(actionId, callback)
  **/
 Model.prototype.validTypeAction = async function validTypeAction(name, result) {
 	const statement = `SELECT * FROM actions_types WHERE actions_types.name=? AND actions_types.deleted=0 AND actions_types.actived=1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -723,7 +722,7 @@ Model.prototype.validTypeAction = async function validTypeAction(name, result) {
  **/
 Model.prototype.getHeadersPerActionHttpRequest = async function getHeadersPerActionHttpRequest(actionHttpId, callback){
 	const statement = `SELECT * FROM headers WHERE headers.action_type_http_request_id=? AND headers.deleted=0 AND headers.actived=1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -748,7 +747,7 @@ Model.prototype.getHeadersPerActionHttpRequest = async function getHeadersPerAct
 Model.prototype.getActionHttpRequest = async function getActionHttpRequest(actionId, callback){
 	const statement = `SELECT * FROM action_type_http_request WHERE action_type_http_request.actions_id=? AND action_type_http_request.deleted=0 AND action_type_http_request.actived=1`;
 	let thisT= this;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -789,7 +788,7 @@ Model.prototype.getActionHttpRequest = async function getActionHttpRequest(actio
  **/
 Model.prototype.getActionProcessData = async function getActionProcessData(actionId, callback){
 	const statement = `SELECT * FROM action_type_process_data WHERE action_type_process_data.actions_id=? AND action_type_process_data.deleted=0 AND action_type_process_data.actived=1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -814,7 +813,7 @@ Model.prototype.getActionProcessData = async function getActionProcessData(actio
  **/
 Model.prototype.getCronJobs = async function getCronJobs(regExpByDate, regExpGeneral, callback) {
   const statement = `SELECT * FROM cron_jobs WHERE (cron REGEXP '${regExpByDate}' OR cron NOT REGEXP '${regExpGeneral}') AND deleted = 0 AND actived = 1`;
-  const connectDB= await mysql.createConnection(this.dbConnection);
+  const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -894,7 +893,7 @@ Model.prototype.selectHistory = async function selectHistory(req, callback){
 							history_flow.actived=? AND
 							inp.source_id=? 
 							${w.where}`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -919,7 +918,7 @@ Model.prototype.selectHistory = async function selectHistory(req, callback){
  **/
 Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(source_id, callback){
 	const statement = `SELECT * FROM nodes_flows WHERE nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -946,7 +945,7 @@ Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(sou
 Model.prototype.updateNodeParent = async function updateNodeParent(nodeFlowId,nodeParent,sourceId){
 	const statement = `SELECT id FROM nodes_flows WHERE nodes_flows.name=? AND nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
 	let thisT= this;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -973,7 +972,7 @@ Model.prototype.updateNodeParent = async function updateNodeParent(nodeFlowId,no
  **/
 Model.prototype.validSource = async function validSource(key, token, result) {
 	const statement = `SELECT id,name FROM sources WHERE sources.key=? AND sources.token=? AND sources.deleted=0 AND sources.actived=1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -999,7 +998,7 @@ Model.prototype.validSource = async function validSource(key, token, result) {
  **/
 Model.prototype.getSourcePerName = async function getSourcePerName(sourceName, result) {
 	const statement = `SELECT id FROM sources WHERE sources.name=? AND sources.deleted=0 AND sources.actived=1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -1028,7 +1027,7 @@ Model.prototype.getSourcePerName = async function getSourcePerName(sourceName, r
  **/
 Model.prototype.getPerToken = async function getPerToken(tokenAuthorization, callback){
 	const statement = `SELECT id,types_logins_id,codeVerify,state,email,name,userId,redirect_uri,stateVtex,password FROM logins_authorizations WHERE tokenAuthorization=? AND state='pending' AND actived = 1 AND deleted=0`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -1054,7 +1053,7 @@ Model.prototype.getPerToken = async function getPerToken(tokenAuthorization, cal
  **/
 Model.prototype.validAccessClient = async function validAccessClient(accesToken, callback){
 	const statement = `SELECT * FROM logins_authorizations WHERE accessToken=? AND actived = 1 AND deleted=0`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -1081,7 +1080,7 @@ Model.prototype.validAccessClient = async function validAccessClient(accesToken,
  **/
 Model.prototype.updateSolicitudVTEX = async function updateSolicitudVTEX(id,token, callback){
 	const statement = `UPDATE logins_authorizations SET accessToken=?, state=? WHERE id=?`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -1107,7 +1106,7 @@ Model.prototype.updateSolicitudVTEX = async function updateSolicitudVTEX(id,toke
  **/
 Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(code, callback){
 	const statement = `SELECT * FROM logins_authorizations WHERE codeAuthorization=? AND (state=? OR state=?) AND actived = 1 AND deleted=0`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -1134,7 +1133,7 @@ Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(c
  **/
 Model.prototype.getStepPerName = async function getStepPerName(stepName, types_logins_id, callback){
 	const statement = `SELECT * FROM steps_logins WHERE steps_logins.name=? AND steps_logins.types_logins_id=? AND steps_logins.deleted=0 AND steps_logins.actived=1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -1159,7 +1158,7 @@ Model.prototype.getStepPerName = async function getStepPerName(stepName, types_l
  **/
 Model.prototype.getListProviders = async function getListProviders(callback){
 	const statement = `SELECT providerName,label,description,iconUrl FROM types_logins WHERE actived = 1 AND deleted=0 ORDER BY position ASC`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -1185,7 +1184,7 @@ Model.prototype.getListProviders = async function getListProviders(callback){
  **/
 Model.prototype.generateTokenIntial = async function generateTokenIntial(provider, callback){
 	const statement = `SELECT sl.sources_id, sl.types_logins_id FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? LIMIT 1`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -1211,7 +1210,7 @@ Model.prototype.generateTokenIntial = async function generateTokenIntial(provide
  **/
 Model.prototype.getProviderAvailablePerName = async function getProviderAvailablePerName(provider, callback){
 	const statement = `SELECT sl.id, sl.name, sl.label, sl.description, sl.nameButtonSubmit, sl.nameButtonClose FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? ORDER BY sl.step ASC`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){
@@ -1235,7 +1234,7 @@ Model.prototype.getProviderAvailablePerName = async function getProviderAvailabl
  **/
 Model.prototype.truncate = async function truncate(){
 	const statement = `TRUNCATE TABLE ${this.tableName}`;
-	const connectDB= await mysql.createConnection(this.dbConnection);
+	const connectDB= this.dbConnection;
 	try{
 		await connectDB.connect();
 	} catch (errDB){

@@ -1,3 +1,4 @@
+const mysql = require('mysql')
 // Referencia a las variables definidas en el archivo .env
 const env = process.env
 
@@ -11,4 +12,7 @@ const paramsConexion = {
 	connectTimeout: env.DB_CONNECT_TIMEOUT || 3600000
 }
 
-module.exports = paramsConexion
+
+const connection = mysql.createConnection(paramsConexion)
+
+module.exports = connection
