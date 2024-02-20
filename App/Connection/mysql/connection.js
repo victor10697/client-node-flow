@@ -9,9 +9,10 @@ const paramsConexion = {
 	database: env.DB_DATABASE || '',
 	user: env.DB_USERNAME || 'root',
 	password: env.DB_PASSWORD || '',
-	connectTimeout: env.DB_CONNECT_TIMEOUT || 3600000
+	connectTimeout: env.DB_CONNECT_TIMEOUT || 3600000,
+	connectionLimit: env.DB_CONNECTION_LIMIT || 1000
 }
 
-const connection = mysql.createConnection(paramsConexion)
+const connection = mysql.createPool(paramsConexion)
 
 module.exports = connection
