@@ -185,8 +185,8 @@ exports.getValidCodeSolicitud=(req, res, fncallback)=>{
 }
 
 exports.getAuthorizationCodeURL=(req,res, fncallback)=>{
-    if(req?.query?.state && req?.query?.state != '' && req?.query?.redirect_uri && req?.query?.redirect_uri != ''){
-        LoginsAuthorizationsModel.getAuthorizationCode(req.query.state, req.query.redirect_uri, (err,response)=>{
+    if(req?.query?.state && req?.query?.state != '' && req?.query?.redirect_uri && req?.query?.redirect_uri != '' && req?.query?.client_id){
+        LoginsAuthorizationsModel.getAuthorizationCode(req.query.state, req.query.redirect_uri, req?.query?.client_id, (err,response)=>{
             if (typeof fncallback === 'function') { fncallback();}
             if(err){
                 if(typeof res == 'function'){

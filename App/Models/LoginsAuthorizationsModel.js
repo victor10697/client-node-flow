@@ -123,7 +123,7 @@ LoginsAuthorizationsModel.prototype.getValidCodeSolicitud= function(code,client_
 	}
 }
 
-LoginsAuthorizationsModel.prototype.getAuthorizationCode= function(state,redirect_uri,callback){
+LoginsAuthorizationsModel.prototype.getAuthorizationCode= function(state,redirect_uri,client_id,callback){
 	SettingsModel.getSettings((err,settings)=>{
 		if(err){
 			callback('error', null);
@@ -132,7 +132,7 @@ LoginsAuthorizationsModel.prototype.getAuthorizationCode= function(state,redirec
 			let validUri= listUris.filter((uri)=>{
 				return (uri.indexOf(redirect_uri) > -1 || redirect_uri.indexOf(encodeURIComponent(uri)) > -1 );
 			});
-			if(validUri.length > 0){
+			if(validUri.length > 0 && settings?.client_id === client_id){
 				let secret= settings.secretJWT && settings.secretJWT !='' ? settings.secretJWT.trim() : '12345',
 				objectEncrypt={
 					"status": 'success',
