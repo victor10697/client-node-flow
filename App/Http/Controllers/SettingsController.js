@@ -1,7 +1,8 @@
 const settingsModel = require('../../Models/SettingsModel')
 
-exports.findAll = (req, res) => {
+exports.findAll = (req, res, fncallback) => {
 	settingsModel.select((err, data) => {
+		if (typeof fncallback === 'function') { fncallback();}
 		if (err) {
 			if(typeof res == 'function'){
                 res({
@@ -45,7 +46,7 @@ exports.findAll = (req, res) => {
 	})
 }
 
-exports.insert = (req, res) => {
+exports.insert = (req, res, fncallback) => {
 	// Se valida el cuerpo de la petición
 	if (!req?.body) {
 		if(typeof res == 'function'){
@@ -73,6 +74,7 @@ exports.insert = (req, res) => {
 	}
  
 	settingsModel.createOrUpdate(req.body, { 'name': true, 'created_at': true }, (err, data) => {
+		if (typeof fncallback === 'function') { fncallback();}
 		if (err) {
 			if(typeof res == 'function'){
                 res({
@@ -95,7 +97,7 @@ exports.insert = (req, res) => {
 	})
 }
 
-exports.save = (req, res) => {
+exports.save = (req, res, fncallback) => {
 	// Se valida el cuerpo de la petición
 	if (!req?.body) {
 		if(typeof res == 'function'){
@@ -110,6 +112,7 @@ exports.save = (req, res) => {
 	}
 
 	settingsModel.saveRecords(req.body, (err, data) => {
+		if (typeof fncallback === 'function') { fncallback();}
 		if (err) {
 			if(typeof res == 'function'){
                 res({

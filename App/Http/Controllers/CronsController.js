@@ -6,8 +6,9 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.findAll = (req, res) => {
+exports.findAll = (req, res, fncallback) => {
     CronModel.select((error, response) => {
+        if (typeof fncallback === 'function') { fncallback();}
         if (!error) {
             if (typeof res == 'function') {
                 res({
@@ -35,7 +36,7 @@ exports.findAll = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.insert = (req, res) => {
+exports.insert = (req, res, fncallback) => {
     if (req.body && Object.keys(req.body).length > 0) {
         // Desestructurar los valores del cuerpo de la petición
         const { sourceName, cronName, cronDescription, cronTime, cronValues, actived = 0 } = req.body
@@ -55,6 +56,7 @@ exports.insert = (req, res) => {
                         };
                         // Se inserta o actualiza los datos del Cron Job
                         CronModel.createOrUpdate(cronJobRecord, { 'name': true }, (err, result) => {
+                            if (typeof fncallback === 'function') { fncallback();}
                             if (!err) {
                                 if (typeof res == 'function') {
                                     res({
@@ -123,9 +125,10 @@ exports.insert = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.delete = (req, res) => {
+exports.delete = (req, res, fncallback) => {
     if (req.params && req.params.id) {
         CronModel.remove(req.params.id, (error, response) => {
+            if (typeof fncallback === 'function') { fncallback();}
             if (!error) {
                 if (typeof res == 'function') {
                     res({

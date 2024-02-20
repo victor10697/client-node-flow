@@ -5,8 +5,9 @@ const ActionsTypesModel = require('../../Models/ActionsTypesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.findAll = (req, res) => {
+ exports.findAll = (req, res, fncallback) => {
     ActionsTypesModel.select((error, response)=>{
+        if (typeof fncallback === 'function') { fncallback();}
         if(!error){
             if(typeof res == 'function'){
                 res({
@@ -52,7 +53,8 @@ exports.save = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.update = (req, res) => {
+ exports.update = (req, res, fncallback) => {
+    if (typeof fncallback === 'function') { fncallback();}
     if(req?.params && req?.params?.id && req.body && Object.keys(req?.body).length > 0){
         ActionsTypesModel.update(req.params.id, req.body, (error, response)=>{
             if(!error){
@@ -92,10 +94,11 @@ exports.save = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.create = (req, res) => {
+ exports.create = (req, res, fncallback) => {
     if(req?.body && Object.keys(req?.body).length > 0){
         if(req?.body?.name){
             ActionsTypesModel.createOrUpdate(req.body, { name: true, 'created_at': true }, (error, response)=>{ 
+                if (typeof fncallback === 'function') { fncallback();}
                 if(!error){
                     if(typeof res == 'function'){
                         res({
@@ -143,10 +146,11 @@ exports.save = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.delete = (req, res) => {
+ exports.delete = (req, res, fncallback) => {
 	
     if(req?.params && req?.params?.id){
         ActionsTypesModel.remove(req.params.id, (error, response)=>{
+            if (typeof fncallback === 'function') { fncallback();}
             if(!error){
                 if(typeof res == 'function'){
                     res({

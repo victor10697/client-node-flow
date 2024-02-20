@@ -7,11 +7,12 @@ const ActionsController = require('./ActionsController')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.create = (req, res) => {
+exports.create = (req, res, fncallback) => {
     if (req?.body && Object.keys(req?.body).length > 0) {
         if (req?.body?.name && req?.body?.label && req?.body?.sourceName && req?.body?.sourceName != '') {
             SourcesModel.getSourcePerName(req.body.sourceName, (err, resS) => {
                 if (err) {
+                    if (typeof fncallback === 'function') { fncallback();}
                     if(typeof res == 'function'){
                         res({
                             statusCode: 400,
@@ -35,6 +36,7 @@ exports.create = (req, res) => {
                                 ActionsController.createAction(response.id, req.body.actionNode);
                             }
                             setTimeout(function() {
+                                if (typeof fncallback === 'function') { fncallback();}
                                 if(typeof res == 'function'){
                                     res({
                                         statusCode: 200,
@@ -56,6 +58,7 @@ exports.create = (req, res) => {
                         }
                     });
                 } else {
+                    if (typeof fncallback === 'function') { fncallback();}
                     if(typeof res == 'function'){
                         res({
                             statusCode: 400,
@@ -88,8 +91,9 @@ exports.create = (req, res) => {
     }
 }
 
-exports.getTreeNode = (req, res) => {
+exports.getTreeNode = (req, res, fncallback) => {
     NodesFlowsModel.getTreeNode(req?.params?.sources_id, (error, response) => {
+        if (typeof fncallback === 'function') { fncallback();}
         if (!error) {
             if(typeof res == 'function'){
                 res({

@@ -5,8 +5,9 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.findAll = (req, res) => {
+ exports.findAll = (req, res, fncallback) => {
     SourcesModel.select((error, response)=>{
+        if (typeof fncallback === 'function') { fncallback();}
         if(!error){
             if(typeof res == 'function'){
                 res({
@@ -34,9 +35,10 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.update = (req, res) => {
+ exports.update = (req, res, fncallback) => {
     if(req?.params && req?.params?.id && req?.body && Object.keys(req?.body).length > 0){
         SourcesModel.update(req.params.id, req.body, (error, response)=>{
+            if (typeof fncallback === 'function') { fncallback();}
             if(!error){
                 if(typeof res == 'function'){
                     res({
@@ -74,10 +76,11 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.create = (req, res) => {
+ exports.create = (req, res, fncallback) => {
     if(req?.body && Object.keys(req?.body).length > 0){
         if(req?.body?.name && req?.body?.description){
             SourcesModel.createOrUpdate(req.body, { 'name': true }, (error, response)=>{
+                if (typeof fncallback === 'function') { fncallback();}
                 if(!error){
                     if(typeof res == 'function'){
                         res({
@@ -125,9 +128,10 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.delete = (req, res) => {
+ exports.delete = (req, res, fncallback) => {
     if(req?.params && req?.params?.id){
         SourcesModel.remove(req.params.id, (error, response)=>{
+            if (typeof fncallback === 'function') { fncallback();}
             if(!error){
                 if(typeof res == 'function'){
                     res({

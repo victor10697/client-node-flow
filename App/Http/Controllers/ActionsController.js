@@ -15,7 +15,8 @@ const ActionsTypeSftpModel= require('../../Models/ActionsTypeSftpModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.findAll = (req, res) => {
+ exports.findAll = (req, res, fncallback) => {
+    if (typeof fncallback === 'function') { fncallback();}
     ActionsModel.select((error, response)=>{
         if(!error){
             if(typeof res == 'function'){
@@ -62,10 +63,11 @@ exports.save = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.delete = (req, res) => {
+ exports.delete = (req, res, fncallback) => {
 	
     if(req?.params && req?.params?.id){
         ActionsModel.remove(req.params.id, (error, response)=>{
+            if (typeof fncallback === 'function') { fncallback();}
             if(!error){
                 if(typeof res == 'function'){
                     res({

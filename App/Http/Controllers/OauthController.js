@@ -1,9 +1,10 @@
 const TypesLoginsModel = require('../../Models/TypesLoginsModel')
 const LoginsAuthorizationsModel = require('../../Models/LoginsAuthorizationsModel')
 
-exports.getListAccess= (req, res)=>{
+exports.getListAccess= (req, res, fncallback)=>{
     if(req?.query.token && req?.query.token != ''){
         TypesLoginsModel.selectAvailable(req.query.token,(err,response)=>{
+            if (typeof fncallback === 'function') { fncallback();}
             if(err){
                 if(typeof res == 'function'){
                     res({
@@ -37,9 +38,10 @@ exports.getListAccess= (req, res)=>{
     
 }
 
-exports.getAuthorizationCode=(req, res)=>{
+exports.getAuthorizationCode=(req, res, fncallback)=>{
     if(req?.query?.state && req?.query?.state != '' && req?.query?.redirect_uri && req?.query?.redirect_uri != '' && req?.query?.provider && req?.query?.provider != ''){
         TypesLoginsModel.getProviderAvailable(req.query,(err,response)=>{
+            if (typeof fncallback === 'function') { fncallback();}
             if(err){
                 if(typeof res == 'function'){
                     res({
@@ -72,10 +74,11 @@ exports.getAuthorizationCode=(req, res)=>{
     }
 }
 
-exports.authorizationCode=(req, res)=>{
+exports.authorizationCode=(req, res, fncallback)=>{
     if(req?.headers?.authorization && req?.headers?.authorization != '' && req?.body?.stepName && req?.body?.stepName != ''){
         let authorization= req.headers.authorization.replace('Bearer ','');
         TypesLoginsModel.getValidStep(req.body, authorization,(err,response)=>{
+            if (typeof fncallback === 'function') { fncallback();}
             if(err){
                 if(typeof res == 'function'){
                     res({
@@ -108,10 +111,11 @@ exports.authorizationCode=(req, res)=>{
     }
 }
 
-exports.getUserInfo=(req, res)=>{
+exports.getUserInfo=(req, res, fncallback)=>{
     if(req?.headers?.authorization && req?.headers?.authorization != ''){
         let accesToken= req.headers.authorization.replace('Bearer ','');
         LoginsAuthorizationsModel.getUserInfoValid(accesToken,(err,response)=>{
+            if (typeof fncallback === 'function') { fncallback();}
             if(err){
                 if(typeof res == 'function'){
                     res({
@@ -144,9 +148,10 @@ exports.getUserInfo=(req, res)=>{
     }
 }
 
-exports.getValidCodeSolicitud=(req, res)=>{
+exports.getValidCodeSolicitud=(req, res, fncallback)=>{
     if(req?.body?.code && req?.body?.code != '' && req?.body?.client_id && req?.body?.client_id != '' && req?.body?.client_secret && req?.body?.client_secret != ''){
         LoginsAuthorizationsModel.getValidCodeSolicitud(req.body.code, req.body.client_id, req.body.client_secret, (err,response)=>{
+            if (typeof fncallback === 'function') { fncallback();}
             if(err){
                 if(typeof res == 'function'){
                     res({
@@ -179,9 +184,10 @@ exports.getValidCodeSolicitud=(req, res)=>{
     }
 }
 
-exports.getAuthorizationCodeURL=(req,res)=>{
+exports.getAuthorizationCodeURL=(req,res, fncallback)=>{
     if(req?.query?.state && req?.query?.state != '' && req?.query?.redirect_uri && req?.query?.redirect_uri != ''){
         LoginsAuthorizationsModel.getAuthorizationCode(req.query.state, req.query.redirect_uri, (err,response)=>{
+            if (typeof fncallback === 'function') { fncallback();}
             if(err){
                 if(typeof res == 'function'){
                     res({
@@ -216,9 +222,10 @@ exports.getAuthorizationCodeURL=(req,res)=>{
     }
 }
 
-exports.startFast=(req, res)=>{
+exports.startFast=(req, res, fncallback)=>{
     if(req?.body?.token && req?.body?.token != '' && req?.body?.stateVtex && req?.body?.stateVtex != ''){
         LoginsAuthorizationsModel.getValidCodeSolicitudFast(req.body.token, req.body.stateVtex,(err,response)=>{
+            if (typeof fncallback === 'function') { fncallback();}
             if(err){
                 if(typeof res == 'function'){
                     res({

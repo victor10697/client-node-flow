@@ -1,8 +1,9 @@
 const TypesLoginsModel = require('../../Models/TypesLoginsModel')
 
-exports.createLogin=(req, res)=>{
+exports.createLogin=(req, res, fncallback)=>{
     if(req?.body?.providerName && req?.body?.providerName != ''){
         TypesLoginsModel.createLogin(req.body, (err, response)=>{
+            if (typeof fncallback === 'function') { fncallback();}
             if(!err){
                 if(typeof res == 'function'){
                     res({
