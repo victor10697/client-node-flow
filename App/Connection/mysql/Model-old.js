@@ -31,25 +31,23 @@ Model.prototype.get = function (id, result) {
 Model.prototype.getRegister = async function (id) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE id = ? AND deleted = 0`;
 	const connectDB= this.dbConnection;
-	
-	return new Promise((resolve, reject) => {
-		connectDB.getConnection(function(errCx, connection) {
-			if (errCx) throw errCx; // not connected!
-			// Use the connection
-			connection.query(statement, [id], (err, results) => {  
-				// When done with the connection, release it.
-    		connection.release();
-	      if (err) {
-	      	console.error(err);
-	        reject(err)
-	      } else if(results[0]){
-	        resolve(results[0]);
-	      }else{
-	      	resolve(null);
-	      }
-	    })
-	  });
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+
+	return new Promise((resolve, reject) => connectDB.query(statement, [id], (err, results) => {
+      
+      if (err) {
+      	console.error(err);
+        reject(err)
+      } else if(results[0]){
+        resolve(results[0]);
+      }else{
+      	resolve(null);
+      }
+    }));
 }
 
 /**
@@ -60,23 +58,21 @@ Model.prototype.getRegister = async function (id) {
 Model.prototype.getRegisterRelacion = async function (campoRelacion, id, active=1) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE ${campoRelacion} = ? AND deleted = 0 AND actived=?`;
 	const connectDB= this.dbConnection;
-	
-	return new Promise((resolve, reject) =>{ 
-		connectDB.getConnection(function(errCx, connection) {
-			if (errCx) throw errCx; // not connected!
-			// Use the connection
-			connection.query(statement, [id,active], (err, results) => {
-				// When done with the connection, release it.
-    		connection.release();
-	      if (err) {
-	      	console.error(err);
-	        reject(err)
-	      } else {
-	        resolve(results);
-	      }
-	    })
-	  });
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+
+	return new Promise((resolve, reject) => connectDB.query(statement, [id,active], (err, results) => {
+      
+      if (err) {
+      	console.error(err);
+        reject(err)
+      } else {
+        resolve(results);
+      }
+    }));
 }
 
 /**
@@ -108,20 +104,21 @@ Model.prototype.insert = async function (record, result) {
 
 	const statement = `INSERT INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, values, (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				result(err, null)
-				return
-			}
-			result(null, { id: res.insertId, ...record })
-		});
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+
+	connectDB.query(statement, values, (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			result(err, null)
+			return
+		}
+		result(null, { id: res.insertId, ...record })
+	})
 }
 
 /**
@@ -145,15 +142,15 @@ Model.prototype.update = async function (id, record, result) {
 
 	let statement = `UPDATE ${this.tableName} SET ${wildcards.toString()} WHERE ${this.columnId} = ? AND deleted = 0`
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, values, (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			_this.callbackUpdateRecord(err, res, result)
-		});
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, values, (err, res) => {
+		
+		_this.callbackUpdateRecord(err, res, result)
+	})
 }
 
 /**
@@ -167,15 +164,16 @@ Model.prototype.remove = async function (id, result) {
 	const _this= this;
 
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, values, (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			_this.callbackDeleteRecord(err, res, result)
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+
+	connectDB.query(statement, values, (err, res) => {
+		
+		_this.callbackDeleteRecord(err, res, result)
+	})
 }
 
 /**
@@ -197,56 +195,56 @@ Model.prototype.replace = async function (record, result) {
 
 	let statement = `REPLACE INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, values, (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				result(err, null)
-				return
-			}
-			result(null, { id: res.insertId, ...record })
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, values, (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			result(err, null)
+			return
+		}
+		result(null, { id: res.insertId, ...record })
+	})
 }
 
 Model.prototype.callbackSelect = async function (statement, values, result) {
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, values, (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				result(err, null)
-				return
-			}
-			result(null, res)
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, values, (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			result(err, null)
+			return
+		}
+		result(null, res)
+	})
 }
 
 Model.prototype.callbackSelectOne = async function (statement, values, result) {
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, values, (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				result(err, null)
-				return
-			}
-			result(null, res[0])
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, values, (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			result(err, null)
+			return
+		}
+		result(null, res[0])
+	})
 }
 
 Model.prototype.createOrUpdate = function (record, skipKeys, result) {
@@ -352,26 +350,26 @@ Model.prototype.validRegisterUniqued = async function (fieldsUniquied, fieldsUni
 	const statementSelect = `SELECT ${this.columnId} FROM ${this.tableName} WHERE ${fieldsUniquied.join(' AND ')} AND ${this.tableName}.deleted=0 LIMIT 1`;
 
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statementSelect, fieldsUniquiedValues, (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if(!err){
-				if(res.length > 0){
-					result(null, res[0][this.columnId])
-					return
-				}else{
-					result(null, -1)
-					return
-				}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statementSelect, fieldsUniquiedValues, (err, res) => {
+		
+		if(!err){
+			if(res.length > 0){
+				result(null, res[0][this.columnId])
+				return
 			}else{
-				result(err, null)
+				result(null, -1)
 				return
 			}
-		})
-	});
+		}else{
+			result(err, null)
+			return
+		}
+	})
 }
 
 /**
@@ -385,22 +383,23 @@ Model.prototype.updateRegister = async function (fieldsUpdate, values, registreI
 	values.push(registreId);
 	const statement = `UPDATE ${this.tableName} SET ${fieldsUpdate} WHERE ${this.columnId}=? AND deleted = 0`
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, values, (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				result(err, null)
-				return
-			}else{
-				result(null, res)
-				return
-			}
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+
+	connectDB.query(statement, values, (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			result(err, null)
+			return
+		}else{
+			result(null, res)
+			return
+		}
+	})
 }
 /**
  * Metodo para insertar registros dentro de base datos
@@ -412,22 +411,23 @@ Model.prototype.updateRegister = async function (fieldsUpdate, values, registreI
 Model.prototype.createRegister = async function (fields, wildcards, values, result) {
 	const statement = `INSERT INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, values, (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				result(err, null)
-				return
-			}else{
-				result(null, res)
-				return
-			}
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+
+	connectDB.query(statement, values, (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			result(err, null)
+			return
+		}else{
+			result(null, res)
+			return
+		}
+	})
 }
 
 Model.prototype.callbackUpdateRecord = callbackUpdateRecord
@@ -492,22 +492,13 @@ Model.prototype.getCurrentDate = getCurrentDate
 Model.prototype.deleteByActionId = async function deleteByActionId(actionId) {
 	const statement = `DELETE FROM ${this.tableName} WHERE action_id = ?`
 	const connectDB= this.dbConnection;
-	
-	return  new Promise(async function(resolve, reject){
-		connectDB.getConnection(function(errCx, connection) {
-			if (errCx) throw errCx; // not connected!
-			connection.query(statement, [actionId],(err, res)=>{
-				// When done with the connection, release it.
-    		connection.release();
-				if(err){
-					console.log('err', err);
-					reject(err);
-					return;
-				}
-				resolve(res);
-			})
-		});
-	});  
+	try{
+		await connectDB.connect();
+		setTimeout(connectDB.end, 1500);
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	return connectDB.query(statement, [actionId],(err, res)=>{})
 }
 
 /**
@@ -518,20 +509,21 @@ Model.prototype.deleteByActionId = async function deleteByActionId(actionId) {
 Model.prototype.getActionPerNodeFlowId = async function getActionPerNodeFlowId(nodeId, callback) {
 	const statement = `SELECT actions.*, act.name as action_type FROM actions INNER JOIN actions_types as act ON act.id=actions.action_type_id WHERE actions.nodes_flows_id=? AND actions.deleted=0 AND actions.actived=1 LIMIT 1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [nodeId], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, [])
-				return
-			}
-			callback(null, res)
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [nodeId], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, [])
+			return
+		}
+
+		callback(null, res)
+	})
 }
 
 /**
@@ -542,20 +534,20 @@ Model.prototype.getActionPerNodeFlowId = async function getActionPerNodeFlowId(n
 Model.prototype.getActionDatabaseRDS = async function getActionDatabaseRDS(actionId, callback){
 	const statement = `SELECT * FROM databases_rds WHERE databases_rds.actions_id=? AND databases_rds.deleted=0 AND databases_rds.actived=1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [actionId], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, [])
-				return
-			}
-			callback(null, res)
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, [])
+			return
+		}
+		callback(null, res)
+	})
 }
 
 /**
@@ -566,21 +558,21 @@ Model.prototype.getActionDatabaseRDS = async function getActionDatabaseRDS(actio
 Model.prototype.getEmails = async function getEmails(actionEmailId, callback){
 	const statement = `SELECT * FROM emails WHERE emails.action_type_emails_id=? AND emails.deleted=0 AND emails.actived=1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [actionEmailId], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, [])
-				return
-			}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionEmailId], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, [])
+			return
+		}
 
-			callback(null, res)
-		})
-	});
+		callback(null, res)
+	})
 }
 
 /**
@@ -592,37 +584,37 @@ Model.prototype.getActionEmail = async function getActionEmail(actionId, callbac
 	const statement = `SELECT * FROM action_type_emails WHERE action_type_emails.actions_id=? AND action_type_emails.deleted=0 AND action_type_emails.actived=1`;
 	let thisT= this;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [actionId], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, [])
-				return
-			}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, [])
+			return
+		}
 
-			if(res.length > 0){
-				for (let index = 0; index < res.length; index++) {
-					thisT.getEmails(res[index].id, (error, response)=>{
-						if (!error) {
-							res[index].emails=response;
-						} else {
-							res[index].emails=[];
-						}
+		if(res.length > 0){
+			for (let index = 0; index < res.length; index++) {
+				thisT.getEmails(res[index].id, (error, response)=>{
+					if (!error) {
+						res[index].emails=response;
+					} else {
+						res[index].emails=[];
+					}
 
-						if(res.length == (parseInt(index)+1)){
-							callback(null, res)
-						}
-					})
-				}
-			}else{
-				callback(null, res)
+					if(res.length == (parseInt(index)+1)){
+						callback(null, res)
+					}
+				})
 			}
-		})
-	});
+		}else{
+			callback(null, res)
+		}
+	})
 }
 
 /**
@@ -633,20 +625,20 @@ Model.prototype.getActionEmail = async function getActionEmail(actionId, callbac
 Model.prototype.getActionJWT = async function getActionJWT(actionId, callback){
 	const statement = `SELECT * FROM actions_types_jwt WHERE actions_types_jwt.actions_id=? AND actions_types_jwt.deleted=0 AND actions_types_jwt.actived=1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [actionId], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, [])
-				return
-			}
-			callback(null, res)
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, [])
+			return
+		}
+		callback(null, res)
+	})
 }
 
 /**
@@ -657,20 +649,20 @@ Model.prototype.getActionJWT = async function getActionJWT(actionId, callback){
 Model.prototype.getActionMD5 = async function getActionMD5(actionId, callback){
 	const statement = `SELECT * FROM actions_types_md5 WHERE actions_types_md5.actions_id=? AND actions_types_md5.deleted=0 AND actions_types_md5.actived=1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [actionId], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, [])
-				return
-			}
-			callback(null, res)
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, [])
+			return
+		}
+		callback(null, res)
+	})
 }
 
 /**
@@ -681,20 +673,20 @@ Model.prototype.getActionMD5 = async function getActionMD5(actionId, callback){
 Model.prototype.getActionSFTP = async function getActionSFTP(actionId, callback){
 	const statement = `SELECT * FROM actions_types_ssh2 WHERE actions_types_ssh2.actions_id=? AND actions_types_ssh2.deleted=0 AND actions_types_ssh2.actived=1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [actionId], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, [])
-				return
-			}
-			callback(null, res)
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, [])
+			return
+		}
+		callback(null, res)
+	})
 }
 
 /**
@@ -705,22 +697,22 @@ Model.prototype.getActionSFTP = async function getActionSFTP(actionId, callback)
 Model.prototype.validTypeAction = async function validTypeAction(name, result) {
 	const statement = `SELECT * FROM actions_types WHERE actions_types.name=? AND actions_types.deleted=0 AND actions_types.actived=1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [name], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				result(err, null)
-				return
-			}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [name], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			result(err, null)
+			return
+		}
 
-			res = res.length > 0 ? {state: 'success', action: res[0]} : {state: 'error', action:{}};
-			result(null, res)
-		})
-	});
+		res = res.length > 0 ? {state: 'success', action: res[0]} : {state: 'error', action:{}};
+		result(null, res)
+	})
 }
 
 /**
@@ -731,20 +723,20 @@ Model.prototype.validTypeAction = async function validTypeAction(name, result) {
 Model.prototype.getHeadersPerActionHttpRequest = async function getHeadersPerActionHttpRequest(actionHttpId, callback){
 	const statement = `SELECT * FROM headers WHERE headers.action_type_http_request_id=? AND headers.deleted=0 AND headers.actived=1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [actionHttpId], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				callback(err, [])
-				return
-			}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionHttpId], (err, res) => {
+		
+		if (err) {
+			callback(err, [])
+			return
+		}
 
-			callback(null, res)
-		})
-	});
+		callback(null, res)
+	})
 }
 
 /**
@@ -756,37 +748,37 @@ Model.prototype.getActionHttpRequest = async function getActionHttpRequest(actio
 	const statement = `SELECT * FROM action_type_http_request WHERE action_type_http_request.actions_id=? AND action_type_http_request.deleted=0 AND action_type_http_request.actived=1`;
 	let thisT= this;
 	const connectDB= this.dbConnection;
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, [])
+			return
+		}
 
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [actionId], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, [])
-				return
+		if(res.length > 0){
+			for (let index = 0; index < res.length; index++) {
+				thisT.getHeadersPerActionHttpRequest(res[index].id, (error, response)=>{
+					if (!error) {
+						res[index].headers=response;
+					} else {
+						res[index].headers=[];
+					}
+
+					if(res.length == (parseInt(index)+1)){
+						callback(null, res)
+					}
+				})
 			}
-
-			if(res.length > 0){
-				for (let index = 0; index < res.length; index++) {
-					thisT.getHeadersPerActionHttpRequest(res[index].id, (error, response)=>{
-						if (!error) {
-							res[index].headers=response;
-						} else {
-							res[index].headers=[];
-						}
-
-						if(res.length == (parseInt(index)+1)){
-							callback(null, res)
-						}
-					})
-				}
-			}else{
-				callback(null, res)
-			}
-		})
-	});
+		}else{
+			callback(null, res)
+		}
+	})
 }
 
 /**
@@ -797,20 +789,20 @@ Model.prototype.getActionHttpRequest = async function getActionHttpRequest(actio
 Model.prototype.getActionProcessData = async function getActionProcessData(actionId, callback){
 	const statement = `SELECT * FROM action_type_process_data WHERE action_type_process_data.actions_id=? AND action_type_process_data.deleted=0 AND action_type_process_data.actived=1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [actionId], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, [])
-				return
-			}
-			callback(null, res)
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [actionId], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, [])
+			return
+		}
+		callback(null, res)
+	})
 }
 
 /**
@@ -822,16 +814,16 @@ Model.prototype.getActionProcessData = async function getActionProcessData(actio
 Model.prototype.getCronJobs = async function getCronJobs(regExpByDate, regExpGeneral, callback) {
   const statement = `SELECT * FROM cron_jobs WHERE (cron REGEXP '${regExpByDate}' OR cron NOT REGEXP '${regExpGeneral}') AND deleted = 0 AND actived = 1`;
   const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-	  connectDB.query(statement, [], (error, records) => {
-	  	// When done with the connection, release it.
-    	connection.release();
-	    if (error) callback(error, null)
-	    else callback(null, records)
-	  })
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+  connectDB.query(statement, [], (error, records) => {
+  	
+    if (error) callback(error, null)
+    else callback(null, records)
+  })
 }
 
 /**
@@ -902,21 +894,21 @@ Model.prototype.selectHistory = async function selectHistory(req, callback){
 							inp.source_id=? 
 							${w.where}`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [0,1,req.params.source_id].concat(w.params), (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, [])
-				return
-			}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [0,1,req.params.source_id].concat(w.params), (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, [])
+			return
+		}
 
-			callback(null, res)
-		})
-	});
+		callback(null, res)
+	})
 }
 
 /**
@@ -927,21 +919,21 @@ Model.prototype.selectHistory = async function selectHistory(req, callback){
 Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(source_id, callback){
 	const statement = `SELECT * FROM nodes_flows WHERE nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connectDB.query(statement, [source_id], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, [])
-				return
-			}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [source_id], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, [])
+			return
+		}
 
-			callback(null, res)
-		})
-	});
+		callback(null, res)
+	})
 }
 
 /**
@@ -954,22 +946,22 @@ Model.prototype.updateNodeParent = async function updateNodeParent(nodeFlowId,no
 	const statement = `SELECT id FROM nodes_flows WHERE nodes_flows.name=? AND nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
 	let thisT= this;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [nodeParent,sourceId], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				return false;
-			}
-			if(res.length > 0){
-				thisT.update(nodeFlowId,{node_flow_id:res[0].id}, (errA,resA)=>{});
-			}
-			return true;
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [nodeParent,sourceId], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			return false;
+		}
+		if(res.length > 0){
+			thisT.update(nodeFlowId,{node_flow_id:res[0].id}, (errA,resA)=>{});
+		}
+		return true;
+	})
 }
 
 /**
@@ -981,22 +973,22 @@ Model.prototype.updateNodeParent = async function updateNodeParent(nodeFlowId,no
 Model.prototype.validSource = async function validSource(key, token, result) {
 	const statement = `SELECT id,name FROM sources WHERE sources.key=? AND sources.token=? AND sources.deleted=0 AND sources.actived=1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [key, token], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				result(err, null)
-				return
-			}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [key, token], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			result(err, null)
+			return
+		}
 
-			res = res.length > 0 ? {state: 'success', source_id: res[0].id, source_name: res[0].name} : {state: 'error', source_id:null};
-			result(null, res)
-		})
-	});
+		res = res.length > 0 ? {state: 'success', source_id: res[0].id, source_name: res[0].name} : {state: 'error', source_id:null};
+		result(null, res)
+	})
 }
 
 /**
@@ -1007,21 +999,21 @@ Model.prototype.validSource = async function validSource(key, token, result) {
 Model.prototype.getSourcePerName = async function getSourcePerName(sourceName, result) {
 	const statement = `SELECT id FROM sources WHERE sources.name=? AND sources.deleted=0 AND sources.actived=1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [sourceName], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				result(err, null)
-				return
-			}
-			res = res.length > 0 ? res[0] : {};
-			result(null, res)
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [sourceName], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			result(err, null)
+			return
+		}
+		res = res.length > 0 ? res[0] : {};
+		result(null, res)
+	})
 }
 
 /**
@@ -1036,22 +1028,22 @@ Model.prototype.getSourcePerName = async function getSourcePerName(sourceName, r
 Model.prototype.getPerToken = async function getPerToken(tokenAuthorization, callback){
 	const statement = `SELECT id,types_logins_id,codeVerify,state,email,name,userId,redirect_uri,stateVtex,password FROM logins_authorizations WHERE tokenAuthorization=? AND state='pending' AND actived = 1 AND deleted=0`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connectDB.query(statement, [tokenAuthorization], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback('error',null);
-				return false;
-			}else{
-				callback(null,(res.length > 0 ? res[0] : {}));
-				return true;
-			}
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [tokenAuthorization], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback('error',null);
+			return false;
+		}else{
+			callback(null,(res.length > 0 ? res[0] : {}));
+			return true;
+		}
+	})
 }
 
 /**
@@ -1062,22 +1054,22 @@ Model.prototype.getPerToken = async function getPerToken(tokenAuthorization, cal
 Model.prototype.validAccessClient = async function validAccessClient(accesToken, callback){
 	const statement = `SELECT * FROM logins_authorizations WHERE accessToken=? AND actived = 1 AND deleted=0`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [accesToken], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback('error',null);
-				return false;
-			}else{
-				callback(null,(res.length > 0 ? res[0] : {}));
-				return true;
-			}
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [accesToken], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback('error',null);
+			return false;
+		}else{
+			callback(null,(res.length > 0 ? res[0] : {}));
+			return true;
+		}
+	})
 }
 
 /**
@@ -1089,22 +1081,22 @@ Model.prototype.validAccessClient = async function validAccessClient(accesToken,
 Model.prototype.updateSolicitudVTEX = async function updateSolicitudVTEX(id,token, callback){
 	const statement = `UPDATE logins_authorizations SET accessToken=?, state=? WHERE id=?`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connectDB.query(statement, [token,'processed',id], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback('error',null);
-				return false;
-			}else{
-				callback(null, res);
-				return true;
-			}
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [token,'processed',id], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback('error',null);
+			return false;
+		}else{
+			callback(null, res);
+			return true;
+		}
+	})
 }
 
 /**
@@ -1115,22 +1107,22 @@ Model.prototype.updateSolicitudVTEX = async function updateSolicitudVTEX(id,toke
 Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(code, callback){
 	const statement = `SELECT * FROM logins_authorizations WHERE codeAuthorization=? AND (state=? OR state=?) AND actived = 1 AND deleted=0`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [code,'processing','pending'], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback('error',null);
-				return false;
-			}else{
-				callback(null, res);
-				return true;
-			}
-		})
-	});
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [code,'processing','pending'], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback('error',null);
+			return false;
+		}else{
+			callback(null, res);
+			return true;
+		}
+	})
 }
 
 /**
@@ -1142,22 +1134,22 @@ Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(c
 Model.prototype.getStepPerName = async function getStepPerName(stepName, types_logins_id, callback){
 	const statement = `SELECT * FROM steps_logins WHERE steps_logins.name=? AND steps_logins.types_logins_id=? AND steps_logins.deleted=0 AND steps_logins.actived=1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connectDB.query(statement, [stepName,types_logins_id], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, null)
-				return
-			}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [stepName,types_logins_id], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, null)
+			return
+		}
 
-			res = res.length > 0 ? res[0] : null;
-			callback(null, res)
-		})
-	});
+		res = res.length > 0 ? res[0] : null;
+		callback(null, res)
+	})
 }
 
 /**
@@ -1167,22 +1159,22 @@ Model.prototype.getStepPerName = async function getStepPerName(stepName, types_l
 Model.prototype.getListProviders = async function getListProviders(callback){
 	const statement = `SELECT providerName,label,description,iconUrl FROM types_logins WHERE actived = 1 AND deleted=0 ORDER BY position ASC`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, null)
-				return
-			}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, null)
+			return
+		}
 
-			res = res.length > 0 ? res : null;
-			callback(null, res)
-		})
-	});
+		res = res.length > 0 ? res : null;
+		callback(null, res)
+	})
 }
 
 /**
@@ -1193,22 +1185,22 @@ Model.prototype.getListProviders = async function getListProviders(callback){
 Model.prototype.generateTokenIntial = async function generateTokenIntial(provider, callback){
 	const statement = `SELECT sl.sources_id, sl.types_logins_id FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? LIMIT 1`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connectDB.query(statement, [1,0,provider,1,0,1], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, null)
-				return
-			}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [1,0,provider,1,0,1], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, null)
+			return
+		}
 
-			res = res.length > 0 ? res : null;
-			callback(null, res)
-		})
-	});
+		res = res.length > 0 ? res : null;
+		callback(null, res)
+	})
 }
 
 /**
@@ -1219,22 +1211,22 @@ Model.prototype.generateTokenIntial = async function generateTokenIntial(provide
 Model.prototype.getProviderAvailablePerName = async function getProviderAvailablePerName(provider, callback){
 	const statement = `SELECT sl.id, sl.name, sl.label, sl.description, sl.nameButtonSubmit, sl.nameButtonClose FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? ORDER BY sl.step ASC`;
 	const connectDB= this.dbConnection;
-	
-	connectDB.getConnection(function(errCx, connection) {
-		if (errCx) throw errCx; // not connected!
-		connection.query(statement, [1,0,provider,1,0,0], (err, res) => {
-			// When done with the connection, release it.
-    	connection.release();
-			if (err) {
-				console.error(err);
-				callback(err, null)
-				return
-			}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
+	connectDB.query(statement, [1,0,provider,1,0,0], (err, res) => {
+		
+		if (err) {
+			console.error(err);
+			callback(err, null)
+			return
+		}
 
-			res = res.length > 0 ? res : [];
-			callback(null, res)
-		})
-	});
+		res = res.length > 0 ? res : [];
+		callback(null, res)
+	})
 }
 
 /**
@@ -1243,21 +1235,22 @@ Model.prototype.getProviderAvailablePerName = async function getProviderAvailabl
 Model.prototype.truncate = async function truncate(){
 	const statement = `TRUNCATE TABLE ${this.tableName}`;
 	const connectDB= this.dbConnection;
-	
-	return new Promise(async(resp, er)=>{
-		connectDB.getConnection(function(errCx, connection) {
-			if (errCx) throw errCx; // not connected!
-			connection.query(statement, (err, res) => {
-				// When done with the connection, release it.
-    	  connection.release();
-				if (err) {
-					console.error(err);
-					er(err)
-				}
+	try{
+		await connectDB.connect();
+	} catch (errDB){
+			console.error('errDB', errDB);
+	}
 
-				res = res.length > 0 ? res : [];
-				resp(res);
-			});
+	return new Promise(async(resp, er)=>{
+		connectDB.query(statement, (err, res) => {
+			
+			if (err) {
+				console.error(err);
+				er(err)
+			}
+
+			res = res.length > 0 ? res : [];
+			resp(res);
 		});
 	});
 }
