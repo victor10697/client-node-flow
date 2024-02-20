@@ -198,3 +198,12 @@ exports.setUrl = (url) => {
         SourcesModel.setUrl(url);
     }
 }
+
+/**
+ * Metodo para cerrar conexion base de datos
+ */
+ exports.closeConnection = () => {
+    CronModel.closeConnection((response)=>{
+        console.log(response);
+    });
+}

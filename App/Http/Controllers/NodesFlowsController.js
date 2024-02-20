@@ -135,3 +135,12 @@ exports.setUrl = (url) => {
         ActionsController.setUrl(url);    
     }
 }
+
+/**
+ * Metodo para cerrar conexion base de datos
+ */
+ exports.closeConnection = () => {
+    NodesFlowsModel.closeConnection((response)=>{
+        console.log(response);
+    });
+}

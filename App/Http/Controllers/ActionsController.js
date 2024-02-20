@@ -553,3 +553,12 @@ exports.setUrl = (url) => {
         ActionsTypeSftpModel.setUrl(url);    
     }
 }
+
+/**
+ * Metodo para cerrar conexion base de datos
+ */
+ exports.closeConnection = () => {
+    ActionsModel.closeConnection((response)=>{
+        console.log(response);
+    });
+}

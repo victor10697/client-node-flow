@@ -1255,4 +1255,26 @@ Model.prototype.truncate = async function truncate(){
 	});
 }
 
+/**
+ * Funcion para eliminar coneccion a base de datos
+ * */
+Model.prototype.closeConnection = function (callback) {
+	this.dbConnection.end(function(err) {
+    // The connection is terminated now
+    if (err) {
+      console.error('[connection.end]err: ' + err);
+      
+      connection.destroy()
+      if(typeof callback === 'function'){
+	    	callback('[connection.end]err');
+	    }
+      return;
+    }
+    if(typeof callback === 'function'){
+    	callback('connection ended');
+    }
+    return;
+  });
+}
+
 module.exports = Model

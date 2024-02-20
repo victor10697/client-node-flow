@@ -21,3 +21,12 @@ const env = process.env
         res.status(401).json({ 'state': 'error', error: eerr })
     }
 }
+
+/**
+ * Metodo para cerrar conexion base de datos
+ */
+ exports.closeConnection = () => {
+    LoginsAuthorizationsModel.closeConnection((response)=>{
+        console.log(response);
+    });
+}

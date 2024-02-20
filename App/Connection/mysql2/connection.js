@@ -11,6 +11,7 @@ const paramsConexion = {
 	password: env.DB_PASSWORD || '',
 	connectTimeout: env.DB_CONNECT_TIMEOUT || 3600000
 }
+
 const connection = mysql.createConnection(paramsConexion)
 
 module.exports = connection

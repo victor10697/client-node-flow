@@ -196,3 +196,12 @@ exports.setUrl = (url) => {
         ActionsTypesModel.setUrl(url);    
     }
 }
+
+/**
+ * Metodo para cerrar conexion base de datos
+ */
+ exports.closeConnection = () => {
+    ActionsTypesModel.closeConnection((response)=>{
+        console.log(response);
+    });
+}

@@ -46,3 +46,12 @@ exports.setUrl = (url) => {
         HistoryFlowModel.setUrl(url);    
     }
 }
+
+/**
+ * Metodo para cerrar conexion base de datos
+ */
+ exports.closeConnection = () => {
+    HistoryFlowModel.closeConnection((response)=>{
+        console.log(response);
+    });
+}

@@ -177,3 +177,12 @@ exports.setUrl = (url) => {
         SourcesModel.setUrl(url);    
     }
 }
+
+/**
+ * Metodo para cerrar conexion base de datos
+ */
+ exports.closeConnection = () => {
+    SourcesModel.closeConnection((response)=>{
+        console.log(response);
+    });
+}
