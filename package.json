@@ -1,6 +1,6 @@
 {
   "name": "client-node-flow-br",
-  "version": "1.9.37",
+  "version": "1.9.38",
   "license": "MIT",
   "description": "",
   "_location": "/client-node-flow-br",
@@ -12,8 +12,6 @@
     "ftp": "^0.3.10",
     "jsonwebtoken": "^9.0.0",
     "md5": "^2.3.0",
-    "mongoose": "^8.0.0",
-    "mongoose-unique-validator": "^4.0.0",
     "mysql": "github:mysqljs/mysql",
     "mysql2": "^3.2.0",
     "node-fetch": "^3.2.3",
