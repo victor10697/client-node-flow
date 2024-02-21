@@ -10,6 +10,9 @@ function LoginsAuthorizationsModel() {
 LoginsAuthorizationsModel.prototype = new Model();
 
 LoginsAuthorizationsModel.prototype.getUserInfoValid= function(accesToken, callback){
+	if(!ActionsTypeJWTModel?.getConnection()){
+		ActionsTypeJWTModel?.setConnection(this.getConnection());
+	}
 	let thisT= this;
 	thisT.validAccessClient(accesToken, (err,dataLogin)=>{
 		if(err){
@@ -88,6 +91,9 @@ const validCodeSolicitudVTEX= function(code,settings,callback){
 	})
 };
 LoginsAuthorizationsModel.prototype.getValidCodeSolicitud= function(code,client_id,client_secret,callback){
+	if(!SettingsModel?.getConnection()){
+		SettingsModel?.setConnection(this.getConnection());
+	}
 	if(code && client_id && client_secret && code!='' && client_id!='' && client_secret!=''){
 			SettingsModel.getSettings((err,settings)=>{
 				if(err){
@@ -124,6 +130,9 @@ LoginsAuthorizationsModel.prototype.getValidCodeSolicitud= function(code,client_
 }
 
 LoginsAuthorizationsModel.prototype.getAuthorizationCode= function(state,redirect_uri,client_id,callback){
+	if(!SettingsModel?.getConnection()){
+		SettingsModel?.setConnection(this.getConnection());
+	}
 	SettingsModel.getSettings((err,settings)=>{
 		if(err){
 			callback('error', null);
@@ -189,6 +198,9 @@ const getAccessVtex=(decoded,settings,stateVtex,responseVtex)=>{
 	}
 }
 LoginsAuthorizationsModel.prototype.getValidCodeSolicitudFast= function(code,stateVtex,callback){
+	if(!SettingsModel?.getConnection()){
+		SettingsModel?.setConnection(this.getConnection());
+	}
 	if(code && code !='' && stateVtex && stateVtex!=''){
 		SettingsModel.getSettings((err,settings)=>{
 			if(err){

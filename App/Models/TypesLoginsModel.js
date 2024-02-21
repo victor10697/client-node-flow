@@ -17,6 +17,10 @@ function TypesLoginsModel() {
 TypesLoginsModel.prototype = new Model() 
 
 TypesLoginsModel.prototype.selectAvailable = function (token,callback) {
+	if(!SettingsModel?.getConnection()){
+		SettingsModel?.setConnection(this.getConnection());
+		ActionsTypeJWTModel?.setConnection(this.getConnection());
+	}
 	ActionsTypeJWTModel.verify(token,(err,res)=>{
 		if(err){
 			callback('error', null);
@@ -58,6 +62,9 @@ TypesLoginsModel.prototype.selectAvailable = function (token,callback) {
 }
  
 const saveSesionClient= (data)=>{
+	if(!LoginsAuthorizationsModel?.getConnection()){
+		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+	}
 	LoginsAuthorizationsModel.createOrUpdate(data,{tokenAuthorization:true},(err,res)=>{});
 }
 const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback){
@@ -86,7 +93,7 @@ const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback)
 							return false;
 						}
 					}
-				});
+				}, TypesLoginsModel.getConnection());
 			}else{
 				callback(null, 'error');
 				return false;
@@ -99,6 +106,9 @@ const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback)
 };
 
 TypesLoginsModel.prototype.getProviderAvailable = async function (data,callback) {
+	if(!FieldsLoginModel?.getConnection()){
+		FieldsLoginModel?.setConnection(this.getConnection());
+	}
 	TypesLoginsModel.prototype.getProviderAvailablePerName(data.provider, async (err, res) => {
 		if (err) {
 			console.log(err);
@@ -148,6 +158,10 @@ TypesLoginsModel.prototype.createLogin = async function (data, callback) {
 }
 
 const saveStepLogin=(steps, type_login_id)=>{
+	if(!SourcesModel?.getConnection()){
+		SourcesModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+		StepsLoginsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+	}
 	for (let i = 0; i < steps.length; i++) {
 		if(steps[i].name && steps[i].name != '' && steps[i].sourceName && steps[i].sourceName != ''){
 			SourcesModel.getSourcePerName(steps[i].sourceName, (errS, resS)=>{
@@ -181,7 +195,9 @@ const saveStepLogin=(steps, type_login_id)=>{
 }
 
 const saveFieldsLogin= async (fields, step_login_id)=>{
-
+	if(!FieldsLoginModel?.getConnection()){
+		FieldsLoginModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+	}
 	let fieldsRegistered= await FieldsLoginModel.getRegisterRelacion('steps_logins_id',step_login_id);
 	let fieldsActive= [];
 	for (let i = 0; i < fields.length; i++) {
@@ -252,6 +268,11 @@ const saveFieldsLogin= async (fields, step_login_id)=>{
 };
 
 TypesLoginsModel.prototype.getValidStep= (data, authorization, callback)=>{
+	if(!ActionsTypeJWTModel?.getConnection()){
+		ActionsTypeJWTModel?.setConnection(this.getConnection());
+		LoginsAuthorizationsModel?.setConnection(this.getConnection());
+		StepsLoginsModel?.setConnection(this.getConnection());
+	}
 	ActionsTypeJWTModel.verify(authorization,(err,res)=>{
 		if(err){
 			callback('error', null);
@@ -350,10 +371,13 @@ const ProcessStepValid= async (dataStep, input, LoginAuthorization, settings,cal
 		
 			}	
 		}
-	});
+	}, TypesLoginsModel.prototype.getConnection());
 };
 
 const validPasswordClient= async (hash, registroLogin, settings)=>{
+	if(!LoginsAuthorizationsModel?.getConnection()){
+		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+	}
 	let valid= true;
 	if(hash && typeof hash == 'string' && hash == registroLogin.codeVerify){
 		await savePasswordVTEX(registroLogin,settings);
@@ -368,6 +392,9 @@ const validPasswordClient= async (hash, registroLogin, settings)=>{
 }
 
 const updateInforUser= (resAction,registroLogin)=>{
+	if(!LoginsAuthorizationsModel?.getConnection()){
+		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+	}
 	if(resAction.authorizedEmailLogin && typeof resAction.authorizedEmailLogin == 'string' && resAction.authorizedEmailLogin != ''){
 		LoginsAuthorizationsModel.update(registroLogin.id,{email:resAction.authorizedEmailLogin},(err,res)=>{});
 	}
@@ -385,6 +412,9 @@ const updateInforUser= (resAction,registroLogin)=>{
 	}
 };
 const updateLoginAuthorizationGenerateVerificationCode= (resAction,registroLogin)=>{
+	if(!LoginsAuthorizationsModel?.getConnection()){
+		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+	}
 	let resErr= false;
 	if(resAction.sendCodeValidate && typeof resAction.sendCodeValidate == 'string' && resAction.sendCodeValidate != ''){
 		LoginsAuthorizationsModel.update(registroLogin.id,{codeVerify:resAction.sendCodeValidate},(err,res)=>{});
@@ -395,6 +425,9 @@ const updateLoginAuthorizationGenerateVerificationCode= (resAction,registroLogin
 };
 
 const updateLoginAuthorizationValidCode= (resAction,registroLogin)=>{
+	if(!LoginsAuthorizationsModel?.getConnection()){
+		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+	}
 	let res= true; 
 	if(!resAction.insertCodeValidate || (resAction.insertCodeValidate != registroLogin.codeVerify)){
 		res= false;
@@ -406,6 +439,9 @@ const updateLoginAuthorizationValidCode= (resAction,registroLogin)=>{
 };
 
 const updateLoginAuthorizationAccessToken= (resAction,registroLogin,settings)=>{
+	if(!LoginsAuthorizationsModel?.getConnection()){
+		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+	}
 	let resErr= false, objSave={};
 	if(!resAction.codeAuthorization || !registroLogin.email || registroLogin.email == '' || !registroLogin.userId || registroLogin.userId==''){
 		resErr= true;
@@ -447,6 +483,9 @@ const createTokenAppFast=(registroLogin,settings,callbackTokenApp)=>{
 }
 
 const updateLoginAuthorizationAccessVTEX= (resAction,registroLogin)=>{
+	if(!LoginsAuthorizationsModel?.getConnection()){
+		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+	}
 	let resErr= false, objSave={};
 	if(!resAction.access_token || resAction.access_token == '' || !registroLogin.email || registroLogin.email == '' || !registroLogin.userId || registroLogin.userId==''){
 		resErr= true;
