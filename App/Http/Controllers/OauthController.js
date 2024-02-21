@@ -126,6 +126,7 @@ exports.getUserInfo=(req, res, prconexion=null)=>{
         }
         LoginsAuthorizationsModel.getUserInfoValid(accesToken,(err,response)=>{
             if(err){
+                console.error('getUserInfo', err);
                 if(typeof res == 'function'){
                     res({
                         statusCode: 400,
@@ -146,6 +147,7 @@ exports.getUserInfo=(req, res, prconexion=null)=>{
             }
         }); 
     }else{
+        console.error('getUserInfo error autorization');
         if(typeof res == 'function'){
             res({
                 statusCode: 401,

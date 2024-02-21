@@ -104,11 +104,13 @@ LoginsAuthorizationsModel.prototype.getValidCodeSolicitud= function(code,client_
 					objectSettings= settings.settingJWT ? (getDataJSON(settings.settingJWT)) : { algorithm: 'RS256' };
 					jwt.verify(code, secret, objectSettings, function(errJ, decoded) {
 						if(errJ){
+							console.error('getValidCodeSolicitud', errJ);
 							callback('errorToken',null);
 							return false;
 						}else{
 							validCodeSolicitudVTEX(code,settings,(errVSV,resVSV)=>{
 								if(errVSV){
+									console.error('access denied. validCodeSolicitudVTEX', errJ);
 									callback('access denied.', null);
 									return false;
 								}else{
@@ -119,11 +121,13 @@ LoginsAuthorizationsModel.prototype.getValidCodeSolicitud= function(code,client_
 						}	
 					});
 				}else{
+					console.error('access denied get settings');
 					callback('access denied', null);
 					return false;
 				}
 			});
 	}else{
+		console.error('access denied per parameters');
 		callback('access denied.', null);
 		return false;
 	}
