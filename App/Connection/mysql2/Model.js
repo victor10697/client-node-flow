@@ -341,7 +341,7 @@ Model.prototype.callbackSelectOne = async function (statement, values, result) {
 Model.prototype.createOrUpdate = function (record, skipKeys, result) {
 	setCurrentDate(record, true)
 	let arrOptionUpdateCreate= this.getArrayRequestUpdateOrCreate(record, skipKeys), t= this;
-
+	console.log('arrOptionUpdateCreate',arrOptionUpdateCreate);
 	if(arrOptionUpdateCreate.fieldsUniquied.length > 0 && arrOptionUpdateCreate.fieldsUniquiedValues.length > 0){
 		t.validRegisterUniqued(arrOptionUpdateCreate.fieldsUniquied, arrOptionUpdateCreate.fieldsUniquiedValues, (err, res)=>{
 			if(!err){
