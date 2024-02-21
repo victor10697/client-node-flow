@@ -311,7 +311,7 @@ const ProcessStepValid= async (dataStep, input, LoginAuthorization, settings,cal
 			return false;
 		}else{
 			let validCode=true, errorValid=false,generateCodeAccessValid={};
-			updateInforUser(resAF,LoginAuthorization);
+			await updateInforUser(resAF,LoginAuthorization);
 			if(resAF.authorizedEmailLogin){
 				LoginAuthorization.email= resAF.authorizedEmailLogin;
 				delete resAF.authorizedEmailLogin;
@@ -325,17 +325,17 @@ const ProcessStepValid= async (dataStep, input, LoginAuthorization, settings,cal
 				delete resAF.authorizedNameLogin;
 			}
 			if(dataStep.generateVerificationCode==1){
-				errorValid=updateLoginAuthorizationGenerateVerificationCode(resAF,LoginAuthorization);
+				errorValid= await updateLoginAuthorizationGenerateVerificationCode(resAF,LoginAuthorization);
 			}
 			if(dataStep.validCode==1){
-				validCode= updateLoginAuthorizationValidCode(resAF,LoginAuthorization);
+				validCode= await updateLoginAuthorizationValidCode(resAF,LoginAuthorization);
 			}
 			if(validCode==false){
 				errorValid=true;
 			}
 			let createUpdateLoginAuthorizationAccessToken=false;
 			if(dataStep.createAccessToken==1 && validCode==true){
-				generateCodeAccessValid=updateLoginAuthorizationAccessToken(resAF,LoginAuthorization,settings);
+				generateCodeAccessValid= await updateLoginAuthorizationAccessToken(resAF,LoginAuthorization,settings);
 				errorValid=generateCodeAccessValid.error;
 				if(generateCodeAccessValid.error===false){
 					createUpdateLoginAuthorizationAccessToken=true;
@@ -391,66 +391,91 @@ const validPasswordClient= async (hash, registroLogin, settings)=>{
 	}
 }
 
-const updateInforUser= (resAction,registroLogin)=>{
+const updateInforUser= async (resAction,registroLogin)=>{
 	if(!LoginsAuthorizationsModel?.getConnection()){
 		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
 	}
-	if(resAction.authorizedEmailLogin && typeof resAction.authorizedEmailLogin == 'string' && resAction.authorizedEmailLogin != ''){
-		LoginsAuthorizationsModel.update(registroLogin.id,{email:resAction.authorizedEmailLogin},(err,res)=>{});
-	}
-	if(resAction.authorizedUserIdLogin && typeof resAction.authorizedUserIdLogin == 'string' && resAction.authorizedUserIdLogin != ''){
-		LoginsAuthorizationsModel.update(registroLogin.id,{userId:resAction.authorizedUserIdLogin},(err,res)=>{});
-	}
-	if(resAction.authorizedNameLogin && typeof resAction.authorizedNameLogin == 'string' && resAction.authorizedNameLogin != ''){
-		LoginsAuthorizationsModel.update(registroLogin.id,{name:resAction.authorizedNameLogin},(err,res)=>{});
-	}
-	if(resAction.codeAuthorization && typeof resAction.codeAuthorization == 'string' && resAction.codeAuthorization != ''){
-		LoginsAuthorizationsModel.update(registroLogin.id,{codeAuthorization:resAction.codeAuthorization},(err,res)=>{});
-	}
-	if(resAction.authorizedPassword && typeof resAction.authorizedPassword == 'string' && resAction.authorizedPassword != ''){
-		LoginsAuthorizationsModel.update(registroLogin.id,{password:resAction.authorizedPassword},(err,res)=>{});
+	try{
+		if(resAction.authorizedEmailLogin && typeof resAction.authorizedEmailLogin == 'string' && resAction.authorizedEmailLogin != ''){
+			await updateUserLg(LoginsAuthorizationsModel, registroLogin.id, {email:resAction.authorizedEmailLogin} );
+		}
+		if(resAction.authorizedUserIdLogin && typeof resAction.authorizedUserIdLogin == 'string' && resAction.authorizedUserIdLogin != ''){
+			await updateUserLg(LoginsAuthorizationsModel, registroLogin.id, {userId:resAction.authorizedUserIdLogin} );
+		}
+		if(resAction.authorizedNameLogin && typeof resAction.authorizedNameLogin == 'string' && resAction.authorizedNameLogin != ''){
+			await updateUserLg(LoginsAuthorizationsModel, registroLogin.id, {name:resAction.authorizedNameLogin} );
+		}
+		if(resAction.codeAuthorization && typeof resAction.codeAuthorization == 'string' && resAction.codeAuthorization != ''){
+			await updateUserLg(LoginsAuthorizationsModel, registroLogin.id, {codeAuthorization:resAction.codeAuthorization} );
+		}
+		if(resAction.authorizedPassword && typeof resAction.authorizedPassword == 'string' && resAction.authorizedPassword != ''){
+			await updateUserLg(LoginsAuthorizationsModel, registroLogin.id, {password:resAction.authorizedPassword} );
+		}
+	}catch(e){
+		console.log('error', e);
 	}
 };
+
+/**
+ * Actualizacion de cliente
+ * */
+const updateUserLg= (ModelDB, id, data)=>{
+	return new Promise(async (resp,err)=>{
+		ModelDB.update(id,data,(errdb,res)=>{
+			if(errdb){
+				console.error('updateUserLg', errdb);
+				err(errdb);
+			}else{
+				resp(true);
+			}
+		});
+	});
+};
+
 const updateLoginAuthorizationGenerateVerificationCode= (resAction,registroLogin)=>{
 	if(!LoginsAuthorizationsModel?.getConnection()){
 		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
 	}
-	let resErr= false;
-	if(resAction.sendCodeValidate && typeof resAction.sendCodeValidate == 'string' && resAction.sendCodeValidate != ''){
-		LoginsAuthorizationsModel.update(registroLogin.id,{codeVerify:resAction.sendCodeValidate},(err,res)=>{});
-	}else{
-		resErr= true;
-	}
-	return resErr;
+
+	return new Promise( async (resp, errr) =>{
+		if(resAction.sendCodeValidate && typeof resAction.sendCodeValidate == 'string' && resAction.sendCodeValidate != ''){
+			await updateUserLg(LoginsAuthorizationsModel, registroLogin.id, {codeVerify:resAction.sendCodeValidate} );
+			resp(false);
+		}else{
+			resp(true);
+		}	
+	});
 };
 
 const updateLoginAuthorizationValidCode= (resAction,registroLogin)=>{
 	if(!LoginsAuthorizationsModel?.getConnection()){
 		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
 	}
-	let res= true; 
-	if(!resAction.insertCodeValidate || (resAction.insertCodeValidate != registroLogin.codeVerify)){
-		res= false;
-		LoginsAuthorizationsModel.update(registroLogin.id,{error:'Invalid code.'},(err,res)=>{});
-	}else{
-		LoginsAuthorizationsModel.update(registroLogin.id,{error:'Success code.',state:'processing'},(err,res)=>{});
-	}
-	return res;
+
+	return new Promise( async (resp, errr) =>{
+		if(!resAction.insertCodeValidate || (resAction.insertCodeValidate != registroLogin.codeVerify)){
+			await updateUserLg(LoginsAuthorizationsModel, registroLogin.id, {error:'Invalid code.'} );
+			resp(false);
+		}else{
+			await updateUserLg(LoginsAuthorizationsModel, registroLogin.id, {error:'Success code.',state:'processing'} );
+			resp(true);
+		}	
+	});
 };
 
-const updateLoginAuthorizationAccessToken= (resAction,registroLogin,settings)=>{
+const updateLoginAuthorizationAccessToken= async (resAction,registroLogin,settings)=>{
 	if(!LoginsAuthorizationsModel?.getConnection()){
 		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
 	}
 	let resErr= false, objSave={};
 	if(!resAction.codeAuthorization || !registroLogin.email || registroLogin.email == '' || !registroLogin.userId || registroLogin.userId==''){
 		resErr= true;
-		LoginsAuthorizationsModel.update(registroLogin.id,{error:'Invalid access token.'},(err,res)=>{});
+		await updateUserLg(LoginsAuthorizationsModel, registroLogin.id, {error:'Invalid access token.'} );
 	}else{
 		objSave={
 			codeAuthorization:resAction.codeAuthorization,
 		};
-		LoginsAuthorizationsModel.update(registroLogin.id,objSave,(err,res)=>{});
+		await updateUserLg(LoginsAuthorizationsModel, registroLogin.id, objSave );
 	}
 
 	let redirect_uri= `${decodeURIComponent(registroLogin.redirect_uri)}?code=${objSave.codeAuthorization}&state=${registroLogin.stateVtex}`;
