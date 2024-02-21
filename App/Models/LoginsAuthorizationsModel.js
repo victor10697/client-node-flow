@@ -201,12 +201,17 @@ const getAccessVtex=(decoded,settings,stateVtex,responseVtex)=>{
 					stateVtex: stateVtex,
 					codeAuthorization: token,
 					state: 'processing'
-				},{userId:true},(ee,ss)=>{console.log(ee)})
-				
-				responseVtex(null,{
-					"codeAuthorization" : token,
-					"redirect_uri": encodeURIComponent(redirect_uri)
-				});
+				},{userId:true},(ee,ss)=>{
+					if(ee){
+						console.error(ee)
+					}else{
+						responseVtex(null,{
+							"codeAuthorization" : token,
+							"redirect_uri": encodeURIComponent(redirect_uri)
+						});
+					}
+
+				})
 			}
 		});
 	}else{
