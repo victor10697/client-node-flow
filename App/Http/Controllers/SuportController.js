@@ -7,7 +7,7 @@ const env = process.env
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.clearDataBases = async (req, res, prconexion) => {
+ exports.clearDataBases = async (req, res, prconexion=null) => {
     if (typeof prconexion != 'undefined' && prconexion) { 
         LoginsAuthorizationsModel?.setConnection(prconexion);
         InputsUpdatesModel?.setConnection(prconexion);

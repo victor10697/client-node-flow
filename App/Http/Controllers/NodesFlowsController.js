@@ -7,7 +7,7 @@ const ActionsController = require('./ActionsController')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.create = (req, res, prconexion) => {
+exports.create = (req, res, prconexion=null) => {
     if (req?.body && Object.keys(req?.body).length > 0) {
         if (req?.body?.name && req?.body?.label && req?.body?.sourceName && req?.body?.sourceName != '') {
             if (typeof prconexion != 'undefined' && prconexion) { 
@@ -94,7 +94,7 @@ exports.create = (req, res, prconexion) => {
     }
 }
 
-exports.getTreeNode = (req, res, prconexion) => {
+exports.getTreeNode = (req, res, prconexion=null) => {
     if (typeof prconexion != 'undefined' && prconexion) { 
         NodesFlowsModel?.setConnection(prconexion);
     }

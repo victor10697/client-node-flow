@@ -8,7 +8,7 @@ const SettingsModel = require('../../Models/SettingsModel');
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.insert = (req, res, prconexion) => {
+exports.insert = (req, res, prconexion=null) => {
     const idInput= req?.body?.id ? req?.body?.id : null;
     if (typeof prconexion != 'undefined' && prconexion) { 
         SourcesModel?.setConnection(prconexion);
@@ -117,7 +117,7 @@ exports.insert = (req, res, prconexion) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.insertSourceName = (req, res, prconexion) => {
+exports.insertSourceName = (req, res, prconexion=null) => {
     const idInput= req?.body?.id ? req?.body?.id : null;
     if (typeof prconexion != 'undefined' && prconexion) { 
         SourcesModel?.setConnection(prconexion);
@@ -224,7 +224,7 @@ exports.insertSourceName = (req, res, prconexion) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.insertInternal = (bodyR, res, prconexion) => {
+exports.insertInternal = (bodyR, res, prconexion=null) => {
     if (bodyR && Object.keys(bodyR).length > 0 && bodyR.source_id) {
         if (typeof prconexion != 'undefined' && prconexion) { 
             InputsUpdatesModel?.setConnection(prconexion);

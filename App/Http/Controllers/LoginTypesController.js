@@ -1,6 +1,6 @@
 const TypesLoginsModel = require('../../Models/TypesLoginsModel')
 
-exports.createLogin=(req, res, prconexion)=>{
+exports.createLogin=(req, res, prconexion=null)=>{
     if(req?.body?.providerName && req?.body?.providerName != ''){
         if (typeof prconexion != 'undefined' && prconexion) { 
             TypesLoginsModel?.setConnection(prconexion);

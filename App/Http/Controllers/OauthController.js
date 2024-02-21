@@ -1,7 +1,7 @@
 const TypesLoginsModel = require('../../Models/TypesLoginsModel')
 const LoginsAuthorizationsModel = require('../../Models/LoginsAuthorizationsModel')
 
-exports.getListAccess= (req, res, prconexion)=>{
+exports.getListAccess= (req, res, prconexion=null)=>{
     if(req?.query.token && req?.query.token != ''){
         if (typeof prconexion != 'undefined' && prconexion) { 
             TypesLoginsModel?.setConnection(prconexion);
@@ -41,7 +41,7 @@ exports.getListAccess= (req, res, prconexion)=>{
     
 }
 
-exports.getAuthorizationCode=(req, res, prconexion)=>{
+exports.getAuthorizationCode=(req, res, prconexion=null)=>{
     if(req?.query?.state && req?.query?.state != '' && req?.query?.redirect_uri && req?.query?.redirect_uri != '' && req?.query?.provider && req?.query?.provider != ''){
         if (typeof prconexion != 'undefined' && prconexion) { 
             TypesLoginsModel?.setConnection(prconexion);
@@ -79,7 +79,7 @@ exports.getAuthorizationCode=(req, res, prconexion)=>{
     }
 }
 
-exports.authorizationCode=(req, res, prconexion)=>{
+exports.authorizationCode=(req, res, prconexion=null)=>{
     if(req?.headers?.authorization && req?.headers?.authorization != '' && req?.body?.stepName && req?.body?.stepName != ''){
         let authorization= req.headers.authorization.replace('Bearer ','');
         if (typeof prconexion != 'undefined' && prconexion) { 
@@ -118,7 +118,7 @@ exports.authorizationCode=(req, res, prconexion)=>{
     }
 }
 
-exports.getUserInfo=(req, res, prconexion)=>{
+exports.getUserInfo=(req, res, prconexion=null)=>{
     if(req?.headers?.authorization && req?.headers?.authorization != ''){
         let accesToken= req.headers.authorization.replace('Bearer ','');
         if (typeof prconexion != 'undefined' && prconexion) { 
@@ -157,7 +157,7 @@ exports.getUserInfo=(req, res, prconexion)=>{
     }
 }
 
-exports.getValidCodeSolicitud=(req, res, prconexion)=>{
+exports.getValidCodeSolicitud=(req, res, prconexion=null)=>{
     if(req?.body?.code && req?.body?.code != '' && req?.body?.client_id && req?.body?.client_id != '' && req?.body?.client_secret && req?.body?.client_secret != ''){
         if (typeof prconexion != 'undefined' && prconexion) { 
             LoginsAuthorizationsModel?.setConnection(prconexion);
@@ -195,7 +195,7 @@ exports.getValidCodeSolicitud=(req, res, prconexion)=>{
     }
 }
 
-exports.getAuthorizationCodeURL=(req,res, prconexion)=>{
+exports.getAuthorizationCodeURL=(req,res, prconexion=null)=>{
     if(req?.query?.state && req?.query?.state != '' && req?.query?.redirect_uri && req?.query?.redirect_uri != '' && req?.query?.client_id){
         if (typeof prconexion != 'undefined' && prconexion) { 
             LoginsAuthorizationsModel?.setConnection(prconexion);
@@ -235,7 +235,7 @@ exports.getAuthorizationCodeURL=(req,res, prconexion)=>{
     }
 }
 
-exports.startFast=(req, res, prconexion)=>{
+exports.startFast=(req, res, prconexion=null)=>{
     if(req?.body?.token && req?.body?.token != '' && req?.body?.stateVtex && req?.body?.stateVtex != ''){
         if (typeof prconexion != 'undefined' && prconexion) { 
             LoginsAuthorizationsModel?.setConnection(prconexion);

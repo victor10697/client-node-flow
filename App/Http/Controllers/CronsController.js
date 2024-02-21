@@ -6,7 +6,7 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.findAll = (req, res, prconexion) => {
+exports.findAll = (req, res, prconexion=null) => {
     if (typeof prconexion != 'undefined' && prconexion) { CronModel?.setConnection(prconexion);}
     CronModel.select((error, response) => {
         if (!error) {
@@ -36,7 +36,7 @@ exports.findAll = (req, res, prconexion) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.insert = (req, res, prconexion) => {
+exports.insert = (req, res, prconexion=null) => {
     if (req.body && Object.keys(req.body).length > 0) {
         // Desestructurar los valores del cuerpo de la petición
         const { sourceName, cronName, cronDescription, cronTime, cronValues, actived = 0 } = req.body
@@ -129,7 +129,7 @@ exports.insert = (req, res, prconexion) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.delete = (req, res, prconexion) => {
+exports.delete = (req, res, prconexion=null) => {
     if (req.params && req.params.id) {
         if (typeof prconexion != 'undefined' && prconexion) { CronModel?.setConnection(prconexion);}
         CronModel.remove(req.params.id, (error, response) => {
@@ -172,7 +172,7 @@ exports.delete = (req, res, prconexion) => {
  * @param regExpGeneral -- Expresion regular general
  * @param callback -- Respuesta de la peticion
  */
-exports.getCronJobs = (regExpByDate, regExpGeneral, callback, prconexion) => {
+exports.getCronJobs = (regExpByDate, regExpGeneral, callback, prconexion=null) => {
     if (regExpByDate && regExpGeneral) {
         if (typeof prconexion != 'undefined' && prconexion) { CronModel?.setConnection(prconexion);}
         CronModel.getCronJobs(regExpByDate, regExpGeneral, (error, response) => {

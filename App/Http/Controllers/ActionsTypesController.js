@@ -5,7 +5,7 @@ const ActionsTypesModel = require('../../Models/ActionsTypesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.findAll = (req, res, prconexion) => {
+ exports.findAll = (req, res, prconexion=null) => {
     if (typeof prconexion != 'undefined' && prconexion) { ActionsTypesModel?.setConnection(prconexion);}
     ActionsTypesModel.select((error, response)=>{
         if(!error){
@@ -53,7 +53,7 @@ exports.save = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.update = (req, res, prconexion) => {
+ exports.update = (req, res, prconexion=null) => {
     if(req?.params && req?.params?.id && req.body && Object.keys(req?.body).length > 0){
         if (typeof prconexion != 'undefined' && prconexion) { ActionsTypesModel?.setConnection(prconexion);}
         ActionsTypesModel.update(req.params.id, req.body, (error, response)=>{
@@ -94,7 +94,7 @@ exports.save = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.create = (req, res, prconexion) => {
+ exports.create = (req, res, prconexion=null) => {
     if(req?.body && Object.keys(req?.body).length > 0){
         if(req?.body?.name){
             if (typeof prconexion != 'undefined' && prconexion) { ActionsTypesModel?.setConnection(prconexion);}
@@ -146,7 +146,7 @@ exports.save = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.delete = (req, res, prconexion) => {
+ exports.delete = (req, res, prconexion=null) => {
 	
     if(req?.params && req?.params?.id){
         if (typeof prconexion != 'undefined' && prconexion) { ActionsTypesModel?.setConnection(prconexion);}

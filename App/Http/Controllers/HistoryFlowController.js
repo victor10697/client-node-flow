@@ -5,7 +5,7 @@ const HistoryFlowModel = require('../../Models/HistoryFlowModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.findAll = (req, res, prconexion) => {
+ exports.findAll = (req, res, prconexion=null) => {
     if (typeof prconexion != 'undefined' && prconexion) { HistoryFlowModel?.setConnection(prconexion);}
 	HistoryFlowModel.selectHistory(req,(error, response)=>{
         if(!error){

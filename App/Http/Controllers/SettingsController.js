@@ -1,6 +1,6 @@
 const settingsModel = require('../../Models/SettingsModel')
 
-exports.findAll = (req, res, prconexion) => {
+exports.findAll = (req, res, prconexion=null) => {
 	if (typeof prconexion != 'undefined' && prconexion) { 
         settingsModel?.setConnection(prconexion);
     }
@@ -48,7 +48,7 @@ exports.findAll = (req, res, prconexion) => {
 	})
 }
 
-exports.insert = (req, res, prconexion) => {
+exports.insert = (req, res, prconexion=null) => {
 	if (typeof prconexion != 'undefined' && prconexion) { 
         settingsModel?.setConnection(prconexion);
     }
@@ -102,7 +102,7 @@ exports.insert = (req, res, prconexion) => {
 	})
 }
 
-exports.save = (req, res, prconexion) => {
+exports.save = (req, res, prconexion=null) => {
 	if (typeof prconexion != 'undefined' && prconexion) { 
         settingsModel?.setConnection(prconexion);
     }

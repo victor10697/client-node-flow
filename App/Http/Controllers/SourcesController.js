@@ -5,7 +5,7 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.findAll = (req, res, prconexion) => {
+ exports.findAll = (req, res, prconexion=null) => {
     if (typeof prconexion != 'undefined' && prconexion) { 
         SourcesModel?.setConnection(prconexion);
     }
@@ -37,7 +37,7 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.update = (req, res, prconexion) => {
+ exports.update = (req, res, prconexion=null) => {
     if(req?.params && req?.params?.id && req?.body && Object.keys(req?.body).length > 0){
         if (typeof prconexion != 'undefined' && prconexion) { 
             SourcesModel?.setConnection(prconexion);
@@ -81,7 +81,7 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.create = (req, res, prconexion) => {
+ exports.create = (req, res, prconexion=null) => {
     if(req?.body && Object.keys(req?.body).length > 0){
         if(req?.body?.name && req?.body?.description){
             if (typeof prconexion != 'undefined' && prconexion) { 
@@ -136,7 +136,7 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.delete = (req, res, prconexion) => {
+ exports.delete = (req, res, prconexion=null) => {
     if(req?.params && req?.params?.id){
         if (typeof prconexion != 'undefined' && prconexion) { 
             SourcesModel?.setConnection(prconexion);
