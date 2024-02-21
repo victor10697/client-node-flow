@@ -564,6 +564,7 @@ Model.prototype.createRegister = async function (fields, wildcards, values, resu
 
 Model.prototype.callbackUpdateRecord = callbackUpdateRecord
 Model.prototype.callbackDeleteRecord = callbackUpdateRecord
+Model.prototype.createConnection = dbConnection?.createConnection
 
 /**
  * Permite definir un bloque de sentencias dentro de una transacción SQL.
@@ -1773,6 +1774,13 @@ Model.prototype.setConnection = function (connection) {
 	if(connection){
 		this.dbConnection= connection;
 	}
+}
+
+/**
+ * Funcion para obtener coneccion a base de datos
+ * */
+Model.prototype.getConnection = function (connection) {
+	return this.dbConnection= connection;
 }
 
 module.exports = Model

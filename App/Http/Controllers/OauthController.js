@@ -1,10 +1,13 @@
 const TypesLoginsModel = require('../../Models/TypesLoginsModel')
 const LoginsAuthorizationsModel = require('../../Models/LoginsAuthorizationsModel')
 
-exports.getListAccess= (req, res, fncallback)=>{
+exports.getListAccess= (req, res, prconexion)=>{
     if(req?.query.token && req?.query.token != ''){
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            TypesLoginsModel?.setConnection(prconexion);
+        }
         TypesLoginsModel.selectAvailable(req.query.token,(err,response)=>{
-            if (typeof fncallback === 'function') { fncallback();}
+            
             if(err){
                 if(typeof res == 'function'){
                     res({
@@ -38,10 +41,12 @@ exports.getListAccess= (req, res, fncallback)=>{
     
 }
 
-exports.getAuthorizationCode=(req, res, fncallback)=>{
+exports.getAuthorizationCode=(req, res, prconexion)=>{
     if(req?.query?.state && req?.query?.state != '' && req?.query?.redirect_uri && req?.query?.redirect_uri != '' && req?.query?.provider && req?.query?.provider != ''){
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            TypesLoginsModel?.setConnection(prconexion);
+        }
         TypesLoginsModel.getProviderAvailable(req.query,(err,response)=>{
-            if (typeof fncallback === 'function') { fncallback();}
             if(err){
                 if(typeof res == 'function'){
                     res({
@@ -74,11 +79,13 @@ exports.getAuthorizationCode=(req, res, fncallback)=>{
     }
 }
 
-exports.authorizationCode=(req, res, fncallback)=>{
+exports.authorizationCode=(req, res, prconexion)=>{
     if(req?.headers?.authorization && req?.headers?.authorization != '' && req?.body?.stepName && req?.body?.stepName != ''){
         let authorization= req.headers.authorization.replace('Bearer ','');
-        TypesLoginsModel.getValidStep(req.body, authorization,(err,response)=>{
-            if (typeof fncallback === 'function') { fncallback();}
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            TypesLoginsModel?.setConnection(prconexion);
+        }
+        TypesLoginsModel.getValidStep(req.body, authorization,(err,response)=>{ 
             if(err){
                 if(typeof res == 'function'){
                     res({
@@ -111,11 +118,13 @@ exports.authorizationCode=(req, res, fncallback)=>{
     }
 }
 
-exports.getUserInfo=(req, res, fncallback)=>{
+exports.getUserInfo=(req, res, prconexion)=>{
     if(req?.headers?.authorization && req?.headers?.authorization != ''){
         let accesToken= req.headers.authorization.replace('Bearer ','');
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            LoginsAuthorizationsModel?.setConnection(prconexion);
+        }
         LoginsAuthorizationsModel.getUserInfoValid(accesToken,(err,response)=>{
-            if (typeof fncallback === 'function') { fncallback();}
             if(err){
                 if(typeof res == 'function'){
                     res({
@@ -148,10 +157,12 @@ exports.getUserInfo=(req, res, fncallback)=>{
     }
 }
 
-exports.getValidCodeSolicitud=(req, res, fncallback)=>{
+exports.getValidCodeSolicitud=(req, res, prconexion)=>{
     if(req?.body?.code && req?.body?.code != '' && req?.body?.client_id && req?.body?.client_id != '' && req?.body?.client_secret && req?.body?.client_secret != ''){
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            LoginsAuthorizationsModel?.setConnection(prconexion);
+        }
         LoginsAuthorizationsModel.getValidCodeSolicitud(req.body.code, req.body.client_id, req.body.client_secret, (err,response)=>{
-            if (typeof fncallback === 'function') { fncallback();}
             if(err){
                 if(typeof res == 'function'){
                     res({
@@ -184,10 +195,12 @@ exports.getValidCodeSolicitud=(req, res, fncallback)=>{
     }
 }
 
-exports.getAuthorizationCodeURL=(req,res, fncallback)=>{
+exports.getAuthorizationCodeURL=(req,res, prconexion)=>{
     if(req?.query?.state && req?.query?.state != '' && req?.query?.redirect_uri && req?.query?.redirect_uri != '' && req?.query?.client_id){
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            LoginsAuthorizationsModel?.setConnection(prconexion);
+        }
         LoginsAuthorizationsModel.getAuthorizationCode(req.query.state, req.query.redirect_uri, req?.query?.client_id, (err,response)=>{
-            if (typeof fncallback === 'function') { fncallback();}
             if(err){
                 if(typeof res == 'function'){
                     res({
@@ -222,10 +235,13 @@ exports.getAuthorizationCodeURL=(req,res, fncallback)=>{
     }
 }
 
-exports.startFast=(req, res, fncallback)=>{
+exports.startFast=(req, res, prconexion)=>{
     if(req?.body?.token && req?.body?.token != '' && req?.body?.stateVtex && req?.body?.stateVtex != ''){
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            LoginsAuthorizationsModel?.setConnection(prconexion);
+        }
         LoginsAuthorizationsModel.getValidCodeSolicitudFast(req.body.token, req.body.stateVtex,(err,response)=>{
-            if (typeof fncallback === 'function') { fncallback();}
+            
             if(err){
                 if(typeof res == 'function'){
                     res({

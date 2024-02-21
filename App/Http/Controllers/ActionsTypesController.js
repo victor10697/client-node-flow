@@ -5,9 +5,9 @@ const ActionsTypesModel = require('../../Models/ActionsTypesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.findAll = (req, res, fncallback) => {
+ exports.findAll = (req, res, prconexion) => {
+    if (typeof prconexion != 'undefined' && prconexion) { ActionsTypesModel?.setConnection(prconexion);}
     ActionsTypesModel.select((error, response)=>{
-        if (typeof fncallback === 'function') { fncallback();}
         if(!error){
             if(typeof res == 'function'){
                 res({
@@ -53,9 +53,9 @@ exports.save = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.update = (req, res, fncallback) => {
-    if (typeof fncallback === 'function') { fncallback();}
+ exports.update = (req, res, prconexion) => {
     if(req?.params && req?.params?.id && req.body && Object.keys(req?.body).length > 0){
+        if (typeof prconexion != 'undefined' && prconexion) { ActionsTypesModel?.setConnection(prconexion);}
         ActionsTypesModel.update(req.params.id, req.body, (error, response)=>{
             if(!error){
                 if(typeof res == 'function'){
@@ -94,11 +94,11 @@ exports.save = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.create = (req, res, fncallback) => {
+ exports.create = (req, res, prconexion) => {
     if(req?.body && Object.keys(req?.body).length > 0){
         if(req?.body?.name){
+            if (typeof prconexion != 'undefined' && prconexion) { ActionsTypesModel?.setConnection(prconexion);}
             ActionsTypesModel.createOrUpdate(req.body, { name: true, 'created_at': true }, (error, response)=>{ 
-                if (typeof fncallback === 'function') { fncallback();}
                 if(!error){
                     if(typeof res == 'function'){
                         res({
@@ -146,11 +146,11 @@ exports.save = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.delete = (req, res, fncallback) => {
+ exports.delete = (req, res, prconexion) => {
 	
     if(req?.params && req?.params?.id){
+        if (typeof prconexion != 'undefined' && prconexion) { ActionsTypesModel?.setConnection(prconexion);}
         ActionsTypesModel.remove(req.params.id, (error, response)=>{
-            if (typeof fncallback === 'function') { fncallback();}
             if(!error){
                 if(typeof res == 'function'){
                     res({

@@ -1,9 +1,11 @@
 const TypesLoginsModel = require('../../Models/TypesLoginsModel')
 
-exports.createLogin=(req, res, fncallback)=>{
+exports.createLogin=(req, res, prconexion)=>{
     if(req?.body?.providerName && req?.body?.providerName != ''){
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            TypesLoginsModel?.setConnection(prconexion);
+        }
         TypesLoginsModel.createLogin(req.body, (err, response)=>{
-            if (typeof fncallback === 'function') { fncallback();}
             if(!err){
                 if(typeof res == 'function'){
                     res({

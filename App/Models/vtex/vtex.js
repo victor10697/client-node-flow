@@ -1,14 +1,14 @@
 const axios = require('axios')
 const settingsModel = require('../models/SettingsModel')
 
-function VTEX(response) {
+function VTEX(response, prconexion=null) {
 	this.vtexSettings = {
 		'X-VTEX-API-AppKey': '',
 		'X-VTEX-API-AppToken': '',
 		'accountName': '',
 		'environment': ''
 	}
-	handleSetVTEXProperties(this, response)
+	handleSetVTEXProperties(this, response, prconexion)
 }
 
 /**
@@ -67,7 +67,8 @@ VTEX.prototype.getBaseUrl = function (fragments) {
 	return baseUrl
 }
 
-function handleSetVTEXProperties(thisRef, response) {
+function handleSetVTEXProperties(thisRef, response, prconexion=null) {
+	if (typeof prconexion != 'undefined' && prconexion) { settingsModel?.setConnection(prconexion);}
 	// Se consulta en base de datos los datos de configuración
 	settingsModel.select((err, settings) => {
 		if (err) {

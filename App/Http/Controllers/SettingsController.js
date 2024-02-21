@@ -1,8 +1,10 @@
 const settingsModel = require('../../Models/SettingsModel')
 
-exports.findAll = (req, res, fncallback) => {
+exports.findAll = (req, res, prconexion) => {
+	if (typeof prconexion != 'undefined' && prconexion) { 
+        settingsModel?.setConnection(prconexion);
+    }
 	settingsModel.select((err, data) => {
-		if (typeof fncallback === 'function') { fncallback();}
 		if (err) {
 			if(typeof res == 'function'){
                 res({
@@ -46,7 +48,10 @@ exports.findAll = (req, res, fncallback) => {
 	})
 }
 
-exports.insert = (req, res, fncallback) => {
+exports.insert = (req, res, prconexion) => {
+	if (typeof prconexion != 'undefined' && prconexion) { 
+        settingsModel?.setConnection(prconexion);
+    }
 	// Se valida el cuerpo de la petición
 	if (!req?.body) {
 		if(typeof res == 'function'){
@@ -74,7 +79,7 @@ exports.insert = (req, res, fncallback) => {
 	}
  
 	settingsModel.createOrUpdate(req.body, { 'name': true, 'created_at': true }, (err, data) => {
-		if (typeof fncallback === 'function') { fncallback();}
+		
 		if (err) {
 			if(typeof res == 'function'){
                 res({
@@ -97,7 +102,10 @@ exports.insert = (req, res, fncallback) => {
 	})
 }
 
-exports.save = (req, res, fncallback) => {
+exports.save = (req, res, prconexion) => {
+	if (typeof prconexion != 'undefined' && prconexion) { 
+        settingsModel?.setConnection(prconexion);
+    }
 	// Se valida el cuerpo de la petición
 	if (!req?.body) {
 		if(typeof res == 'function'){
@@ -112,7 +120,7 @@ exports.save = (req, res, fncallback) => {
 	}
 
 	settingsModel.saveRecords(req.body, (err, data) => {
-		if (typeof fncallback === 'function') { fncallback();}
+		
 		if (err) {
 			if(typeof res == 'function'){
                 res({

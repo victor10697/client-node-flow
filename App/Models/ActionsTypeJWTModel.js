@@ -53,6 +53,9 @@ const getDataJSON=(string)=>{
 	return obj;
 };
 ActionTypeJWTModel.prototype.verify= (token,callback)=>{
+	if(!SettingsModel?.getConnection()){
+		SettingsModel?.setConnection(this.getConnection());
+	}
 	SettingsModel.getSettings((err,res)=>{
 		if(err){
 			callback('error', null);

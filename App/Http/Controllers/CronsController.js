@@ -6,9 +6,9 @@ const SourcesModel = require('../../Models/SourcesModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.findAll = (req, res, fncallback) => {
+exports.findAll = (req, res, prconexion) => {
+    if (typeof prconexion != 'undefined' && prconexion) { CronModel?.setConnection(prconexion);}
     CronModel.select((error, response) => {
-        if (typeof fncallback === 'function') { fncallback();}
         if (!error) {
             if (typeof res == 'function') {
                 res({
@@ -36,11 +36,15 @@ exports.findAll = (req, res, fncallback) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.insert = (req, res, fncallback) => {
+exports.insert = (req, res, prconexion) => {
     if (req.body && Object.keys(req.body).length > 0) {
         // Desestructurar los valores del cuerpo de la petición
         const { sourceName, cronName, cronDescription, cronTime, cronValues, actived = 0 } = req.body
         if (sourceName && sourceName != '') {
+            if (typeof prconexion != 'undefined' && prconexion) { 
+                CronModel?.setConnection(prconexion);
+                SourcesModel?.setConnection(prconexion);
+            }
             SourcesModel.getSourcePerName(sourceName, (err, resS) => {
                 if (err) {
                     res.status(400).json({ 'state': 'error', 'message': 'error request!' })
@@ -56,7 +60,7 @@ exports.insert = (req, res, fncallback) => {
                         };
                         // Se inserta o actualiza los datos del Cron Job
                         CronModel.createOrUpdate(cronJobRecord, { 'name': true }, (err, result) => {
-                            if (typeof fncallback === 'function') { fncallback();}
+                    
                             if (!err) {
                                 if (typeof res == 'function') {
                                     res({
@@ -125,10 +129,11 @@ exports.insert = (req, res, fncallback) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.delete = (req, res, fncallback) => {
+exports.delete = (req, res, prconexion) => {
     if (req.params && req.params.id) {
+        if (typeof prconexion != 'undefined' && prconexion) { CronModel?.setConnection(prconexion);}
         CronModel.remove(req.params.id, (error, response) => {
-            if (typeof fncallback === 'function') { fncallback();}
+    
             if (!error) {
                 if (typeof res == 'function') {
                     res({
@@ -167,8 +172,9 @@ exports.delete = (req, res, fncallback) => {
  * @param regExpGeneral -- Expresion regular general
  * @param callback -- Respuesta de la peticion
  */
-exports.getCronJobs = (regExpByDate, regExpGeneral, callback) => {
+exports.getCronJobs = (regExpByDate, regExpGeneral, callback, prconexion) => {
     if (regExpByDate && regExpGeneral) {
+        if (typeof prconexion != 'undefined' && prconexion) { CronModel?.setConnection(prconexion);}
         CronModel.getCronJobs(regExpByDate, regExpGeneral, (error, response) => {
             if (!error) {
                 callback(null, { 'state': 'success', 'result': response })

@@ -8,8 +8,14 @@ const SettingsModel = require('../../Models/SettingsModel');
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.insert = (req, res) => {
+exports.insert = (req, res, prconexion) => {
     const idInput= req?.body?.id ? req?.body?.id : null;
+    if (typeof prconexion != 'undefined' && prconexion) { 
+        SourcesModel?.setConnection(prconexion);
+        InputsUpdatesModel?.setConnection(prconexion);
+        NodesFlowsModel?.setConnection(prconexion);
+        SettingsModel?.setConnection(prconexion);
+    }
     if (req?.body && Object.keys(req?.body).length > 0) {
         if (req?.headers['x-app-key'] && req?.headers['x-app-token']) {
             // validamos credenciales de conexion
@@ -111,8 +117,14 @@ exports.insert = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.insertSourceName = (req, res) => {
+exports.insertSourceName = (req, res, prconexion) => {
     const idInput= req?.body?.id ? req?.body?.id : null;
+    if (typeof prconexion != 'undefined' && prconexion) { 
+        SourcesModel?.setConnection(prconexion);
+        InputsUpdatesModel?.setConnection(prconexion);
+        NodesFlowsModel?.setConnection(prconexion);
+        SettingsModel?.setConnection(prconexion);
+    }
     if (req?.body && Object.keys(req?.body).length > 0 && req?.params?.sourceName) {
         if (req?.headers['x-app-key'] && req?.headers['x-app-token']) {
             // validamos credenciales de conexion
@@ -212,8 +224,12 @@ exports.insertSourceName = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.insertInternal = (bodyR, res) => {
+exports.insertInternal = (bodyR, res, prconexion) => {
     if (bodyR && Object.keys(bodyR).length > 0 && bodyR.source_id) {
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            InputsUpdatesModel?.setConnection(prconexion);
+            NodesFlowsModel?.setConnection(prconexion);
+        }
         InputsUpdatesModel.saveInput(bodyR, bodyR.source_id, (error, response) => {
             if (!error) {
                 NodesFlowsModel.ProcesingInputsNode([{

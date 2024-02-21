@@ -15,8 +15,8 @@ const ActionsTypeSftpModel= require('../../Models/ActionsTypeSftpModel')
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.findAll = (req, res, fncallback) => {
-    if (typeof fncallback === 'function') { fncallback();}
+ exports.findAll = (req, res, prconexion=null) => {
+    if (typeof prconexion != 'undefined' && prconexion) { ActionsModel?.setConnection(prconexion);}
     ActionsModel.select((error, response)=>{
         if(!error){
             if(typeof res == 'function'){
@@ -63,11 +63,11 @@ exports.save = (req, res) => {
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
- exports.delete = (req, res, fncallback) => {
+ exports.delete = (req, res, prconexion=null) => {
 	
     if(req?.params && req?.params?.id){
+        if (typeof prconexion != 'undefined' && prconexion) { ActionsModel?.setConnection(prconexion);}
         ActionsModel.remove(req.params.id, (error, response)=>{
-            if (typeof fncallback === 'function') { fncallback();}
             if(!error){
                 if(typeof res == 'function'){
                     res({
@@ -105,8 +105,9 @@ exports.save = (req, res) => {
  * @param {*} param0 
  * @param {*} callback 
  */
-const SaveAction= ({name=null, scriptActionPrev=null, scriptActionPost=null, action_type_id=null, nodes_flows_id=null}, callback)=>{
+const SaveAction= ({name=null, scriptActionPrev=null, scriptActionPost=null, action_type_id=null, nodes_flows_id=null}, callback, prconexion=null)=>{
     if(name && action_type_id){
+        if (typeof prconexion != 'undefined' && prconexion) { ActionsModel?.setConnection(prconexion);}
         ActionsModel.createOrUpdate({name:name, scriptActionPost:scriptActionPost, scriptActionPrev:scriptActionPrev, action_type_id:action_type_id, nodes_flows_id:nodes_flows_id}, {nodes_flows_id:true}, (error, response)=>{
             if(!error){
                 callback(null, response);
@@ -125,8 +126,12 @@ const SaveAction= ({name=null, scriptActionPrev=null, scriptActionPost=null, act
  * @param {*} action_type_id 
  * @param {*} callback 
  */
-const saveTypeHttpRequestAction= (data, action_type_id, callback)=>{
+const saveTypeHttpRequestAction= (data, action_type_id, callback, prconexion=null)=>{
     if(data && action_type_id){
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            ActionTypeHttpRequestModel?.setConnection(prconexion);
+            HeadersModel?.setConnection(prconexion);
+        }
         SaveAction({name:data.name, scriptActionPost:data.scriptActionPost, scriptActionPrev:data.scriptActionPrev, nodes_flows_id:data.nodes_flows_id, action_type_id: action_type_id}, (errorA, resultA)=>{
             if(!errorA){
                 ActionTypeHttpRequestModel.createOrUpdate({
@@ -177,8 +182,11 @@ const saveTypeHttpRequestAction= (data, action_type_id, callback)=>{
  * @param {*} action_type_id 
  * @param {*} callback 
  */
-const saveTypeProcessData= (data, action_type_id, callback)=>{
+const saveTypeProcessData= (data, action_type_id, callback, prconexion=null)=>{
     if(data && action_type_id){ 
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            ActionTypeProcessDataModel?.setConnection(prconexion);
+        }
         SaveAction({name:data.name, scriptActionPost:data.scriptActionPost, scriptActionPrev:data.scriptActionPrev, nodes_flows_id:data.nodes_flows_id, action_type_id: action_type_id}, (errorA, resultA)=>{
             if(!errorA){
                 ActionTypeProcessDataModel.createOrUpdate({
@@ -208,8 +216,12 @@ const saveTypeProcessData= (data, action_type_id, callback)=>{
  * @param {*} action_type_id 
  * @param {*} callback 
  */
-const saveTypeEmails= (data, action_type_id, callback)=>{
+const saveTypeEmails= (data, action_type_id, callback, prconexion=null)=>{
     if(data && action_type_id){
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            ActionsTypeEmailsModel?.setConnection(prconexion);
+            EmailsModel?.setConnection(prconexion);
+        }
         SaveAction({name:data.name, scriptActionPost:data.scriptActionPost, scriptActionPrev:data.scriptActionPrev, nodes_flows_id:data.nodes_flows_id, action_type_id: action_type_id}, (errorA, resultA)=>{
             if(!errorA){
                 ActionsTypeEmailsModel.createOrUpdate({
@@ -268,8 +280,11 @@ const saveTypeEmails= (data, action_type_id, callback)=>{
  * @param {*} action_type_id 
  * @param {*} callback 
  */
- const saveTypeDatabaseRDS= (data, action_type_id, callback)=>{
+ const saveTypeDatabaseRDS= (data, action_type_id, callback, prconexion=null)=>{
     if(data && action_type_id){
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            ActionsTypeDatabaseRDSModel?.setConnection(prconexion);
+        }
         SaveAction({name:data.name, scriptActionPost:data.scriptActionPost, scriptActionPrev:data.scriptActionPrev, nodes_flows_id:data.nodes_flows_id, action_type_id: action_type_id}, (errorA, resultA)=>{
             if(!errorA){
                 ActionsTypeDatabaseRDSModel.createOrUpdate({
@@ -304,8 +319,11 @@ const saveTypeEmails= (data, action_type_id, callback)=>{
  * @param {*} action_type_id 
  * @param {*} callback 
  */
- const saveTypeJWT= (data, action_type_id, callback)=>{
+ const saveTypeJWT= (data, action_type_id, callback, prconexion=null)=>{
     if(data && action_type_id){
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            ActionsTypeJWTModel?.setConnection(prconexion);
+        }
         SaveAction({name:data.name, scriptActionPost:data.scriptActionPost, scriptActionPrev:data.scriptActionPrev, nodes_flows_id:data.nodes_flows_id, action_type_id: action_type_id}, (errorA, resultA)=>{
             if(!errorA){
                 ActionsTypeJWTModel.createOrUpdate({
@@ -336,8 +354,11 @@ const saveTypeEmails= (data, action_type_id, callback)=>{
  * @param {*} action_type_id 
  * @param {*} callback 
  */
- const saveTypeMD5= (data, action_type_id, callback)=>{
+ const saveTypeMD5= (data, action_type_id, callback, prconexion=null)=>{
     if(data && action_type_id){
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            ActionsTypeMD5Model?.setConnection(prconexion);
+        }
         SaveAction({name:data.name, scriptActionPost:data.scriptActionPost, scriptActionPrev:data.scriptActionPrev, nodes_flows_id:data.nodes_flows_id, action_type_id: action_type_id}, (errorA, resultA)=>{
             if(!errorA){
                 ActionsTypeMD5Model.createOrUpdate({
@@ -366,8 +387,11 @@ const saveTypeEmails= (data, action_type_id, callback)=>{
  * @param {*} action_type_id 
  * @param {*} callback 
  */
- const saveTypeSSH2= (data, action_type_id, callback)=>{
+ const saveTypeSSH2= (data, action_type_id, callback, prconexion=null)=>{
     if(data && action_type_id){
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            ActionsTypeSftpModel?.setConnection(prconexion);
+        }
         SaveAction({name:data.name, scriptActionPost:data.scriptActionPost, scriptActionPrev:data.scriptActionPrev, nodes_flows_id:data.nodes_flows_id, action_type_id: action_type_id}, (errorA, resultA)=>{
             if(!errorA){
                 ActionsTypeSftpModel.createOrUpdate({
@@ -396,9 +420,12 @@ const saveTypeEmails= (data, action_type_id, callback)=>{
  * @param (Request Http) req -- Variables de la peticion
  * @param (Response Http) res -- Respuesta de la peticion
  */
-exports.createAction = (nodeFlowId,dataAction, res) => {
+exports.createAction = (nodeFlowId,dataAction, res, prconexion=null) => {
     if(dataAction && dataAction.action_type && dataAction.name && typeof dataAction == 'object' && Object.keys(dataAction).length > 0){
         dataAction.nodes_flows_id=nodeFlowId;
+        if (typeof prconexion != 'undefined' && prconexion) { 
+            ActionsTypesModel?.setConnection(prconexion);
+        }
         ActionsTypesModel.validTypeAction(dataAction.action_type, (error, response)=>{
             if(!error && response.state && response.state == 'success'){
                     switch (response.action.name) {
@@ -410,7 +437,7 @@ exports.createAction = (nodeFlowId,dataAction, res) => {
                                     }else{
                                         console.log('Register action error');
                                     }
-                                })
+                                },prconexion)
                             }else{
                                 console.log('Register action error'); 
                             }
@@ -423,7 +450,7 @@ exports.createAction = (nodeFlowId,dataAction, res) => {
                                     }else{
                                         console.log('Register action error');
                                     }
-                                })
+                                },prconexion)
                             }else{
                                 console.log('Register action error'); 
                             }
@@ -436,7 +463,7 @@ exports.createAction = (nodeFlowId,dataAction, res) => {
                                     }else{
                                         console.log('Register action error');
                                     }
-                                })
+                                },prconexion)
                             }else{
                                 console.log('Register action error'); 
                             }
@@ -449,7 +476,7 @@ exports.createAction = (nodeFlowId,dataAction, res) => {
                                     }else{
                                         console.log('Register action error');
                                     }
-                                })
+                                },prconexion)
                             }else{
                                 console.log('Register action error'); 
                             }
@@ -462,7 +489,7 @@ exports.createAction = (nodeFlowId,dataAction, res) => {
                                     }else{
                                         console.log('Register action error');
                                     }
-                                })
+                                },prconexion)
                             }else{
                                 console.log('Register action error'); 
                             }
@@ -475,7 +502,7 @@ exports.createAction = (nodeFlowId,dataAction, res) => {
                                     }else{
                                         console.log('Register action error');
                                     }
-                                })
+                                },prconexion)
                             }else{
                                 console.log('Register action error'); 
                             }
@@ -488,7 +515,7 @@ exports.createAction = (nodeFlowId,dataAction, res) => {
                                     }else{
                                         console.log('Register action error');
                                     }
-                                })
+                                },prconexion)
                             }else{
                                 console.log('Register action error'); 
                             }
