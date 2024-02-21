@@ -1550,7 +1550,7 @@ Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(c
 				callback('error',null);
 				return false;
 			}else{
-				console.log('validCodeSolicitudVTEX consulta', res, statement);
+				console.log('validCodeSolicitudVTEX consulta', code, res);
 				callback(null, res);
 				return true;
 			}
