@@ -54,17 +54,23 @@ const getDataJSON=(string)=>{
 };
 
 const updateSolicitudVTEX= function(id,token){
-	const statement = `UPDATE logins_authorizations SET accessToken=?, state=? WHERE id=?`;
-	LoginsAuthorizationsModel.prototype.updateSolicitudVTEX(id, token, (err, res) => {
-		if (err) {
-			console.log(err)
-		}
-	})
+	return new Promise((resp, eerr)=>{
+		const statement = `UPDATE logins_authorizations SET accessToken=?, state=? WHERE id=?`;
+		LoginsAuthorizationsModel.prototype.updateSolicitudVTEX(id, token, (err, res) => {
+			if (err) {
+				console.log(err)
+				eerr(err);
+				return;
+			}
+			resp(res);
+		})
+	});
 };
 
-const validCodeSolicitudVTEX= function(code,settings,callback){
-	LoginsAuthorizationsModel.prototype.validCodeSolicitudVTEX(code, (err, res) => {
+const validCodeSolicitudVTEX= async function(code,settings,callback){
+	LoginsAuthorizationsModel.prototype.validCodeSolicitudVTEX(code, async (err, res) => {
 		if (err) {
+			console.error('LoginsAuthorizationsModel validCodeSolicitudVTEX', err);
 			callback('error',null);
 			return false;
 		}else if(res.length > 0){
@@ -73,11 +79,17 @@ const validCodeSolicitudVTEX= function(code,settings,callback){
 					"status": 'success',
 					"email": encodeURIComponent(res[0].email)
 				};
-			jwt.sign(objectEncrypt, secret, function(err, token) {
-				if(err){
-					callback(null,err);
+			jwt.sign(objectEncrypt, secret, function(errt, token) {
+				if(errt){
+					console.error('LoginsAuthorizationsModel validCodeSolicitudVTEX jwt', errt);
+					callback(null,errt);
 				}else{
-					updateSolicitudVTEX(res[0].id,token);
+					try{
+						await updateSolicitudVTEX(res[0].id,token);
+					}catch(eeeer){
+						console.error(eeeer);
+					}
+					console.log('LoginsAuthorizationsModel validCodeSolicitudVTEX success');
 					callback(null,{
 						access_token: token,
 						expires_in: settings.expires_in

@@ -9,6 +9,7 @@ exports.getListAccess= (req, res, prconexion=null)=>{
         TypesLoginsModel.selectAvailable(req.query.token,(err,response)=>{
             
             if(err){
+                console.error('getListAccess',err);
                 if(typeof res == 'function'){
                     res({
                         statusCode: 401,
@@ -18,6 +19,7 @@ exports.getListAccess= (req, res, prconexion=null)=>{
                     res.status(401).json({ 'state': 'error', 'messanger': 'Error authorization.'})
                 }
             }else{
+                console.log('getListAccess success');
                 if(typeof res == 'function'){
                     res({
                         statusCode: 200,
@@ -29,6 +31,7 @@ exports.getListAccess= (req, res, prconexion=null)=>{
             }
         });
     }else{
+        console.error('getListAccess authorization');
         if(typeof res == 'function'){
             res({
                 statusCode: 401,
@@ -48,6 +51,7 @@ exports.getAuthorizationCode=(req, res, prconexion=null)=>{
         }
         TypesLoginsModel.getProviderAvailable(req.query,(err,response)=>{
             if(err){
+                console.error('getAuthorizationCode', err);
                 if(typeof res == 'function'){
                     res({
                         statusCode: 400,
@@ -57,6 +61,7 @@ exports.getAuthorizationCode=(req, res, prconexion=null)=>{
                     res.status(400).json({ 'state': 'error', 'messanger': 'Error request.'})
                 }
             }else{
+                console.log('getAuthorizationCode success');
                 if(typeof res == 'function'){
                     res({
                         statusCode: 200,
@@ -68,6 +73,7 @@ exports.getAuthorizationCode=(req, res, prconexion=null)=>{
             }
         });
     }else{
+        console.error('getAuthorizationCode authorization');
         if(typeof res == 'function'){
             res({
                 statusCode: 400,
@@ -87,6 +93,7 @@ exports.authorizationCode=(req, res, prconexion=null)=>{
         }
         TypesLoginsModel.getValidStep(req.body, authorization,(err,response)=>{ 
             if(err){
+                console.error('authorizationCode', err);
                 if(typeof res == 'function'){
                     res({
                         statusCode: 400,
@@ -96,6 +103,7 @@ exports.authorizationCode=(req, res, prconexion=null)=>{
                     res.status(400).json({ 'state': 'error', 'messanger': 'Error request.'})
                 }
             }else{
+                console.log('authorizationCode success');
                 if(typeof res == 'function'){
                     res({
                         statusCode: 200,
@@ -107,6 +115,7 @@ exports.authorizationCode=(req, res, prconexion=null)=>{
             }
         }); 
     }else{
+        console.error('authorizationCode autorization');
         if(typeof res == 'function'){
             res({
                 statusCode: 401,
@@ -136,6 +145,7 @@ exports.getUserInfo=(req, res, prconexion=null)=>{
                     res.status(400).json({ 'state': 'error', 'messanger': err})
                 }
             }else{
+                console.log('getUserInfo success');
                 if(typeof res == 'function'){
                     res({
                         statusCode: 200,
@@ -166,6 +176,7 @@ exports.getValidCodeSolicitud=(req, res, prconexion=null)=>{
         }
         LoginsAuthorizationsModel.getValidCodeSolicitud(req.body.code, req.body.client_id, req.body.client_secret, (err,response)=>{
             if(err){
+                console.error('getValidCodeSolicitud', err);
                 if(typeof res == 'function'){
                     res({
                         statusCode: 400,
@@ -175,6 +186,7 @@ exports.getValidCodeSolicitud=(req, res, prconexion=null)=>{
                     res.status(400).json({ 'state': 'error', 'messanger': err})
                 }
             }else{
+                console.log('getValidCodeSolicitud success');
                 if(typeof res == 'function'){
                     res({
                         statusCode: 200,
@@ -186,6 +198,7 @@ exports.getValidCodeSolicitud=(req, res, prconexion=null)=>{
             }
         }); 
     }else{
+        console.error('getValidCodeSolicitud autorization');
         if(typeof res == 'function'){
             res({
                 statusCode: 401,
@@ -204,6 +217,7 @@ exports.getAuthorizationCodeURL=(req,res, prconexion=null)=>{
         }
         LoginsAuthorizationsModel.getAuthorizationCode(req.query.state, req.query.redirect_uri, req?.query?.client_id, (err,response)=>{
             if(err){
+                console.error('getAuthorizationCodeURL', err);
                 if(typeof res == 'function'){
                     res({
                         statusCode: 400,
@@ -213,6 +227,7 @@ exports.getAuthorizationCodeURL=(req,res, prconexion=null)=>{
                     res.status(400).json({ 'state': 'error', 'messanger': err})
                 }
             }else{
+                console.log('getAuthorizationCodeURL success');
                 if(typeof res == 'function'){
                     res({
                         statusCode: 302,
@@ -226,6 +241,7 @@ exports.getAuthorizationCodeURL=(req,res, prconexion=null)=>{
             }
         }); 
     }else{
+        console.error('getAuthorizationCodeURL authorization');
         if(typeof res == 'function'){
             res({
                 statusCode: 401,
@@ -245,6 +261,7 @@ exports.startFast=(req, res, prconexion=null)=>{
         LoginsAuthorizationsModel.getValidCodeSolicitudFast(req.body.token, req.body.stateVtex,(err,response)=>{
             
             if(err){
+                console.error('startFast', err);
                 if(typeof res == 'function'){
                     res({
                         statusCode: 400,
@@ -254,6 +271,7 @@ exports.startFast=(req, res, prconexion=null)=>{
                     res.status(400).json({ 'state': 'error', 'messanger': err})
                 }
             }else{
+                console.log('startFast success');
                 if(typeof res == 'function'){
                     res({
                         statusCode: 200,
@@ -265,6 +283,7 @@ exports.startFast=(req, res, prconexion=null)=>{
             }
         }); 
     }else{
+        console.error('startFast authorization');
         if(typeof res == 'function'){
             res({
                 statusCode: 401,
