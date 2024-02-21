@@ -1196,4 +1196,63 @@ Model.prototype.getProviderAvailablePerName = function getProviderAvailablePerNa
 	})
 }
 
+/**
+ * Metodo para limpiar datos de una tabla
+ **/
+Model.prototype.truncate = async function truncate(){
+	const statement = `TRUNCATE TABLE ${this.tableName}`;
+	const connectDB= this.dbConnection;
+	
+	return new Promise(async(resp, er)=>{
+					resp(true);
+				});
+}
+
+/**
+ * Funcion para eliminar coneccion a base de datos
+ * */
+Model.prototype.closeConnection = function (callback) {
+	const _this= this;
+	try{
+		// _this.dbConnection.end();
+		if(typeof callback === 'function'){
+    	callback('connection ended');
+    }
+	} catch (err){
+		console.error('[connection.end]err: ' + err);
+		callback('[connection.end]err');
+	}
+  	return;
+}
+
+/**
+ * Funcion para establecer coneccion a base de datos
+ * */
+Model.prototype.setConnection = function (connection) {
+	if(connection){
+		this.dbConnection= connection;
+	}
+}
+
+/**
+ * Funcion para obtener coneccion a base de datos
+ * */
+Model.prototype.getConnection = function (connection) {
+	return this.dbConnection;
+}
+
+/**
+ * Funcion para crear coneccion a base de datos
+ * */
+Model.prototype.createConnection = function (prm) {
+	return new Promise(async (res, err)=>{
+		try{
+			const conn= true;
+			res(conn);
+		} catch(er){
+			err(er);
+		}
+	});
+}
+
 module.exports = Model

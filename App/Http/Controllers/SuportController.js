@@ -35,3 +35,8 @@ const env = process.env
         console.log(response);
     });
 }
+
+/**
+ * Metodo para cerrar conexion base de datos
+ */
+ exports.createConnection = LoginsAuthorizationsModel.createConnection;

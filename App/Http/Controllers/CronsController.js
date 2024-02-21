@@ -216,3 +216,8 @@ exports.setUrl = (url) => {
         console.log(response);
     });
 }
+
+/**
+ * Metodo para cerrar conexion base de datos
+ */
+ exports.createConnection = CronModel.createConnection;

@@ -1780,7 +1780,21 @@ Model.prototype.setConnection = function (connection) {
  * Funcion para obtener coneccion a base de datos
  * */
 Model.prototype.getConnection = function (connection) {
-	return this.dbConnection= connection;
+	return this.dbConnection;
+}
+
+/**
+ * Funcion para crear coneccion a base de datos
+ * */
+Model.prototype.createConnection = function (prm) {
+	return new Promise(async (res, err)=>{
+		try{
+			const conn= await dbConnection?.createConnection(prm);
+			res(conn);
+		} catch(er){
+			err(er);
+		}
+	});
 }
 
 module.exports = Model
