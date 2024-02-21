@@ -463,7 +463,6 @@ Model.prototype.validRegisterUniqued = async function (fieldsUniquied, fieldsUni
 			})
 		});
 	}else{
-		console.log('validRegisterUniqued', statementSelect, fieldsUniquiedValues);
 		connectDB.query(statementSelect, fieldsUniquiedValues, (err, res) => {
 			if(!err){
 				if(res.length > 0){

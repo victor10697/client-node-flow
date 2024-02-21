@@ -201,7 +201,8 @@ const getAccessVtex=(decoded,settings,stateVtex,responseVtex)=>{
 					stateVtex: stateVtex,
 					codeAuthorization: token,
 					state: 'processing'
-				},{userId:true},(ee,ss)=>{
+				},{stateVtex:true},(ee,ss)=>{
+					console.log('decoded',decoded);
 					if(ee){
 						console.error(ee)
 					}else{
