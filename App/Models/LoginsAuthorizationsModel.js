@@ -79,7 +79,7 @@ const validCodeSolicitudVTEX= async function(code,settings,callback){
 					"status": 'success',
 					"email": encodeURIComponent(res[0].email)
 				};
-			jwt.sign(objectEncrypt, secret, function(errt, token) {
+			jwt.sign(objectEncrypt, secret, async function(errt, token) {
 				if(errt){
 					console.error('LoginsAuthorizationsModel validCodeSolicitudVTEX jwt', errt);
 					callback(null,errt);
