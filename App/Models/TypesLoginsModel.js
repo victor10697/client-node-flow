@@ -93,7 +93,7 @@ const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback)
 							return false;
 						}
 					}
-				}, TypesLoginsModel.getConnection());
+				}, TypesLoginsModel.prototype.getConnection());
 			}else{
 				callback(null, 'error');
 				return false;
