@@ -1,7 +1,7 @@
 const mysql = require('mysql2')
 // Referencia a las variables definidas en el archivo .env
 const env = process.env;
-const connectionGlobal= env?.DB_CONNECTION_GLOBAL && (env?.DB_CONNECTION_GLOBAL=== 'ON' || env?.DB_CONNECTION_GLOBAL==='on') ? true : false;
+const connectionGlobal= env?.DB_CONNECTION_GLOBAL && (env?.DB_CONNECTION_GLOBAL=== 'OFF' || env?.DB_CONNECTION_GLOBAL==='off') ? false : true;
 
 // Parámetros de conexión con la base de datos MySQL (ver archivo .env)
 var connection = null;
