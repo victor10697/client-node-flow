@@ -44,6 +44,7 @@ const createConnection = (params)=>{
 				connectTimeout: params?.DB_CONNECT_TIMEOUT || env?.DB_CONNECT_TIMEOUT || 60000,
 				connectionLimit: params?.DB_CONNECTION_LIMIT || env?.DB_CONNECTION_LIMIT || 1000
 			});
+			console.info('createConnection pool success');
 			res(newconection);
 		}else{
 			newconection = mysql.createConnection({
@@ -61,7 +62,7 @@ const createConnection = (params)=>{
 			    err('error connecting: ' + errDB.stack);
 			    return;
 			  }
-
+			  console.info('createConnection success');
 			  res(newconection);
 			});
 		}
