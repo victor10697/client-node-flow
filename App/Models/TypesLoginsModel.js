@@ -17,10 +17,10 @@ function TypesLoginsModel() {
 TypesLoginsModel.prototype = new Model() 
 
 TypesLoginsModel.prototype.selectAvailable = function (token,callback) {
-	if(!SettingsModel?.getConnection()){console.log('selectAvailable',this.getConnection());
-		SettingsModel?.setConnection(this.getConnection());
-		ActionsTypeJWTModel?.setConnection(this.getConnection());
-		TypesLoginsModel.prototype?.setConnection(this.getConnection());
+	const _this=this;
+	if(!SettingsModel?.getConnection()){
+		SettingsModel?.setConnection(_this.getConnection());
+		ActionsTypeJWTModel?.setConnection(_this.getConnection());
 	}
 	ActionsTypeJWTModel.verify(token,(err,res)=>{
 		if(err){
@@ -28,7 +28,7 @@ TypesLoginsModel.prototype.selectAvailable = function (token,callback) {
 			return false;
 		}else{
 			SettingsModel.getSettings((errorS, settings)=>{
-				TypesLoginsModel.prototype.getListProviders((err, res) => {
+				_this.getListProviders((err, res) => {
 					if (err) {
 						console.log(err);
 						callback(null,{list:[], information:{}});
@@ -62,14 +62,18 @@ TypesLoginsModel.prototype.selectAvailable = function (token,callback) {
 	});
 }
  
-const saveSesionClient= (data)=>{
+const saveSesionClient= (data, connection=null)=>{
 	if(!LoginsAuthorizationsModel?.getConnection()){
-		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+		LoginsAuthorizationsModel?.setConnection(connection);
 	}
 	LoginsAuthorizationsModel.createOrUpdate(data,{tokenAuthorization:true},(err,res)=>{});
 }
-const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback){
-	TypesLoginsModel.prototype.generateTokenIntial(provider, (err, res) => {
+const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback, _this=null){
+	if(!_this){
+		callback(null, 'error');
+		return;
+	}
+	_this.generateTokenIntial(provider, (err, res) => {
 		if(!err){
 			if(res.length > 0){
 				InputsUpdatesController.insertInternal({
@@ -86,7 +90,7 @@ const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback)
 								types_logins_id: res[0].types_logins_id,
 								stateVtex: stateVtex,
 								redirect_uri: redirect_uri
-							});
+							},_this.getConnection());
 							callback(null, resAF);
 							return true;
 						}else{
@@ -94,7 +98,7 @@ const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback)
 							return false;
 						}
 					}
-				}, TypesLoginsModel.prototype.getConnection());
+				}, _this.getConnection());
 			}else{
 				callback(null, 'error');
 				return false;
@@ -107,10 +111,11 @@ const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback)
 };
 
 TypesLoginsModel.prototype.getProviderAvailable = async function (data,callback) {
+	const _this= this;
 	if(!FieldsLoginModel?.getConnection()){
-		FieldsLoginModel?.setConnection(this.getConnection());
+		FieldsLoginModel?.setConnection(_this.getConnection());
 	}
-	TypesLoginsModel.prototype.getProviderAvailablePerName(data.provider, async (err, res) => {
+	_this.getProviderAvailablePerName(data.provider, async (err, res) => {
 		if (err) {
 			console.log(err);
 			callback('error data',null);
@@ -128,7 +133,7 @@ TypesLoginsModel.prototype.getProviderAvailable = async function (data,callback)
 						steps:res,
 						authorization: res2
 					});
-				});
+				},_this);
 			}else{
 				callback('error data',null);
 			}
@@ -139,7 +144,8 @@ TypesLoginsModel.prototype.getProviderAvailable = async function (data,callback)
 }
 
 TypesLoginsModel.prototype.createLogin = async function (data, callback) {
-	this.createOrUpdate({
+	const _this= this;
+	_this.createOrUpdate({
 		providerName:data.providerName,
 		label:data.label ? data.label : data.providerName,
 		description:data.description ? data.description : '',
@@ -151,17 +157,17 @@ TypesLoginsModel.prototype.createLogin = async function (data, callback) {
 			callback(err, null);
 		}else{
 			if(data.steps.length > 0){
-				saveStepLogin(data.steps, res.id);
+				saveStepLogin(data.steps, res.id, _this.getConnection());
 			}
 			callback(null, res);
 		}
 	});
 }
 
-const saveStepLogin=(steps, type_login_id)=>{
+const saveStepLogin=(steps, type_login_id, prconexion=null)=>{
 	if(!SourcesModel?.getConnection()){
-		SourcesModel?.setConnection(TypesLoginsModel.prototype.getConnection());
-		StepsLoginsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+		SourcesModel?.setConnection(prconexion);
+		StepsLoginsModel?.setConnection(prconexion);
 	}
 	for (let i = 0; i < steps.length; i++) {
 		if(steps[i].name && steps[i].name != '' && steps[i].sourceName && steps[i].sourceName != ''){
@@ -185,7 +191,7 @@ const saveStepLogin=(steps, type_login_id)=>{
 					},{name:true, types_logins_id:true},(err,res)=>{
 						if(!err){
 							if(steps[i].fields.length > 0){
-								saveFieldsLogin(steps[i].fields, res.id);
+								saveFieldsLogin(steps[i].fields, res.id, prconexion);
 							}
 						}
 					});
@@ -195,9 +201,9 @@ const saveStepLogin=(steps, type_login_id)=>{
 	}
 }
 
-const saveFieldsLogin= async (fields, step_login_id)=>{
+const saveFieldsLogin= async (fields, step_login_id, prconexion=null)=>{
 	if(!FieldsLoginModel?.getConnection()){
-		FieldsLoginModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+		FieldsLoginModel?.setConnection(prconexion);
 	}
 	let fieldsRegistered= await FieldsLoginModel.getRegisterRelacion('steps_logins_id',step_login_id);
 	let fieldsActive= [];
@@ -268,19 +274,23 @@ const saveFieldsLogin= async (fields, step_login_id)=>{
 	}
 };
 
-TypesLoginsModel.prototype.getValidStep= (data, authorization, callback)=>{
-	if(!ActionsTypeJWTModel?.getConnection()){
-		ActionsTypeJWTModel?.setConnection(this.getConnection());
-		LoginsAuthorizationsModel?.setConnection(this.getConnection());
-		StepsLoginsModel?.setConnection(this.getConnection());
+TypesLoginsModel.prototype.getValidStep= function (data, authorization, callback){
+	const _this=this;
+	if(!ActionsTypeJWTModel?.getConnection() || !LoginsAuthorizationsModel?.getConnection() || !StepsLoginsModel?.getConnection()){
+		ActionsTypeJWTModel?.setConnection(_this.getConnection());
+		LoginsAuthorizationsModel?.setConnection(_this.getConnection());
+		StepsLoginsModel?.setConnection(_this.getConnection());
 	}
+
 	ActionsTypeJWTModel.verify(authorization,(err,res)=>{
 		if(err){
+			console.error('TypesLoginsModel.prototype.getValidStep-ActionsTypeJWTModel.verify',err);
 			callback('error', null);
 			return false;
 		}else{
 			LoginsAuthorizationsModel.getPerToken(authorization,(errLA,resLA)=>{
 				if(errLA){
+					console.error('TypesLoginsModel.prototype.getValidStep-LoginsAuthorizationsModel.getPerToken',errLA);
 					callback('error', null);
 					return false;
 				}else if(resLA.types_logins_id && resLA.id){
@@ -289,7 +299,8 @@ TypesLoginsModel.prototype.getValidStep= (data, authorization, callback)=>{
 							callback('error', null);
 							return false;
 						}else if(resSN){
-							ProcessStepValid(resSN, data, resLA, res.settings, callback);
+							console.log('success valid TypesLoginsModel.prototype.getValidStep - ProcessStepValid');
+							ProcessStepValid(resSN, data, resLA, res.settings, callback, _this);
 						}else{
 							callback('error', null);
 							return false;
@@ -304,7 +315,7 @@ TypesLoginsModel.prototype.getValidStep= (data, authorization, callback)=>{
 	});
 };
 
-const ProcessStepValid= async (dataStep, input, LoginAuthorization, settings,callback)=>{
+const ProcessStepValid= async (dataStep, input, LoginAuthorization, settings,callback, _this=null)=>{
 	input.source_id=dataStep.sources_id;
 	InputsUpdatesController.insertInternal(input, async (errAF, resAF)=>{
 		if(errAF){
@@ -312,7 +323,7 @@ const ProcessStepValid= async (dataStep, input, LoginAuthorization, settings,cal
 			return false;
 		}else{
 			let validCode=true, errorValid=false,generateCodeAccessValid={};
-			await updateInforUser(resAF,LoginAuthorization);
+			await updateInforUser(resAF,LoginAuthorization, _this);
 			if(resAF.authorizedEmailLogin){
 				LoginAuthorization.email= resAF.authorizedEmailLogin;
 				delete resAF.authorizedEmailLogin;
@@ -326,17 +337,17 @@ const ProcessStepValid= async (dataStep, input, LoginAuthorization, settings,cal
 				delete resAF.authorizedNameLogin;
 			}
 			if(dataStep.generateVerificationCode==1){
-				errorValid= await updateLoginAuthorizationGenerateVerificationCode(resAF,LoginAuthorization);
+				errorValid= await updateLoginAuthorizationGenerateVerificationCode(resAF,LoginAuthorization, _this);
 			}
 			if(dataStep.validCode==1){
-				validCode= await updateLoginAuthorizationValidCode(resAF,LoginAuthorization);
+				validCode= await updateLoginAuthorizationValidCode(resAF,LoginAuthorization, _this);
 			}
 			if(validCode==false){
 				errorValid=true;
 			}
 			let createUpdateLoginAuthorizationAccessToken=false;
 			if(dataStep.createAccessToken==1 && validCode==true){
-				generateCodeAccessValid= await updateLoginAuthorizationAccessToken(resAF,LoginAuthorization,settings);
+				generateCodeAccessValid= await updateLoginAuthorizationAccessToken(resAF,LoginAuthorization,settings, _this);
 				errorValid=generateCodeAccessValid.error;
 				if(generateCodeAccessValid.error===false){
 					createUpdateLoginAuthorizationAccessToken=true;
@@ -344,7 +355,7 @@ const ProcessStepValid= async (dataStep, input, LoginAuthorization, settings,cal
 				}
 			}
 			if(resAF.hashPassword){
-				let resValidPassword= await validPasswordClient(resAF.hashPassword,LoginAuthorization,settings);
+				let resValidPassword= await validPasswordClient(resAF.hashPassword,LoginAuthorization,settings, _this);
 				if(resValidPassword.valid){
 					errorValid=false;
 					resAF=resValidPassword.response;
@@ -372,12 +383,12 @@ const ProcessStepValid= async (dataStep, input, LoginAuthorization, settings,cal
 		
 			}	
 		}
-	}, TypesLoginsModel.prototype.getConnection());
+	}, _this?.getConnection());
 };
 
-const validPasswordClient= async (hash, registroLogin, settings)=>{
+const validPasswordClient= async (hash, registroLogin, settings, _this=null)=>{
 	if(!LoginsAuthorizationsModel?.getConnection()){
-		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+		LoginsAuthorizationsModel?.setConnection(_this?.getConnection());
 	}
 	let valid= true;
 	if(hash && typeof hash == 'string' && hash == registroLogin.codeVerify){
@@ -392,9 +403,9 @@ const validPasswordClient= async (hash, registroLogin, settings)=>{
 	}
 }
 
-const updateInforUser= async (resAction,registroLogin)=>{
+const updateInforUser= async (resAction,registroLogin, _this=null)=>{
 	if(!LoginsAuthorizationsModel?.getConnection()){
-		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+		LoginsAuthorizationsModel?.setConnection(_this?.getConnection());
 	}
 	try{
 		if(resAction.authorizedEmailLogin && typeof resAction.authorizedEmailLogin == 'string' && resAction.authorizedEmailLogin != ''){
@@ -433,9 +444,9 @@ const updateUserLg= (ModelDB, id, data)=>{
 	});
 };
 
-const updateLoginAuthorizationGenerateVerificationCode= (resAction,registroLogin)=>{
+const updateLoginAuthorizationGenerateVerificationCode= (resAction,registroLogin, _this=null)=>{
 	if(!LoginsAuthorizationsModel?.getConnection()){
-		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+		LoginsAuthorizationsModel?.setConnection(_this?.getConnection());
 	}
 
 	return new Promise( async (resp, errr) =>{
@@ -448,9 +459,9 @@ const updateLoginAuthorizationGenerateVerificationCode= (resAction,registroLogin
 	});
 };
 
-const updateLoginAuthorizationValidCode= (resAction,registroLogin)=>{
+const updateLoginAuthorizationValidCode= (resAction,registroLogin, _this=null)=>{
 	if(!LoginsAuthorizationsModel?.getConnection()){
-		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+		LoginsAuthorizationsModel?.setConnection(_this?.getConnection());
 	}
 
 	return new Promise( async (resp, errr) =>{
@@ -464,9 +475,9 @@ const updateLoginAuthorizationValidCode= (resAction,registroLogin)=>{
 	});
 };
 
-const updateLoginAuthorizationAccessToken= async (resAction,registroLogin,settings)=>{
+const updateLoginAuthorizationAccessToken= async (resAction,registroLogin,settings, _this=null)=>{
 	if(!LoginsAuthorizationsModel?.getConnection()){
-		LoginsAuthorizationsModel?.setConnection(TypesLoginsModel.prototype.getConnection());
+		LoginsAuthorizationsModel?.setConnection(_this?.getConnection());
 	}
 	let resErr= false, objSave={};
 	if(!resAction.codeAuthorization || !registroLogin.email || registroLogin.email == '' || !registroLogin.userId || registroLogin.userId==''){

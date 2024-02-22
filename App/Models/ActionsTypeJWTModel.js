@@ -52,12 +52,14 @@ const getDataJSON=(string)=>{
 
 	return obj;
 };
-ActionTypeJWTModel.prototype.verify= (token,callback)=>{
+ActionTypeJWTModel.prototype.verify= function(token,callback){
 	if(!SettingsModel?.getConnection()){
 		SettingsModel?.setConnection(this.getConnection());
 	}
+	
 	SettingsModel.getSettings((err,res)=>{
 		if(err){
+			console.error('ActionTypeJWTModel.prototype.verify-SettingsModel.getSettings',err);
 			callback('error', null);
 			return false;
 		}else{
@@ -65,6 +67,7 @@ ActionTypeJWTModel.prototype.verify= (token,callback)=>{
 			objectSettings= res.settingJWT ? (getDataJSON(res.settingJWT)) : { algorithm: 'RS256' };
 			jwt.verify(token, secret, objectSettings, function(errJ, decoded) {
 				if(errJ){
+					console.error('ActionTypeJWTModel.prototype.verify-SettingsModel.getSettings-jwt.verify',errJ);
 					callback('error',null);
 					return false;
 				}else{

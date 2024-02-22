@@ -97,8 +97,8 @@ const setValueTreeCascade= async function(tree, nameTreeTM, objTM, childrenTM, l
  * @param {*} source_id 
  * @param {*} callback 
  */
-const processInputNodeFlowForSource= async (input, inputId, source_id, callback) => {
-	await NodesFlowsModel.prototype.getNodesFlowPerSource(source_id, async (error, listNodeFlow)=>{
+const processInputNodeFlowForSource= async (input, inputId, source_id, callback, _this=null) => {
+	await _this?.getNodesFlowPerSource(source_id, async (error, listNodeFlow)=>{
 		let lengthListFlow= listNodeFlow.length;
 		if(lengthListFlow > 0){
 			let treeNode= await getTreeNodeFlow(listNodeFlow);
@@ -111,7 +111,7 @@ const processInputNodeFlowForSource= async (input, inputId, source_id, callback)
 						callback(errorPT, {},code)
 						return false;
 					}
-				},lengthListFlow);
+				},lengthListFlow, _this?.getConnection());
 			}else{
 				callback(null, false)
 				return true;
@@ -130,18 +130,18 @@ var countFlow={},$GLOBALG={},responseCode=null,responseMessage=null;
  * @param {*} treeNode 
  * @param {*} callback 
  */
-const ProcessTreeNode= async (input, inputId, treeNode, callback, lengthListFlow) => {
+const ProcessTreeNode= async (input, inputId, treeNode, callback, lengthListFlow, prconexion=null) => {
 	countFlow['input_'+inputId]=0;
 	$GLOBALG['input_'+inputId]={};
 	responseCode=null;
 	responseMessage=null;
 	for (var tree in treeNode){
-		await ProcessActionNode(treeNode[tree], input,  inputId, {}, callback, lengthListFlow);
+		await ProcessActionNode(treeNode[tree], input,  inputId, {}, callback, lengthListFlow, prconexion);
 	}
 	return true;
 }
 
-const ProcessActionNode= async (node,input, inputId,responseAnt,callback,lengthListFlow)=>{
+const ProcessActionNode= async (node,input, inputId,responseAnt,callback,lengthListFlow, prconexion=null)=>{
 	await getActionNode(node.id, async (error, resAction)=>{
 		if(!error && typeof resAction == 'object' && resAction.length > 0){
 			for (let index = 0; index < resAction.length; index++) {
@@ -149,22 +149,22 @@ const ProcessActionNode= async (node,input, inputId,responseAnt,callback,lengthL
 					if(!errorAct){
 						if(node.children != undefined){
 							for (var treeC in node.children){
-								await ProcessActionNode(node.children[treeC],input,inputId,responseAct, callback,lengthListFlow);
+								await ProcessActionNode(node.children[treeC],input,inputId,responseAct, callback,lengthListFlow, prconexion);
 							}
 						}
 						listenerTree(inputId,lengthListFlow, callback, responseAct, codeAct);
 					}else{
 						listenerTree(inputId,lengthListFlow, callback, errorAct, codeAct);
 					}
-				});		
+				}, prconexion);		
 			}
 		}else{
 			listenerTree(inputId,lengthListFlow, callback, error);
 		}
-	});
+	}, prconexion);
 }
 
-const ProcessActionPerType= async (action, input, inputId, responsePrev, callback)=>{
+const ProcessActionPerType= async (action, input, inputId, responsePrev, callback, prconexion=null)=>{
 	let returnEmpty= false;
 	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 
@@ -193,7 +193,7 @@ const ProcessActionPerType= async (action, input, inputId, responsePrev, callbac
 					callback(null, []);
 					return false;
 				}
-			})
+			}, prconexion)
 			break;
 		case 'action_type_process_data':
 			await ProcessActionTypeProcessData(action, input, inputId, responsePrev, (error, response)=>{
@@ -204,7 +204,7 @@ const ProcessActionPerType= async (action, input, inputId, responsePrev, callbac
 					callback(null, []);
 					return false;
 				}
-			})
+			}, prconexion)
 			break;
 		case 'action_type_http_request':
 			await ProcessActionTypeHTTPRequest(action, input, inputId, responsePrev, (error, response)=>{
@@ -215,7 +215,7 @@ const ProcessActionPerType= async (action, input, inputId, responsePrev, callbac
 					callback(null, []);
 					return false;
 				}
-			})
+			}, prconexion)
 			break;
 		case 'action_type_database_rds':
 			await ProcessActionTypeDatabaseRDS(action, input, inputId, responsePrev, (error, response)=>{
@@ -226,7 +226,7 @@ const ProcessActionPerType= async (action, input, inputId, responsePrev, callbac
 					callback(null, []);
 					return false;
 				}
-			})
+			}, prconexion)
 			break;
 		case 'action_type_jwt':
 			await ProcessActionTypeJWT(action, input, inputId, responsePrev, (error, response)=>{
@@ -237,7 +237,7 @@ const ProcessActionPerType= async (action, input, inputId, responsePrev, callbac
 					callback(null, []);
 					return false;
 				}
-			})
+			}, prconexion)
 			break;
 		case 'action_type_md5':
 			await ProcessActionTypeMD5(action, input, inputId, responsePrev, (error, response)=>{
@@ -248,7 +248,7 @@ const ProcessActionPerType= async (action, input, inputId, responsePrev, callbac
 					callback(null, []);
 					return false;
 				}
-			})
+			}, prconexion)
 			break;
 		case 'action_type_ssh2':
 			await ProcessActionTypeSSH2(action, input, inputId, responsePrev, (error, response)=>{
@@ -259,7 +259,7 @@ const ProcessActionPerType= async (action, input, inputId, responsePrev, callbac
 					callback(null, []);
 					return false;
 				}
-			})
+			}, prconexion)
 			break;
 		default:
 			callback(null, [])
@@ -267,9 +267,9 @@ const ProcessActionPerType= async (action, input, inputId, responsePrev, callbac
 	}
 }
 
-const ProcessActionTypeEmail= async (action, input, inputId, responsePrev, callback)=>{
+const ProcessActionTypeEmail= async (action, input, inputId, responsePrev, callback, prconexion=null)=>{
 	if(!ActionsTypeEmailsModel?.getConnection()){
-		ActionsTypeEmailsModel?.setConnection(NodesFlowsModel.getConnection());
+		ActionsTypeEmailsModel?.setConnection(prconexion);
 	}
 	await ActionsTypeEmailsModel.getActionEmail(action.id, async (error, response)=>{
 		if(!error){
@@ -291,7 +291,7 @@ const ProcessActionTypeEmail= async (action, input, inputId, responsePrev, callb
 						callback(null, responseNow);
 						return true;
 					}
-				})
+				}, prconexion)
 			}
 		}else{
 			callback(null, []);
@@ -300,9 +300,9 @@ const ProcessActionTypeEmail= async (action, input, inputId, responsePrev, callb
 	})
 }
 
-const ProcessActionTypeDatabaseRDS= async (action, input, inputId, responsePrev, callback)=>{
+const ProcessActionTypeDatabaseRDS= async (action, input, inputId, responsePrev, callback, prconexion=null)=>{
 	if(!ActionsTypeDatabaseRDSModel?.getConnection()){
-		ActionsTypeDatabaseRDSModel?.setConnection(NodesFlowsModel.getConnection());
+		ActionsTypeDatabaseRDSModel?.setConnection(prconexion);
 	}
 	await ActionsTypeDatabaseRDSModel.getActionDatabaseRDS(action.id, async (error, response)=>{
 		if(!error){
@@ -324,7 +324,7 @@ const ProcessActionTypeDatabaseRDS= async (action, input, inputId, responsePrev,
 						callback(null, responseNow);
 						return true;
 					}
-				})
+				}, prconexion)
 			}
 		}else{
 			callback(null, []);
@@ -333,9 +333,9 @@ const ProcessActionTypeDatabaseRDS= async (action, input, inputId, responsePrev,
 	})
 }
 
-const ProcessActionTypeJWT= async (action, input, inputId, responsePrev, callback)=>{
+const ProcessActionTypeJWT= async (action, input, inputId, responsePrev, callback, prconexion=null)=>{
 	if(!ActionsTypeJWTModel?.getConnection()){
-		ActionsTypeJWTModel?.setConnection(NodesFlowsModel.getConnection());
+		ActionsTypeJWTModel?.setConnection(prconexion);
 	}
 	await ActionsTypeJWTModel.getActionJWT(action.id, async (error, response)=>{
 		if(!error){
@@ -357,7 +357,7 @@ const ProcessActionTypeJWT= async (action, input, inputId, responsePrev, callbac
 						callback(null, responseNow);
 						return true;
 					}
-				})
+				}, prconexion)
 			}
 		}else{
 			callback(null, []);
@@ -366,9 +366,9 @@ const ProcessActionTypeJWT= async (action, input, inputId, responsePrev, callbac
 	})
 }
 
-const ProcessActionTypeMD5= async (action, input, inputId, responsePrev, callback)=>{
+const ProcessActionTypeMD5= async (action, input, inputId, responsePrev, callback, prconexion=null)=>{
 	if(!ActionsTypeMD5Model?.getConnection()){
-		ActionsTypeMD5Model?.setConnection(NodesFlowsModel.getConnection());
+		ActionsTypeMD5Model?.setConnection(prconexion);
 	}
 	await ActionsTypeMD5Model.getActionMD5(action.id, async (error, response)=>{
 		if(!error){
@@ -390,7 +390,7 @@ const ProcessActionTypeMD5= async (action, input, inputId, responsePrev, callbac
 						callback(null, responseNow);
 						return true;
 					}
-				})
+				}, prconexion)
 			}
 		}else{
 			callback(null, []);
@@ -399,9 +399,9 @@ const ProcessActionTypeMD5= async (action, input, inputId, responsePrev, callbac
 	})
 }
 
-const ProcessActionTypeSSH2= async (action, input, inputId, responsePrev, callback)=>{
+const ProcessActionTypeSSH2= async (action, input, inputId, responsePrev, callback, prconexion=null)=>{
 	if(!ActionsTypeSftpModel?.getConnection()){
-		ActionsTypeSftpModel?.setConnection(NodesFlowsModel.getConnection());
+		ActionsTypeSftpModel?.setConnection(prconexion);
 	}
 	await ActionsTypeSftpModel.getActionSFTP(action.id, async (error, response)=>{
 		if(!error){
@@ -423,7 +423,7 @@ const ProcessActionTypeSSH2= async (action, input, inputId, responsePrev, callba
 						callback(null, responseNow);
 						return true;
 					}
-				})
+				}, prconexion)
 			}
 		}else{
 			callback(null, []);
@@ -432,9 +432,9 @@ const ProcessActionTypeSSH2= async (action, input, inputId, responsePrev, callba
 	})
 }
 
-const ProcessActionTypeProcessData= async (action, input, inputId, responsePrev, callback)=>{
+const ProcessActionTypeProcessData= async (action, input, inputId, responsePrev, callback, prconexion=null)=>{
 	if(!ActionTypeProcessDataModel?.getConnection()){
-		ActionTypeProcessDataModel?.setConnection(NodesFlowsModel.getConnection());
+		ActionTypeProcessDataModel?.setConnection(prconexion);
 	}
 	await ActionTypeProcessDataModel.getActionProcessData(action.id, async (error, response)=>{
 		if(!error){
@@ -456,7 +456,7 @@ const ProcessActionTypeProcessData= async (action, input, inputId, responsePrev,
 						callback(null, responseNow);
 						return true;
 					}
-				})
+				}, prconexion)
 			}
 		}else{
 			callback(null, []);
@@ -465,9 +465,9 @@ const ProcessActionTypeProcessData= async (action, input, inputId, responsePrev,
 	})
 }
 
-const ProcessActionTypeHTTPRequest= async (action, input, inputId, responsePrev, callback)=>{
+const ProcessActionTypeHTTPRequest= async (action, input, inputId, responsePrev, callback, prconexion=null)=>{
 	if(!ActionTypeHttpRequestModel?.getConnection()){
-		ActionTypeHttpRequestModel?.setConnection(NodesFlowsModel.getConnection());
+		ActionTypeHttpRequestModel?.setConnection(prconexion);
 	}
 	await ActionTypeHttpRequestModel.getActionHttpRequest(action.id, async (error, response)=>{
 		if(!error){
@@ -490,7 +490,7 @@ const ProcessActionTypeHTTPRequest= async (action, input, inputId, responsePrev,
 						callback(null, responseNow);
 						return true;
 					}
-				})
+				}, prconexion)
 			}
 		}else{
 			callback(null, []);
@@ -498,9 +498,9 @@ const ProcessActionTypeHTTPRequest= async (action, input, inputId, responsePrev,
 	})
 }
 
-const ProcessHttpRequest= async (httpProcess, input, inputId, responsePrev, callback)=>{
+const ProcessHttpRequest= async (httpProcess, input, inputId, responsePrev, callback, prconexion=null)=>{
 	if(!HistoryFlowModel?.getConnection()){
-		HistoryFlowModel?.setConnection(NodesFlowsModel.getConnection());
+		HistoryFlowModel?.setConnection(prconexion);
 	}
 	var requestOptions = {
 		url: httpProcess.url,
@@ -569,9 +569,9 @@ const ProcessHttpRequest= async (httpProcess, input, inputId, responsePrev, call
 	});
 }
 
-const ProcessDataAction= async (action, input, inputId, responsePrev, callback)=>{
+const ProcessDataAction= async (action, input, inputId, responsePrev, callback, prconexion=null)=>{
 	if(!HistoryFlowModel?.getConnection()){
-		HistoryFlowModel?.setConnection(NodesFlowsModel.getConnection());
+		HistoryFlowModel?.setConnection(prconexion);
 	}
 
 	let returnAction={};
@@ -596,10 +596,10 @@ const ProcessDataAction= async (action, input, inputId, responsePrev, callback)=
 	}
 }
 
-const ProcessJWTAction= async (action, input, inputId, responsePrev, callback)=>{
+const ProcessJWTAction= async (action, input, inputId, responsePrev, callback, prconexion=null)=>{
 	if(!HistoryFlowModel?.getConnection()){
-		HistoryFlowModel?.setConnection(NodesFlowsModel.getConnection());
-		ActionsTypeJWTModel?.setConnection(NodesFlowsModel.getConnection());
+		HistoryFlowModel?.setConnection(prconexion);
+		ActionsTypeJWTModel?.setConnection(prconexion);
 	}
 	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 
@@ -631,9 +631,9 @@ const ProcessJWTAction= async (action, input, inputId, responsePrev, callback)=>
 	}
 }
 
-const ProcessMD5Action= async (action, input, inputId, responsePrev, callback)=>{
+const ProcessMD5Action= async (action, input, inputId, responsePrev, callback, prconexion=null)=>{
 	if(!HistoryFlowModel?.getConnection()){
-		HistoryFlowModel?.setConnection(NodesFlowsModel.getConnection());
+		HistoryFlowModel?.setConnection(prconexion);
 	}
 	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 	let returnMD5={};
@@ -656,9 +656,9 @@ const ProcessMD5Action= async (action, input, inputId, responsePrev, callback)=>
 	callback(null, returnMD5);
 }
 
-const ProcessSSH2Action= async (action, input, inputId, responsePrev, callback)=>{
+const ProcessSSH2Action= async (action, input, inputId, responsePrev, callback, prconexion=null)=>{
 	if(!HistoryFlowModel?.getConnection()){
-		HistoryFlowModel?.setConnection(NodesFlowsModel.getConnection());
+		HistoryFlowModel?.setConnection(prconexion);
 	}
 	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 	let actionType="";
@@ -688,9 +688,9 @@ const ProcessSSH2Action= async (action, input, inputId, responsePrev, callback)=
 	}
 }
 
-const ProcessEmail= async (emailProcess, input, inputId, responsePrev, callback) => {
+const ProcessEmail= async (emailProcess, input, inputId, responsePrev, callback, prconexion=null) => {
 	if(!HistoryFlowModel?.getConnection()){
-		HistoryFlowModel?.setConnection(NodesFlowsModel.getConnection());
+		HistoryFlowModel?.setConnection(prconexion);
 	}
 	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 	let settingsEmail= {
@@ -770,9 +770,9 @@ const ProcessEmail= async (emailProcess, input, inputId, responsePrev, callback)
 	}
 }
 
-const ProcessDatabaseRDS= async (rdsProcess, input, inputId, responsePrev, callback) => {
+const ProcessDatabaseRDS= async (rdsProcess, input, inputId, responsePrev, callback, prconexion= null) => {
 	if(!HistoryFlowModel?.getConnection()){
-		HistoryFlowModel?.setConnection(NodesFlowsModel.getConnection());
+		HistoryFlowModel?.setConnection(prconexion);
 	}
 	let $GLOBAL=$GLOBALG['input_'+inputId] ?? {};
 	if(rdsProcess.DB_CONNECTION && rdsProcess.DB_CONNECTION != '' && rdsProcess.query != '' && rdsProcess.query){
@@ -818,9 +818,9 @@ const ProcessDatabaseRDS= async (rdsProcess, input, inputId, responsePrev, callb
 	}
 }
 
-const getActionNode= async (nodeId, callback)=>{
+const getActionNode= async (nodeId, callback, prconexion=null)=>{
 	if(!ActionsModel?.getConnection()){
-		ActionsModel?.setConnection(NodesFlowsModel.getConnection());
+		ActionsModel?.setConnection(prconexion);
 	}
 	await ActionsModel.getActionPerNodeFlowId(nodeId, (error, response)=>{
 		if(!error){
@@ -858,9 +858,10 @@ NodesFlowsModel.prototype.getTreeNode= async (source_id, callback) => {
 	})
 }
 
-NodesFlowsModel.prototype.ProcesingInputsNode= async (inputs, callback) => {
+NodesFlowsModel.prototype.ProcesingInputsNode= async function(inputs, callback) {
+	const _this= this;
 	if(!InputsUpdatesModel?.getConnection()){
-		InputsUpdatesModel?.setConnection(NodesFlowsModel.getConnection());
+		InputsUpdatesModel?.setConnection(_this.getConnection());
 	}
 	if(typeof inputs == 'object'){
 		for (let index = 0; index < inputs.length; index++) {
@@ -875,7 +876,7 @@ NodesFlowsModel.prototype.ProcesingInputsNode= async (inputs, callback) => {
 					callback(null, response,code)
 					return true;
 				}
-			})
+			}, _this)
 		}
 		if(inputs.length === 0){
 			callback(null, [],403)

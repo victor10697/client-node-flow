@@ -53,10 +53,9 @@ const getDataJSON=(string)=>{
 	return obj;
 };
 
-const updateSolicitudVTEX= function(id,token){
+const updateSolicitudVTEX= function(id,token, _this=null){
 	return new Promise((resp, eerr)=>{
-		const statement = `UPDATE logins_authorizations SET accessToken=?, state=? WHERE id=?`;
-		LoginsAuthorizationsModel.prototype.updateSolicitudVTEX(id, token, (err, res) => {
+		_this?.updateSolicitudVTEX(id, token, (err, res) => {
 			if (err) {
 				console.log(err)
 				eerr(err);
@@ -67,8 +66,8 @@ const updateSolicitudVTEX= function(id,token){
 	});
 };
 
-const validCodeSolicitudVTEX= async function(code,settings,callback){
-	LoginsAuthorizationsModel.prototype.validCodeSolicitudVTEX(code, async (err, res) => {
+const validCodeSolicitudVTEX= async function(code,settings,callback, _this=null){
+	_this?.validCodeSolicitudVTEX(code, async (err, res) => {
 		if (err) {
 			console.error('LoginsAuthorizationsModel validCodeSolicitudVTEX', err);
 			callback('error',null);
@@ -85,7 +84,7 @@ const validCodeSolicitudVTEX= async function(code,settings,callback){
 					callback(null,errt);
 				}else{
 					try{
-						await updateSolicitudVTEX(res[0].id,token);
+						await updateSolicitudVTEX(res[0].id,token, _this);
 					}catch(eeeer){
 						console.error(eeeer);
 					}
@@ -103,8 +102,9 @@ const validCodeSolicitudVTEX= async function(code,settings,callback){
 	})
 };
 LoginsAuthorizationsModel.prototype.getValidCodeSolicitud= function(code,client_id,client_secret,callback){
+	const _this=this;
 	if(!SettingsModel?.getConnection()){
-		SettingsModel?.setConnection(this.getConnection());
+		SettingsModel?.setConnection(_this?.getConnection());
 	}
 	if(code && client_id && client_secret && code!='' && client_id!='' && client_secret!=''){
 			SettingsModel.getSettings((err,settings)=>{
@@ -129,7 +129,7 @@ LoginsAuthorizationsModel.prototype.getValidCodeSolicitud= function(code,client_
 									callback(null, resVSV);
 									return true;
 								}
-							});
+							}, _this);
 						}	
 					});
 				}else{
@@ -151,6 +151,7 @@ LoginsAuthorizationsModel.prototype.getAuthorizationCode= function(state,redirec
 	}
 	SettingsModel.getSettings((err,settings)=>{
 		if(err){
+			console.error('LoginsAuthorizationsModel.prototype.getAuthorizationCode-SettingsModel.getSettings', err);
 			callback('error', null);
 		}else{
 			let listUris= settings.redirectUriAuthorizations && settings.redirectUriAuthorizations != '' ? settings.redirectUriAuthorizations.split(',') : [];

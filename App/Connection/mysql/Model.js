@@ -341,7 +341,7 @@ Model.prototype.callbackSelectOne = async function (statement, values, result) {
 Model.prototype.createOrUpdate = function (record, skipKeys, result) {
 	setCurrentDate(record, true)
 	let arrOptionUpdateCreate= this.getArrayRequestUpdateOrCreate(record, skipKeys), t= this;
-
+	
 	if(arrOptionUpdateCreate.fieldsUniquied.length > 0 && arrOptionUpdateCreate.fieldsUniquiedValues.length > 0){
 		t.validRegisterUniqued(arrOptionUpdateCreate.fieldsUniquied, arrOptionUpdateCreate.fieldsUniquiedValues, (err, res)=>{
 			if(!err){
@@ -1550,6 +1550,7 @@ Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(c
 				callback('error',null);
 				return false;
 			}else{
+				console.log('validCodeSolicitudVTEX consulta', code, res);
 				callback(null, res);
 				return true;
 			}
