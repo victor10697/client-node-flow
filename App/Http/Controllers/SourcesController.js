@@ -10,6 +10,7 @@ const SourcesModel = require('../../Models/SourcesModel')
         SourcesModel?.setConnection(prconexion);
     }
     SourcesModel.select((error, response)=>{
+        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
         if(!error){
             if(typeof res == 'function'){
                 res({
@@ -43,7 +44,7 @@ const SourcesModel = require('../../Models/SourcesModel')
             SourcesModel?.setConnection(prconexion);
         }
         SourcesModel.update(req.params.id, req.body, (error, response)=>{
-            
+            if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
             if(!error){
                 if(typeof res == 'function'){
                     res({
@@ -65,6 +66,7 @@ const SourcesModel = require('../../Models/SourcesModel')
             }
         });
     }else{
+        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
         if(typeof res == 'function'){
             res({
                 statusCode: 400,
@@ -88,7 +90,7 @@ const SourcesModel = require('../../Models/SourcesModel')
                 SourcesModel?.setConnection(prconexion);
             }
             SourcesModel.createOrUpdate(req.body, { 'name': true }, (error, response)=>{
-                
+                if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
                 if(!error){
                     if(typeof res == 'function'){
                         res({
@@ -110,6 +112,7 @@ const SourcesModel = require('../../Models/SourcesModel')
                 }
             });
         }else{
+            if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
             if(typeof res == 'function'){
                 res({
                     statusCode: 400,
@@ -120,6 +123,7 @@ const SourcesModel = require('../../Models/SourcesModel')
             }
         }
     }else{
+        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
         if(typeof res == 'function'){
             res({
                 statusCode: 400,
@@ -142,7 +146,7 @@ const SourcesModel = require('../../Models/SourcesModel')
             SourcesModel?.setConnection(prconexion);
         }
         SourcesModel.remove(req.params.id, (error, response)=>{
-            
+            if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
             if(!error){
                 if(typeof res == 'function'){
                     res({
@@ -164,6 +168,7 @@ const SourcesModel = require('../../Models/SourcesModel')
             }
         });
     }else{
+        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
         if(typeof res == 'function'){
             res({
                 statusCode: 400,

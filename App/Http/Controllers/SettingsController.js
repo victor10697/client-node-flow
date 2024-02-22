@@ -5,6 +5,7 @@ exports.findAll = (req, res, prconexion=null) => {
         settingsModel?.setConnection(prconexion);
     }
 	settingsModel.select((err, data) => {
+		if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
 		if (err) {
 			if(typeof res == 'function'){
                 res({
@@ -79,7 +80,7 @@ exports.insert = (req, res, prconexion=null) => {
 	}
  
 	settingsModel.createOrUpdate(req.body, { 'name': true, 'created_at': true }, (err, data) => {
-		
+		if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
 		if (err) {
 			if(typeof res == 'function'){
                 res({
@@ -120,7 +121,7 @@ exports.save = (req, res, prconexion=null) => {
 	}
 
 	settingsModel.saveRecords(req.body, (err, data) => {
-		
+		if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
 		if (err) {
 			if(typeof res == 'function'){
                 res({

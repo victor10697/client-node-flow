@@ -65,7 +65,6 @@ SettingsModel.prototype.saveLog = function (error, response, id) {
 	if((error || response) && id){
 		const _this= this;
 		_this.select((err, res) => {
-			_this.closeConnection(null);
 			let objSettings={};
 			if (err) {
 				console.log(err, null);

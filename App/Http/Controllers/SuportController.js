@@ -20,9 +20,10 @@ const env = process.env
             const truncateInputsUpdatesModel= await InputsUpdatesModel.truncate();
             console.log('truncateInputsUpdatesModel', truncateInputsUpdatesModel);
         }
-
+        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
         res.status(200).json({ 'state': 'success' })
     }catch (eerr) {
+        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); prconexion.end();}
         res.status(401).json({ 'state': 'error', error: eerr })
     }
 }
