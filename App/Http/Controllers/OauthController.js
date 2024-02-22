@@ -7,7 +7,7 @@ exports.getListAccess= (req, res, prconexion=null)=>{
             TypesLoginsModel?.setConnection(prconexion);
         }
         TypesLoginsModel.selectAvailable(req.query.token,(err,response)=>{
-            
+            if (typeof prconexion != 'undefined' && prconexion) { TypesLoginsModel?.closeConnection(null); }
             if(err){
                 console.error('getListAccess',err);
                 if(typeof res == 'function'){
@@ -50,6 +50,7 @@ exports.getAuthorizationCode=(req, res, prconexion=null)=>{
             TypesLoginsModel?.setConnection(prconexion);
         }
         TypesLoginsModel.getProviderAvailable(req.query,(err,response)=>{
+            if (typeof prconexion != 'undefined' && prconexion) { TypesLoginsModel?.closeConnection(null); }
             if(err){
                 console.error('getAuthorizationCode', err);
                 if(typeof res == 'function'){
@@ -92,6 +93,7 @@ exports.authorizationCode=(req, res, prconexion=null)=>{
             TypesLoginsModel?.setConnection(prconexion);
         }
         TypesLoginsModel.getValidStep(req.body, authorization,(err,response)=>{ 
+            if (typeof prconexion != 'undefined' && prconexion) { TypesLoginsModel?.closeConnection(null); }
             if(err){
                 console.error('authorizationCode', err);
                 if(typeof res == 'function'){
@@ -134,6 +136,7 @@ exports.getUserInfo=(req, res, prconexion=null)=>{
             LoginsAuthorizationsModel?.setConnection(prconexion);
         }
         LoginsAuthorizationsModel.getUserInfoValid(accesToken,(err,response)=>{
+            if (typeof prconexion != 'undefined' && prconexion) { TypesLoginsModel?.closeConnection(null); }
             if(err){
                 console.error('getUserInfo', err);
                 if(typeof res == 'function'){
@@ -175,6 +178,7 @@ exports.getValidCodeSolicitud=(req, res, prconexion=null)=>{
             LoginsAuthorizationsModel?.setConnection(prconexion);
         }
         LoginsAuthorizationsModel.getValidCodeSolicitud(req.body.code, req.body.client_id, req.body.client_secret, (err,response)=>{
+            if (typeof prconexion != 'undefined' && prconexion) { LoginsAuthorizationsModel?.closeConnection(null); }
             if(err){
                 console.error('getValidCodeSolicitud', err);
                 if(typeof res == 'function'){
@@ -216,6 +220,7 @@ exports.getAuthorizationCodeURL=(req,res, prconexion=null)=>{
             LoginsAuthorizationsModel?.setConnection(prconexion);
         }
         LoginsAuthorizationsModel.getAuthorizationCode(req.query.state, req.query.redirect_uri, req?.query?.client_id, (err,response)=>{
+            if (typeof prconexion != 'undefined' && prconexion) { LoginsAuthorizationsModel?.closeConnection(null); }
             if(err){
                 console.error('getAuthorizationCodeURL', err);
                 if(typeof res == 'function'){
@@ -259,7 +264,7 @@ exports.startFast=(req, res, prconexion=null)=>{
             LoginsAuthorizationsModel?.setConnection(prconexion);
         }
         LoginsAuthorizationsModel.getValidCodeSolicitudFast(req.body.token, req.body.stateVtex,(err,response)=>{
-            
+            if (typeof prconexion != 'undefined' && prconexion) { LoginsAuthorizationsModel?.closeConnection(null); }
             if(err){
                 console.error('startFast', err);
                 if(typeof res == 'function'){
