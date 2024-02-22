@@ -17,9 +17,10 @@ function TypesLoginsModel() {
 TypesLoginsModel.prototype = new Model() 
 
 TypesLoginsModel.prototype.selectAvailable = function (token,callback) {
-	if(!SettingsModel?.getConnection()){
+	if(!SettingsModel?.getConnection()){console.log('selectAvailable',this.getConnection());
 		SettingsModel?.setConnection(this.getConnection());
 		ActionsTypeJWTModel?.setConnection(this.getConnection());
+		TypesLoginsModel.prototype?.setConnection(this.getConnection());
 	}
 	ActionsTypeJWTModel.verify(token,(err,res)=>{
 		if(err){
