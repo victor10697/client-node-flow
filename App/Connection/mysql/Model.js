@@ -1757,6 +1757,7 @@ Model.prototype.truncate = async function truncate(){
 Model.prototype.closeConnection = function (callback) {
 	const _this= this;
 	try{
+		console.log('connection ended');
 		_this.dbConnection.end();
 		if(typeof callback === 'function'){
     	callback('connection ended');
