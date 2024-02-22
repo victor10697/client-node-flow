@@ -1,4 +1,4 @@
-const mysql = require('mysql2')
+const mysql = require('mysql')
 // Referencia a las variables definidas en el archivo .env
 const env = process.env;
 const connectionGlobal= env?.DB_CONNECTION_GLOBAL && (env?.DB_CONNECTION_GLOBAL=== 'OFF' || env?.DB_CONNECTION_GLOBAL==='off') ? false : true;
@@ -6,6 +6,7 @@ const connectionGlobal= env?.DB_CONNECTION_GLOBAL && (env?.DB_CONNECTION_GLOBAL=
 // Parámetros de conexión con la base de datos MySQL (ver archivo .env)
 var connection = null;
 if(connectionGlobal === true){
+	console.info('connectionGlobal success');
 	if(env?.DB_CONNECTION_POOL && (env?.DB_CONNECTION_POOL=== true  || env?.DB_CONNECTION_POOL=== 'TRUE' || env?.DB_CONNECTION_POOL=== 'true')){
 		connection = mysql.createPool({
 			host: env?.DB_HOST || 'localhost',
@@ -26,6 +27,8 @@ if(connectionGlobal === true){
 			connectTimeout: env?.DB_CONNECT_TIMEOUT || 60000
 		});
 	}
+}else{
+	console.info('connectionGlobal off');
 }
 
 const createConnection = (params)=>{
