@@ -842,8 +842,8 @@ const listenerTree= function (inputId,longitud,callback,responseAct, codeAct=200
 };
 /** Fin procesamiento arbol de accion */
 
-NodesFlowsModel.prototype.getTreeNode= async (source_id, callback) => {
-	NodesFlowsModel.prototype.getNodesFlowPerSource(source_id, async (error, listNodeFlow)=>{
+NodesFlowsModel.prototype.getTreeNode= async function(source_id, callback) {
+	this.getNodesFlowPerSource(source_id, async (error, listNodeFlow)=>{
 		let lengthListFlow= listNodeFlow.length;
 		if(lengthListFlow > 0){
 			let treeNode= await getTreeNodeFlow(listNodeFlow);
