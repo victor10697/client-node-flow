@@ -237,7 +237,7 @@ exports.getAuthorizationCodeURL=(req,res, prconexion=null)=>{
                     res.status(400).json({ 'state': 'error', 'messanger': err})
                 }
             }else{
-                console.log('getAuthorizationCodeURL success');
+                console.log('getAuthorizationCodeURL success', response);
                 if(typeof res == 'function'){
                     res({
                         statusCode: 302,
