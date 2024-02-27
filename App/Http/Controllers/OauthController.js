@@ -97,7 +97,7 @@ exports.authorizationCode=(req, res, prconexion=null)=>{
         TypesLoginsModel.getValidStep(req.body, authorization,(err,response)=>{ 
             if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
             if(err){
-                console.error('authorizationCode', err);
+                console.error('authorizationCode', err, authorization, req?.body);
                 if(typeof res == 'function'){
                     res({
                         statusCode: 400,
