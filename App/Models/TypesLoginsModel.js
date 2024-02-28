@@ -589,7 +589,7 @@ const savePasswordVTEX= async (registroLogin,settings)=>{
 	//contituar con la eliminacion con asociaciones por telefono
 	if(settings?.urlEntityClients && settings?.relationClients && settings?.clearClients && settings?.clearClients != '' && (settings?.clearClients==true || settings?.clearClients=='true' || settings?.clearClients== 1 || settings?.clearClients == '1') ){
 		console.log('Start cleanner clients!');
-		await clearClients({id:registroLogin?.userId, settings:settings});
+		await clearClients({id:registroLogin?.userId, settings:settings, password: registroLogin?.password, confirmation:registroLogin?.codeVerify, accesskey:registroLogin?.userId});
 	}
 
 	await axios(requestOptions);
@@ -598,8 +598,8 @@ const savePasswordVTEX= async (registroLogin,settings)=>{
 }
 
 // funcion para eliminar clientes
-const clearClients= async ({id=null, settings=null})=>{
-	if(id && settings){
+const clearClients= async ({id=null, settings=null, password=null, confirmation=null, accesskey=null})=>{
+	if(id && settings && password){
 		// obtenreregistro clientes
 		let clientRegister= await getClientsVTEX({key:'id', value:id, fields: settings?.relationClients, settings:settings});
 
@@ -609,7 +609,7 @@ const clearClients= async ({id=null, settings=null})=>{
 			clientsRelations= clientsRelations.filter(it=>(it.id != id));
 
 			for (let i = 0; i < clientsRelations.length; i++) {
-				deletePasswordVTEX({id: clientsRelations[i]?.id, settings:settings});
+				deletePasswordVTEX({id: clientsRelations[i]?.id, settings:settings, password:password, confirmation:confirmation, accesskey:accesskey});
 			}
 		}
 
@@ -619,13 +619,18 @@ const clearClients= async ({id=null, settings=null})=>{
 }
 
 //funcion que elimina registro dentro de clientes
-const deletePasswordVTEX= async ({id=null, settings=null})=>{
-	if(id && settings){
+const deletePasswordVTEX= async ({id=null, settings=null, password=null, confirmation=null, accesskey=null})=>{
+	if(id && settings && password){
 		let requestOptions = {
-			url: settings.urlEntityPassword+'/'+id,
-			method: 'DELETE',
+			url: settings.urlEntityPassword,
+			method: 'PATCH',
 			responseType: 'json',
-			data: {},
+			data: {
+				id:id,
+				password:password,
+				confirmation:confirmation,
+				accesskey:accesskey
+			},
 			headers: {
 				'X-VTEX-API-AppKey': settings.apiKeyVtex,
 				'X-VTEX-API-AppToken': settings.apiTokenVtex
