@@ -66,26 +66,36 @@ const saveSesionClient= (data, connection=null)=>{
 	if(!LoginsAuthorizationsModel?.getConnection()){
 		LoginsAuthorizationsModel?.setConnection(connection);
 	}
-	LoginsAuthorizationsModel.createOrUpdate(data,{tokenAuthorization:true},(err,res)=>{});
+
+	return new Promise((ress,errr)=>{
+		LoginsAuthorizationsModel.createOrUpdate(data,{tokenAuthorization:true},(err,res)=>{
+			if (err) {
+				console.error('TypesLoginsModel-saveSesionClient', err);
+				errr(err)
+			}else{
+				ress(res);
+			}
+		});
+	});
 }
-const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback, _this=null){
+const generateTokenIntial= async function(provider, stateVtex, redirect_uri, callback, _this=null){
 	if(!_this){
 		callback(null, 'error');
 		return;
 	}
-	_this.generateTokenIntial(provider, (err, res) => {
+	_this.generateTokenIntial(provider, async (err, res) => {
 		if(!err){
 			if(res.length > 0){
 				InputsUpdatesController.insertInternal({
 					source_id:res[0].sources_id,
 					provider: provider
-				},(errAF, resAF)=>{
+				}, async (errAF, resAF)=>{
 					if(errAF){
 						callback(null, 'error');
 						return false;
 					}else{
 						if(resAF.token && resAF.token !=''){
-							saveSesionClient({
+							await saveSesionClient({
 								tokenAuthorization:resAF.token,
 								types_logins_id: res[0].types_logins_id,
 								stateVtex: stateVtex,
@@ -100,10 +110,12 @@ const generateTokenIntial= function(provider, stateVtex, redirect_uri, callback,
 					}
 				}, _this.getConnection());
 			}else{
+				console.error('TypesLoginsModel-generateTokenIntial not providers', res);
 				callback(null, 'error');
 				return false;
 			}
 		}else{
+			console.error('TypesLoginsModel-generateTokenIntial', err);
 			callback(null, 'error');
 			return false;
 		}
@@ -307,6 +319,7 @@ TypesLoginsModel.prototype.getValidStep= function (data, authorization, callback
 						}
 					});
 				}else{
+					console.error('TypesLoginsModel.prototype.getValidStep-LoginsAuthorizationsModel.getPerToken not found per authorization', authorization);
 					callback('error', null);
 					return false;
 				}
