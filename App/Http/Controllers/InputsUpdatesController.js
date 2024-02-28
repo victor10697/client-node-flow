@@ -247,12 +247,14 @@ exports.insertInternal = (bodyR, res, prconexion=null) => {
                     input: JSON.parse(response.bodyRequest),
                     source_id: response.source_id
                 }], (errorA, responseA, code=200) => {
-                    InputsUpdatesModel.delete(response.id, (eRi, rRi) => { console.log('eRi', eRi); });
-                    if (!errorA) {
-                        res(null, responseA,code)
-                    } else {
-                        res('error', null,code)
-                    }
+                    InputsUpdatesModel.delete(response.id, (eRi, rRi) => { 
+                        console.log('eRi', eRi);
+                        if (!errorA) {
+                            res(null, responseA,code)
+                        } else {
+                            res('error', null,code)
+                        } 
+                    });
                 });
             } else {
                 res('error', null, 403)

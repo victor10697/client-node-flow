@@ -868,10 +868,9 @@ NodesFlowsModel.prototype.ProcesingInputsNode= async function(inputs, callback) 
 			InputsUpdatesModel.update(inputs[index].id, {processStatus:'processing'}, (errorIn,resIn)=>{});
 			await processInputNodeFlowForSource(inputs[index].input, inputs[index].id, inputs[index].source_id, async (error, response, code=200)=>{
 				if(!error){
-					InputsUpdatesModel.update(inputs[index].id, {processStatus:'processed'}, (errorIn,resIn)=>{})
-				}else{
-					InputsUpdatesModel.update(inputs[index].id, {processStatus:'invalid'}, (errorIn,resIn)=>{})
+					console.error('inputs[index].input', inputs[index].input, error);
 				}
+
 				if((parseInt(inputs.length)-1) === index ){
 					callback(null, response,code)
 					return true;
