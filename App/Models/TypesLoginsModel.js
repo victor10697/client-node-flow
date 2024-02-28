@@ -80,7 +80,8 @@ const saveSesionClient= (data, connection=null)=>{
 }
 const generateTokenIntial= async function(provider, stateVtex, redirect_uri, callback, _this=null){
 	if(!_this){
-		callback(null, 'error');
+		console.error('error internal class');
+		callback('error internal class', null);
 		return;
 	}
 	_this.generateTokenIntial(provider, async (err, res) => {
@@ -91,7 +92,8 @@ const generateTokenIntial= async function(provider, stateVtex, redirect_uri, cal
 					provider: provider
 				}, async (errAF, resAF)=>{
 					if(errAF){
-						callback(null, 'error');
+						console.error('generateTokenIntial->insertInternal',eeerr);
+						callback('error get token', null);
 						return false;
 					}else{
 						if(resAF.token && resAF.token !=''){
@@ -106,18 +108,19 @@ const generateTokenIntial= async function(provider, stateVtex, redirect_uri, cal
 								return true;
 							}catch(eeerr){
 								console.error('generateTokenIntial->saveSesionClient error save session',eeerr);
-								callback(null, 'error');
+								callback('error save sesion', null);
 								return false;
 							}
 						}else{
-							callback(null, 'error');
+							console.error('generateTokenIntial error create token');
+							callback('error step create token', null);
 							return false;
 						}
 					}
 				}, _this.getConnection());
 			}else{
 				console.error('TypesLoginsModel-generateTokenIntial not providers', res);
-				callback(null, 'error');
+				callback('error provider not found', null);
 				return false;
 			}
 		}else{
@@ -147,16 +150,22 @@ TypesLoginsModel.prototype.getProviderAvailable = async function (data,callback)
 				}
 
 				generateTokenIntial(data.provider,data.state,data.redirect_uri,(err2, res2)=>{
+					if(err2){
+						console.error('getProviderAvailable-generateTokenIntial', err2);
+						callback(err2,null);
+						return false;	
+					}
 					callback(null,{
 						steps:res,
 						authorization: res2
 					});
+					return true;
 				},_this);
 			}else{
 				callback('error data',null);
+				return false;
 			}
 			
-			return true;
 		}
 	})
 }
