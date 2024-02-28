@@ -143,39 +143,41 @@ exports.insertSourceName = (req, res, prconexion=null) => {
                                 source_id: response.source_id
                             }], (errorA, responseA, code=200) => {
                                 SettingsModel.saveLog(errorA, responseA, idInput);
-                                InputsUpdatesModel.delete(response.id, (eRi, rRi) => { console.log('eRi', eRi); });
-                                if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
-                                if (!errorA) {
-                                    if(code > 399){
-                                        responseA= { 'state': 'error', 'error': responseA };
+                                InputsUpdatesModel.delete(response.id, (eRi, rRi) => { 
+                                    console.log('eRi', eRi); 
+                                    if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+                                    if (!errorA) {
+                                        if(code > 399){
+                                            responseA= { 'state': 'error', 'error': responseA };
+                                            if(typeof res == 'function'){
+                                                res({
+                                                    statusCode: code,
+                                                    body: JSON.stringify(responseA)
+                                                })
+                                            }else{
+                                                res.status(code).json(responseA)
+                                            }
+                                        }else{
+                                            if(typeof res == 'function'){
+                                                res({
+                                                    statusCode: code,
+                                                    body: JSON.stringify(responseA)
+                                                })
+                                            }else{
+                                                res.status(code).json({ 'state': 'success', 'result': responseA })
+                                            }
+                                        }
+                                    } else {
                                         if(typeof res == 'function'){
                                             res({
                                                 statusCode: code,
-                                                body: JSON.stringify(responseA)
+                                                body: JSON.stringify({ 'state': 'error', 'result': errorA })
                                             })
                                         }else{
-                                            res.status(code).json(responseA)
-                                        }
-                                    }else{
-                                        if(typeof res == 'function'){
-                                            res({
-                                                statusCode: code,
-                                                body: JSON.stringify(responseA)
-                                            })
-                                        }else{
-                                            res.status(code).json({ 'state': 'success', 'result': responseA })
+                                            res.status(code).json({ 'state': 'error', 'result': errorA })
                                         }
                                     }
-                                } else {
-                                    if(typeof res == 'function'){
-                                        res({
-                                            statusCode: code,
-                                            body: JSON.stringify({ 'state': 'error', 'result': errorA })
-                                        })
-                                    }else{
-                                        res.status(code).json({ 'state': 'error', 'result': errorA })
-                                    }
-                                }
+                                });
                             });
                         } else {
                             SettingsModel.saveLog(error, null, idInput);
