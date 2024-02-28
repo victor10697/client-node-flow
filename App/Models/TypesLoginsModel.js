@@ -95,14 +95,20 @@ const generateTokenIntial= async function(provider, stateVtex, redirect_uri, cal
 						return false;
 					}else{
 						if(resAF.token && resAF.token !=''){
-							await saveSesionClient({
-								tokenAuthorization:resAF.token,
-								types_logins_id: res[0].types_logins_id,
-								stateVtex: stateVtex,
-								redirect_uri: redirect_uri
-							},_this.getConnection());
-							callback(null, resAF);
-							return true;
+							try{
+								await saveSesionClient({
+									tokenAuthorization:resAF.token,
+									types_logins_id: res[0].types_logins_id,
+									stateVtex: stateVtex,
+									redirect_uri: redirect_uri
+								},_this.getConnection());
+								callback(null, resAF);
+								return true;
+							}catch(eeerr){
+								console.error('generateTokenIntial->saveSesionClient error save session',eeerr);
+								callback(null, 'error');
+								return false;
+							}
 						}else{
 							callback(null, 'error');
 							return false;
