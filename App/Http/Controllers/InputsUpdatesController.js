@@ -31,7 +31,7 @@ exports.insert = (req, res, prconexion=null) => {
                                 InputsUpdatesModel.delete(response.id, (eRi, rRi) => { console.log('eRi', eRi); });
                                 // Save log 
                                 SettingsModel.saveLog(errorA, responseA, idInput);
-                                if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+                                if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
                                 if (!errorA) {
                                     if(code > 399){
                                         responseA= { 'state': 'error', 'error': responseA };
@@ -67,7 +67,7 @@ exports.insert = (req, res, prconexion=null) => {
                         } else {
                             // Save log 
                             SettingsModel.saveLog(error, null, idInput);
-                            if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+                            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
                             if(typeof res == 'function'){
                                 res({
                                     statusCode: 400,
@@ -80,7 +80,7 @@ exports.insert = (req, res, prconexion=null) => {
                     });
                 } else {
                     SettingsModel.saveLog('Unauthorized access!', null, idInput);
-                    if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+                    if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
                     if(typeof res == 'function'){
                         res({
                             statusCode: 401,
@@ -93,7 +93,7 @@ exports.insert = (req, res, prconexion=null) => {
             })
         } else {
             SettingsModel.saveLog('Unauthorized access!', null, idInput);
-            if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
             if(typeof res == 'function'){
                 res({
                     statusCode: 401,
@@ -105,7 +105,7 @@ exports.insert = (req, res, prconexion=null) => {
         }
     } else {
         SettingsModel.saveLog('Unauthorized access!', null, idInput);
-        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
         if(typeof res == 'function'){
             res({
                 statusCode: 400,
@@ -145,7 +145,7 @@ exports.insertSourceName = (req, res, prconexion=null) => {
                                 SettingsModel.saveLog(errorA, responseA, idInput);
                                 InputsUpdatesModel.delete(response.id, (eRi, rRi) => { 
                                     console.log('eRi', eRi); 
-                                    if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+                                    if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
                                     if (!errorA) {
                                         if(code > 399){
                                             responseA= { 'state': 'error', 'error': responseA };
@@ -181,7 +181,7 @@ exports.insertSourceName = (req, res, prconexion=null) => {
                             });
                         } else {
                             SettingsModel.saveLog(error, null, idInput);
-                            if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+                            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
                             if(typeof res == 'function'){
                                 res({
                                     statusCode: 400,
@@ -194,7 +194,7 @@ exports.insertSourceName = (req, res, prconexion=null) => {
                     });
                 } else {
                     SettingsModel.saveLog('Unauthorized access!', null, idInput);
-                    if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+                    if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
                     if(typeof res == 'function'){
                         res({
                             statusCode: 401,
@@ -207,7 +207,7 @@ exports.insertSourceName = (req, res, prconexion=null) => {
             })
         } else {
             SettingsModel.saveLog('Unauthorized access!', null, idInput);
-            if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
             if(typeof res == 'function'){
                 res({
                     statusCode: 401,
@@ -219,7 +219,7 @@ exports.insertSourceName = (req, res, prconexion=null) => {
         }
     } else {
         SettingsModel.saveLog('Unauthorized access!', null, idInput);
-        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
         if(typeof res == 'function'){
             res({
                 statusCode: 400,

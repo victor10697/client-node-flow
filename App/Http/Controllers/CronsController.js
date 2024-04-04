@@ -9,7 +9,7 @@ const SourcesModel = require('../../Models/SourcesModel')
 exports.findAll = (req, res, prconexion=null) => {
     if (typeof prconexion != 'undefined' && prconexion) { CronModel?.setConnection(prconexion);}
     CronModel.select((error, response) => {
-        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
         if (!error) {
             if (typeof res == 'function') {
                 res({
@@ -61,7 +61,7 @@ exports.insert = (req, res, prconexion=null) => {
                         };
                         // Se inserta o actualiza los datos del Cron Job
                         CronModel.createOrUpdate(cronJobRecord, { 'name': true }, (err, result) => {
-                            if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+                            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
                             if (!err) {
                                 if (typeof res == 'function') {
                                     res({
@@ -93,7 +93,7 @@ exports.insert = (req, res, prconexion=null) => {
                         }
                     }
                 } else {
-                    if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+                    if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
                     if (typeof res == 'function') {
                         res({
                             statusCode: 400,
@@ -135,7 +135,7 @@ exports.delete = (req, res, prconexion=null) => {
     if (req.params && req.params.id) {
         if (typeof prconexion != 'undefined' && prconexion) { CronModel?.setConnection(prconexion);}
         CronModel.remove(req.params.id, (error, response) => {
-            if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
             if (!error) {
                 if (typeof res == 'function') {
                     res({
@@ -157,7 +157,7 @@ exports.delete = (req, res, prconexion=null) => {
             }
         });
     } else {
-        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
         if (typeof res == 'function') {
             res({
                 statusCode: 400,

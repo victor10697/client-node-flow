@@ -8,7 +8,7 @@ const ActionsTypesModel = require('../../Models/ActionsTypesModel')
  exports.findAll = (req, res, prconexion=null) => {
     if (typeof prconexion != 'undefined' && prconexion) { ActionsTypesModel?.setConnection(prconexion);}
     ActionsTypesModel.select((error, response)=>{
-        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
         if(!error){
             if(typeof res == 'function'){
                 res({
@@ -58,7 +58,7 @@ exports.save = (req, res) => {
     if(req?.params && req?.params?.id && req.body && Object.keys(req?.body).length > 0){
         if (typeof prconexion != 'undefined' && prconexion) { ActionsTypesModel?.setConnection(prconexion);}
         ActionsTypesModel.update(req.params.id, req.body, (error, response)=>{
-            if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
             if(!error){
                 if(typeof res == 'function'){
                     res({
@@ -80,7 +80,7 @@ exports.save = (req, res) => {
             }
         });
     }else{
-        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
         if(typeof res == 'function'){
             res({
                 statusCode: 500,
@@ -102,7 +102,7 @@ exports.save = (req, res) => {
         if(req?.body?.name){
             if (typeof prconexion != 'undefined' && prconexion) { ActionsTypesModel?.setConnection(prconexion);}
             ActionsTypesModel.createOrUpdate(req.body, { name: true, 'created_at': true }, (error, response)=>{ 
-                if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+                if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
                 if(!error){
                     if(typeof res == 'function'){
                         res({
@@ -134,7 +134,7 @@ exports.save = (req, res) => {
             }
         }
     }else{
-        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
         if(typeof res == 'function'){
             res({
                 statusCode: 500,
@@ -156,7 +156,7 @@ exports.save = (req, res) => {
     if(req?.params && req?.params?.id){
         if (typeof prconexion != 'undefined' && prconexion) { ActionsTypesModel?.setConnection(prconexion);}
         ActionsTypesModel.remove(req.params.id, (error, response)=>{
-            if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
             if(!error){
                 if(typeof res == 'function'){
                     res({
@@ -178,7 +178,7 @@ exports.save = (req, res) => {
             }
         });
     }else{
-        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
         if(typeof res == 'function'){
             res({
                 statusCode: 500,

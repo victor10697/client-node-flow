@@ -8,7 +8,7 @@ const HistoryFlowModel = require('../../Models/HistoryFlowModel')
  exports.findAll = (req, res, prconexion=null) => {
     if (typeof prconexion != 'undefined' && prconexion) { HistoryFlowModel?.setConnection(prconexion);}
 	HistoryFlowModel.selectHistory(req,(error, response)=>{
-        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
         if(!error){
             if(typeof res == 'function'){
                 res({

@@ -18,7 +18,7 @@ const ActionsTypeSftpModel= require('../../Models/ActionsTypeSftpModel')
  exports.findAll = (req, res, prconexion=null) => {
     if (typeof prconexion != 'undefined' && prconexion) { ActionsModel?.setConnection(prconexion);}
     ActionsModel.select((error, response)=>{
-        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
         if(!error){
             if(typeof res == 'function'){
                 res({
@@ -69,7 +69,7 @@ exports.save = (req, res) => {
     if(req?.params && req?.params?.id){
         if (typeof prconexion != 'undefined' && prconexion) { ActionsModel?.setConnection(prconexion);}
         ActionsModel.remove(req.params.id, (error, response)=>{
-            if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
             if(!error){
                 if(typeof res == 'function'){
                     res({
@@ -91,7 +91,7 @@ exports.save = (req, res) => {
             }
         });
     }else{
-        if(prconexion && typeof prconexion?.end === 'function'){console.info('close connection created!'); }
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
         if(typeof res == 'function'){
             res({
                 statusCode: 500,
