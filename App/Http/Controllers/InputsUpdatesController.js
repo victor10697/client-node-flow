@@ -34,7 +34,7 @@ exports.insert = (req, res, prconexion=null) => {
                                 if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
                                 if (!errorA) {
                                     if(code > 399){
-                                        responseA= { 'state': 'error', 'error': responseA };
+                                        responseA= { 'state': 'error', 'message': responseA };
                                         if(typeof res == 'function'){
                                             res({
                                                 statusCode: code,
@@ -148,7 +148,7 @@ exports.insertSourceName = (req, res, prconexion=null) => {
                                     if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
                                     if (!errorA) {
                                         if(code > 399){
-                                            responseA= { 'state': 'error', 'error': responseA };
+                                            responseA= { 'state': 'error', 'message': responseA };
                                             if(typeof res == 'function'){
                                                 res({
                                                     statusCode: code,
