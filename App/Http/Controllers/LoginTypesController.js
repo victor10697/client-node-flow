@@ -6,7 +6,7 @@ exports.createLogin=(req, res, prconexion=null)=>{
             TypesLoginsModel?.setConnection(prconexion);
         }
         TypesLoginsModel.createLogin(req.body, (err, response)=>{
-            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
+            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
             if(!err){
                 if(typeof res == 'function'){
                     res({
@@ -28,7 +28,7 @@ exports.createLogin=(req, res, prconexion=null)=>{
             }
         });
     }else{
-        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
         if(typeof res == 'function'){
             res({
                 statusCode: 400,

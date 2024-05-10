@@ -16,7 +16,7 @@ exports.create = (req, res, prconexion=null) => {
             }
             SourcesModel.getSourcePerName(req.body.sourceName, (err, resS) => {
                 if (err) {
-                    if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
+                    if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
                     console.error('NodesFlowsModel create',err);
                     if(typeof res == 'function'){
                         res({
@@ -41,7 +41,7 @@ exports.create = (req, res, prconexion=null) => {
                                 ActionsController.createAction(response.id, req.body.actionNode, null, prconexion);
                             }
                             setTimeout(function() {
-                                if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
+                                if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
                                 if(typeof res == 'function'){
                                     res({
                                         statusCode: 200,
@@ -52,7 +52,7 @@ exports.create = (req, res, prconexion=null) => {
                                 }
                             }, 5000);
                         } else {
-                            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
+                            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
                             console.error('NodesFlowsModel createOrUpdate', error);
                             if(typeof res == 'function'){
                                 res({
@@ -65,7 +65,7 @@ exports.create = (req, res, prconexion=null) => {
                         }
                     });
                 } else {
-                    if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
+                    if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
                     if(typeof res == 'function'){
                         res({
                             statusCode: 400,
@@ -77,7 +77,7 @@ exports.create = (req, res, prconexion=null) => {
                 }
             });
         } else {
-            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
+            if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
             if(typeof res == 'function'){
                 res({
                     statusCode: 400,
@@ -88,7 +88,7 @@ exports.create = (req, res, prconexion=null) => {
             }
         }
     } else {
-        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
         if(typeof res == 'function'){
             res({
                 statusCode: 400,
@@ -105,7 +105,7 @@ exports.getTreeNode = (req, res, prconexion=null) => {
         NodesFlowsModel?.setConnection(prconexion);
     }
     NodesFlowsModel.getTreeNode(req?.params?.sources_id, (error, response) => {
-        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END == true){console.info('close connection created!'); prconexion.end();}
+        if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
         if (!error) {
             if(typeof res == 'function'){
                 res({
