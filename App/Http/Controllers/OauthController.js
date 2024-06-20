@@ -1,5 +1,6 @@
 const TypesLoginsModel = require('../../Models/TypesLoginsModel')
 const LoginsAuthorizationsModel = require('../../Models/LoginsAuthorizationsModel')
+const UrlReditect= process?.env?.URL_REDIRECT_MATKETPLACE ?? null;
 
 exports.getListAccess= (req, res, prconexion=null)=>{
     if(req?.query.token && req?.query.token != ''){
@@ -10,7 +11,9 @@ exports.getListAccess= (req, res, prconexion=null)=>{
             if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
             if(err){
                 console.error('getListAccess',err);
-                if(typeof res == 'function'){
+                if(UrlReditect){
+                    redirectUrlError(res);
+                }else if(typeof res == 'function'){
                     res({
                         statusCode: 401,
                         body: JSON.stringify({ 'state': 'error', 'messanger': 'Error authorization.'})
@@ -142,7 +145,9 @@ exports.getUserInfo=(req, res, prconexion=null)=>{
             if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
             if(err){
                 console.error('getUserInfo', err);
-                if(typeof res == 'function'){
+                if(UrlReditect){
+                    redirectUrlError(res);
+                }else if(typeof res == 'function'){
                     res({
                         statusCode: 400,
                         body: JSON.stringify({ 'state': 'error', 'messanger': err})
@@ -165,7 +170,9 @@ exports.getUserInfo=(req, res, prconexion=null)=>{
     }else{
         if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
         console.error('getUserInfo error autorization');
-        if(typeof res == 'function'){
+        if(UrlReditect){
+            redirectUrlError(res);
+        }else if(typeof res == 'function'){
             res({
                 statusCode: 401,
                 body: JSON.stringify({ 'state': 'error', 'messange': 'error'})
@@ -185,7 +192,9 @@ exports.getValidCodeSolicitud=(req, res, prconexion=null)=>{
             if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
             if(err){
                 console.error('getValidCodeSolicitud', err);
-                if(typeof res == 'function'){
+                if(UrlReditect){
+                    redirectUrlError(res);
+                }else if(typeof res == 'function'){
                     res({
                         statusCode: 400,
                         body: JSON.stringify({ 'state': 'error', 'messanger': err})
@@ -208,7 +217,9 @@ exports.getValidCodeSolicitud=(req, res, prconexion=null)=>{
     }else{
         if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
         console.error('getValidCodeSolicitud autorization');
-        if(typeof res == 'function'){
+        if(UrlReditect){
+            redirectUrlError(res);
+        }else if(typeof res == 'function'){
             res({
                 statusCode: 401,
                 body: JSON.stringify({ 'state': 'error', 'messange': 'error'})
@@ -228,7 +239,9 @@ exports.getAuthorizationCodeURL=(req,res, prconexion=null)=>{
             if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
             if(err){
                 console.error('getAuthorizationCodeURL', err);
-                if(typeof res == 'function'){
+                if(UrlReditect){
+                    redirectUrlError(res);
+                }else if(typeof res == 'function'){
                     res({
                         statusCode: 400,
                         body: JSON.stringify({ 'state': 'error', 'messanger': err})
@@ -253,7 +266,9 @@ exports.getAuthorizationCodeURL=(req,res, prconexion=null)=>{
     }else{
         if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
         console.error('getAuthorizationCodeURL authorization');
-        if(typeof res == 'function'){
+        if(UrlReditect){
+            redirectUrlError(res);
+        }else if(typeof res == 'function'){
             res({
                 statusCode: 401,
                 body: JSON.stringify({ 'state': 'error', 'messange': 'error request'})
@@ -341,3 +356,20 @@ exports.setUrl = (url) => {
  * Metodo para cerrar conexion base de datos
  */
  exports.createConnection = LoginsAuthorizationsModel.createConnection;
+
+ /**
+  * Metodo de retorno url en caso de error en la aplicacion 
+  **/
+
+ function redirectUrlError(res) {
+    if(typeof res == 'function'){
+        res({
+            statusCode: 302,
+            headers: {
+              Location: UrlReditect
+            }
+        })
+    }else{
+        res.redirect(UrlReditect)
+    }
+}
