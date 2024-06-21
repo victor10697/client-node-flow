@@ -251,7 +251,10 @@ exports.getAuthorizationCodeURL=(req,res, prconexion=null)=>{
                 }
             }else{
                 console.log('getAuthorizationCodeURL success', response);
-                if(typeof res == 'function'){
+
+                if(UrlReditect && (!response || response == '' || response== 'null')){
+                    redirectUrlError(res);
+                }else if(typeof res == 'function'){
                     res({
                         statusCode: 302,
                         headers: {
