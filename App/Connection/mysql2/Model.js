@@ -5,6 +5,7 @@ const connectionPool= env?.DB_CONNECTION_POOL && (env?.DB_CONNECTION_POOL=== tru
 function Model() {
 	this.columnId = 'id'
 	this.dbConnection = dbConnection?.connection
+	this.dbReconnection = dbConnection?.reconnectiondbGlobal
 }
 
 /**
@@ -33,6 +34,7 @@ Model.prototype.get = function (id, result) {
 Model.prototype.getRegister = async function (id) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE id = ? AND deleted = 0`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		return new Promise((resolve, reject) => {
@@ -58,6 +60,7 @@ Model.prototype.getRegister = async function (id) {
 			connectDB.query(statement, [id], (err, results) => {  
 		      if (err) {
 		      	console.error(err);
+		      	try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 		        reject(err)
 		      } else if(results[0]){
 		        resolve(results[0]);
@@ -78,6 +81,7 @@ Model.prototype.getRegister = async function (id) {
 Model.prototype.getRegisterRelacion = async function (campoRelacion, id, active=1) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE ${campoRelacion} = ? AND deleted = 0 AND actived=?`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		return new Promise((resolve, reject) =>{ 
@@ -101,6 +105,7 @@ Model.prototype.getRegisterRelacion = async function (campoRelacion, id, active=
 			connectDB.query(statement, [id,active], (err, results) => {
 		      if (err) {
 		      	console.error(err);
+		      	try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 		        reject(err)
 		      } else {
 		        resolve(results);
@@ -139,6 +144,7 @@ Model.prototype.insert = async function (record, result) {
 
 	const statement = `INSERT INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -158,6 +164,7 @@ Model.prototype.insert = async function (record, result) {
 		connectDB.query(statement, values, (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				result(err, null)
 				return
 			}
@@ -188,6 +195,7 @@ Model.prototype.update = async function (id, record, result) {
 
 	let statement = `UPDATE ${this.tableName} SET ${wildcards.toString()} WHERE ${this.columnId} = ? AND deleted = 0`
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -217,6 +225,7 @@ Model.prototype.remove = async function (id, result) {
 	const _this= this;
 
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -253,6 +262,7 @@ Model.prototype.replace = async function (record, result) {
 
 	let statement = `REPLACE INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -272,6 +282,7 @@ Model.prototype.replace = async function (record, result) {
 		connectDB.query(statement, values, (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				result(err, null)
 				return
 			}
@@ -282,6 +293,7 @@ Model.prototype.replace = async function (record, result) {
 
 Model.prototype.callbackSelect = async function (statement, values, result) {
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -301,6 +313,7 @@ Model.prototype.callbackSelect = async function (statement, values, result) {
 		connectDB.query(statement, values, (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				result(err, null)
 				return
 			}
@@ -311,6 +324,7 @@ Model.prototype.callbackSelect = async function (statement, values, result) {
 
 Model.prototype.callbackSelectOne = async function (statement, values, result) {
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -330,6 +344,7 @@ Model.prototype.callbackSelectOne = async function (statement, values, result) {
 		connectDB.query(statement, values, (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				result(err, null)
 				return
 			}
@@ -441,6 +456,7 @@ Model.prototype.validRegisterUniqued = async function (fieldsUniquied, fieldsUni
 	const statementSelect = `SELECT ${this.columnId} FROM ${this.tableName} WHERE ${fieldsUniquied.join(' AND ')} AND ${this.tableName}.deleted=0 LIMIT 1`;
 
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -491,6 +507,7 @@ Model.prototype.updateRegister = async function (fieldsUpdate, values, registreI
 	values.push(registreId);
 	const statement = `UPDATE ${this.tableName} SET ${fieldsUpdate} WHERE ${this.columnId}=? AND deleted = 0`
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -512,6 +529,7 @@ Model.prototype.updateRegister = async function (fieldsUpdate, values, registreI
 		connectDB.query(statement, values, (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				result(err, null)
 				return
 			}else{
@@ -531,6 +549,7 @@ Model.prototype.updateRegister = async function (fieldsUpdate, values, registreI
 Model.prototype.createRegister = async function (fields, wildcards, values, result) {
 	const statement = `INSERT INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -552,6 +571,7 @@ Model.prototype.createRegister = async function (fields, wildcards, values, resu
 		connectDB.query(statement, values, (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				result(err, null)
 				return
 			}else{
@@ -625,6 +645,7 @@ Model.prototype.getCurrentDate = getCurrentDate
 Model.prototype.deleteByActionId = async function deleteByActionId(actionId) {
 	const statement = `DELETE FROM ${this.tableName} WHERE action_id = ?`
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	return  new Promise(async function(resolve, reject){
 		if(connectionPool===true){
@@ -663,6 +684,7 @@ Model.prototype.deleteByActionId = async function deleteByActionId(actionId) {
 Model.prototype.getActionPerNodeFlowId = async function getActionPerNodeFlowId(nodeId, callback) {
 	const statement = `SELECT actions.*, act.name as action_type FROM actions INNER JOIN actions_types as act ON act.id=actions.action_type_id WHERE actions.nodes_flows_id=? AND actions.deleted=0 AND actions.actived=1 LIMIT 1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -682,6 +704,7 @@ Model.prototype.getActionPerNodeFlowId = async function getActionPerNodeFlowId(n
 		connectDB.query(statement, [nodeId], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, [])
 				return
 			}
@@ -698,6 +721,7 @@ Model.prototype.getActionPerNodeFlowId = async function getActionPerNodeFlowId(n
 Model.prototype.getActionDatabaseRDS = async function getActionDatabaseRDS(actionId, callback){
 	const statement = `SELECT * FROM databases_rds WHERE databases_rds.actions_id=? AND databases_rds.deleted=0 AND databases_rds.actived=1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -717,6 +741,7 @@ Model.prototype.getActionDatabaseRDS = async function getActionDatabaseRDS(actio
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, [])
 				return
 			}
@@ -733,6 +758,7 @@ Model.prototype.getActionDatabaseRDS = async function getActionDatabaseRDS(actio
 Model.prototype.getEmails = async function getEmails(actionEmailId, callback){
 	const statement = `SELECT * FROM emails WHERE emails.action_type_emails_id=? AND emails.deleted=0 AND emails.actived=1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -753,6 +779,7 @@ Model.prototype.getEmails = async function getEmails(actionEmailId, callback){
 		connectDB.query(statement, [actionEmailId], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, [])
 				return
 			}
@@ -771,6 +798,7 @@ Model.prototype.getActionEmail = async function getActionEmail(actionId, callbac
 	const statement = `SELECT * FROM action_type_emails WHERE action_type_emails.actions_id=? AND action_type_emails.deleted=0 AND action_type_emails.actived=1`;
 	let thisT= this;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -807,6 +835,7 @@ Model.prototype.getActionEmail = async function getActionEmail(actionId, callbac
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, [])
 				return
 			}
@@ -840,6 +869,7 @@ Model.prototype.getActionEmail = async function getActionEmail(actionId, callbac
 Model.prototype.getActionJWT = async function getActionJWT(actionId, callback){
 	const statement = `SELECT * FROM actions_types_jwt WHERE actions_types_jwt.actions_id=? AND actions_types_jwt.deleted=0 AND actions_types_jwt.actived=1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -859,6 +889,7 @@ Model.prototype.getActionJWT = async function getActionJWT(actionId, callback){
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, [])
 				return
 			}
@@ -875,6 +906,7 @@ Model.prototype.getActionJWT = async function getActionJWT(actionId, callback){
 Model.prototype.getActionMD5 = async function getActionMD5(actionId, callback){
 	const statement = `SELECT * FROM actions_types_md5 WHERE actions_types_md5.actions_id=? AND actions_types_md5.deleted=0 AND actions_types_md5.actived=1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -894,6 +926,7 @@ Model.prototype.getActionMD5 = async function getActionMD5(actionId, callback){
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, [])
 				return
 			}
@@ -910,6 +943,7 @@ Model.prototype.getActionMD5 = async function getActionMD5(actionId, callback){
 Model.prototype.getActionSFTP = async function getActionSFTP(actionId, callback){
 	const statement = `SELECT * FROM actions_types_ssh2 WHERE actions_types_ssh2.actions_id=? AND actions_types_ssh2.deleted=0 AND actions_types_ssh2.actived=1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -929,6 +963,7 @@ Model.prototype.getActionSFTP = async function getActionSFTP(actionId, callback)
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, [])
 				return
 			}
@@ -945,6 +980,7 @@ Model.prototype.getActionSFTP = async function getActionSFTP(actionId, callback)
 Model.prototype.validTypeAction = async function validTypeAction(name, result) {
 	const statement = `SELECT * FROM actions_types WHERE actions_types.name=? AND actions_types.deleted=0 AND actions_types.actived=1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -966,6 +1002,7 @@ Model.prototype.validTypeAction = async function validTypeAction(name, result) {
 		connectDB.query(statement, [name], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				result(err, null)
 				return
 			}
@@ -984,6 +1021,7 @@ Model.prototype.validTypeAction = async function validTypeAction(name, result) {
 Model.prototype.getHeadersPerActionHttpRequest = async function getHeadersPerActionHttpRequest(actionHttpId, callback){
 	const statement = `SELECT * FROM headers WHERE headers.action_type_http_request_id=? AND headers.deleted=0 AND headers.actived=1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1020,6 +1058,7 @@ Model.prototype.getActionHttpRequest = async function getActionHttpRequest(actio
 	const statement = `SELECT * FROM action_type_http_request WHERE action_type_http_request.actions_id=? AND action_type_http_request.deleted=0 AND action_type_http_request.actived=1`;
 	let thisT= this;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1056,6 +1095,7 @@ Model.prototype.getActionHttpRequest = async function getActionHttpRequest(actio
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, [])
 				return
 			}
@@ -1089,6 +1129,7 @@ Model.prototype.getActionHttpRequest = async function getActionHttpRequest(actio
 Model.prototype.getActionProcessData = async function getActionProcessData(actionId, callback){
 	const statement = `SELECT * FROM action_type_process_data WHERE action_type_process_data.actions_id=? AND action_type_process_data.deleted=0 AND action_type_process_data.actived=1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1108,6 +1149,7 @@ Model.prototype.getActionProcessData = async function getActionProcessData(actio
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, [])
 				return
 			}
@@ -1125,6 +1167,7 @@ Model.prototype.getActionProcessData = async function getActionProcessData(actio
 Model.prototype.getCronJobs = async function getCronJobs(regExpByDate, regExpGeneral, callback) {
     const statement = `SELECT * FROM cron_jobs WHERE (cron REGEXP '${regExpByDate}' OR cron NOT REGEXP '${regExpGeneral}') AND deleted = 0 AND actived = 1`;
     const connectDB= this.dbConnection;
+    const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1212,6 +1255,7 @@ Model.prototype.selectHistory = async function selectHistory(req, callback){
 							inp.source_id=? 
 							${w.where}`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1232,6 +1276,7 @@ Model.prototype.selectHistory = async function selectHistory(req, callback){
 		connectDB.query(statement, [0,1,req.params.source_id].concat(w.params), (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, [])
 				return
 			}
@@ -1249,6 +1294,7 @@ Model.prototype.selectHistory = async function selectHistory(req, callback){
 Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(source_id, callback){
 	const statement = `SELECT * FROM nodes_flows WHERE nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1269,6 +1315,7 @@ Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(sou
 		connectDB.query(statement, [source_id], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, [])
 				return
 			}
@@ -1288,6 +1335,7 @@ Model.prototype.updateNodeParent = async function updateNodeParent(nodeFlowId,no
 	const statement = `SELECT id FROM nodes_flows WHERE nodes_flows.name=? AND nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
 	let thisT= this;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1309,6 +1357,7 @@ Model.prototype.updateNodeParent = async function updateNodeParent(nodeFlowId,no
 		connectDB.query(statement, [nodeParent,sourceId], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				return false;
 			}
 			if(res.length > 0){
@@ -1328,6 +1377,7 @@ Model.prototype.updateNodeParent = async function updateNodeParent(nodeFlowId,no
 Model.prototype.validSource = async function validSource(key, token, result) {
 	const statement = `SELECT id,name FROM sources WHERE sources.key=? AND sources.token=? AND sources.deleted=0 AND sources.actived=1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1349,6 +1399,7 @@ Model.prototype.validSource = async function validSource(key, token, result) {
 		connectDB.query(statement, [key, token], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				result(err, null)
 				return
 			}
@@ -1367,6 +1418,7 @@ Model.prototype.validSource = async function validSource(key, token, result) {
 Model.prototype.getSourcePerName = async function getSourcePerName(sourceName, result) {
 	const statement = `SELECT id FROM sources WHERE sources.name=? AND sources.deleted=0 AND sources.actived=1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1387,6 +1439,7 @@ Model.prototype.getSourcePerName = async function getSourcePerName(sourceName, r
 		connectDB.query(statement, [sourceName], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				result(err, null)
 				return
 			}
@@ -1408,6 +1461,7 @@ Model.prototype.getSourcePerName = async function getSourcePerName(sourceName, r
 Model.prototype.getPerToken = async function getPerToken(tokenAuthorization, callback){
 	const statement = `SELECT id,types_logins_id,codeVerify,state,email,name,userId,redirect_uri,stateVtex,password FROM logins_authorizations WHERE tokenAuthorization=? AND state='pending' AND actived = 1 AND deleted=0`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1429,6 +1483,7 @@ Model.prototype.getPerToken = async function getPerToken(tokenAuthorization, cal
 		connectDB.query(statement, [tokenAuthorization], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback('error',null);
 				return false;
 			}else{
@@ -1447,6 +1502,7 @@ Model.prototype.getPerToken = async function getPerToken(tokenAuthorization, cal
 Model.prototype.validAccessClient = async function validAccessClient(accesToken, callback){
 	const statement = `SELECT * FROM logins_authorizations WHERE accessToken=? AND actived = 1 AND deleted=0`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1468,6 +1524,7 @@ Model.prototype.validAccessClient = async function validAccessClient(accesToken,
 		connectDB.query(statement, [accesToken], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback('error',null);
 				return false;
 			}else{
@@ -1487,6 +1544,7 @@ Model.prototype.validAccessClient = async function validAccessClient(accesToken,
 Model.prototype.updateSolicitudVTEX = async function updateSolicitudVTEX(id,token, callback){
 	const statement = `UPDATE logins_authorizations SET accessToken=?, state=? WHERE id=?`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1508,6 +1566,7 @@ Model.prototype.updateSolicitudVTEX = async function updateSolicitudVTEX(id,toke
 		connectDB.query(statement, [token,'processed',id], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback('error',null);
 				return false;
 			}else{
@@ -1526,6 +1585,7 @@ Model.prototype.updateSolicitudVTEX = async function updateSolicitudVTEX(id,toke
 Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(code, callback){
 	const statement = `SELECT * FROM logins_authorizations WHERE codeAuthorization=? AND (state=? OR state=?) AND actived = 1 AND deleted=0`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1547,6 +1607,7 @@ Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(c
 		connectDB.query(statement, [code,'processing','pending'], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback('error',null);
 				return false;
 			}else{
@@ -1566,6 +1627,7 @@ Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(c
 Model.prototype.getStepPerName = async function getStepPerName(stepName, types_logins_id, callback){
 	const statement = `SELECT * FROM steps_logins WHERE steps_logins.name=? AND steps_logins.types_logins_id=? AND steps_logins.deleted=0 AND steps_logins.actived=1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1587,6 +1649,7 @@ Model.prototype.getStepPerName = async function getStepPerName(stepName, types_l
 		connectDB.query(statement, [stepName,types_logins_id], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, null)
 				return
 			}
@@ -1604,6 +1667,7 @@ Model.prototype.getStepPerName = async function getStepPerName(stepName, types_l
 Model.prototype.getListProviders = async function getListProviders(callback){
 	const statement = `SELECT providerName,label,description,iconUrl FROM types_logins WHERE actived = 1 AND deleted=0 ORDER BY position ASC`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1625,6 +1689,7 @@ Model.prototype.getListProviders = async function getListProviders(callback){
 		connectDB.query(statement, [], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, null)
 				return
 			}
@@ -1643,6 +1708,7 @@ Model.prototype.getListProviders = async function getListProviders(callback){
 Model.prototype.generateTokenIntial = async function generateTokenIntial(provider, callback){
 	const statement = `SELECT sl.sources_id, sl.types_logins_id FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? LIMIT 1`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1664,6 +1730,7 @@ Model.prototype.generateTokenIntial = async function generateTokenIntial(provide
 		connectDB.query(statement, [1,0,provider,1,0,1], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, null)
 				return
 			}
@@ -1682,6 +1749,7 @@ Model.prototype.generateTokenIntial = async function generateTokenIntial(provide
 Model.prototype.getProviderAvailablePerName = async function getProviderAvailablePerName(provider, callback){
 	const statement = `SELECT sl.id, sl.name, sl.label, sl.description, sl.nameButtonSubmit, sl.nameButtonClose FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? ORDER BY sl.step ASC`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	if(connectionPool===true){
 		connectDB.getConnection(function(errCx, connection) {
@@ -1703,6 +1771,7 @@ Model.prototype.getProviderAvailablePerName = async function getProviderAvailabl
 		connectDB.query(statement, [1,0,provider,1,0,0], (err, res) => {
 			if (err) {
 				console.error(err);
+				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 				callback(err, null)
 				return
 			}
@@ -1719,6 +1788,7 @@ Model.prototype.getProviderAvailablePerName = async function getProviderAvailabl
 Model.prototype.truncate = async function truncate(){
 	const statement = `TRUNCATE TABLE ${this.tableName}`;
 	const connectDB= this.dbConnection;
+	const reConnectDB= this.dbReconnection;
 	
 	return new Promise(async(resp, er)=>{
 		if(connectionPool===true){
@@ -1740,6 +1810,7 @@ Model.prototype.truncate = async function truncate(){
 			connectDB.query(statement, (err, res) => {
 				if (err) {
 					console.error(err);
+					try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
 					er(err)
 				}
 

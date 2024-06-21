@@ -26,10 +26,33 @@ if(connectionGlobal === true){
 			password: env?.DB_PASSWORD || '',
 			connectTimeout: env?.DB_CONNECT_TIMEOUT || 60000
 		});
+
+		connection.connect(function(errDB) {
+		  if (errDB) {
+		    console.error('error connecting: ', 'error connecting: ' + errDB.stack,  errDB);
+		    connection= null;
+		  }else{
+		  	console.info('createConnection success');
+		  }
+		});
 	}
 }else{
 	console.info('connectionGlobal off');
 }
+
+const reconnectiondbGlobal= ()=>{
+	if(connectionGlobal === true){
+		console.info('reconnectiondbGlobal');
+		createConnection({
+			host: env?.DB_HOST || 'localhost',
+			port: env?.DB_PORT || '3306',
+			database: env?.DB_DATABASE || '',
+			user: env?.DB_USERNAME || 'root',
+			password: env?.DB_PASSWORD || '',
+			connectTimeout: env?.DB_CONNECT_TIMEOUT || 60000
+		}).then(res=>{connection=res;}).catch(err=>(console.error(err)));
+	}
+};
 
 const createConnection = (params)=>{
 	return new Promise(async function(res,err) {
@@ -59,7 +82,7 @@ const createConnection = (params)=>{
 			newconection.connect(function(errDB) {
 			  if (errDB) {
 			    console.error('error connecting: ', errDB);
-			    err('error connecting: ' + errDB.stack);
+			    res(null);
 			    return;
 			  }
 			  console.info('createConnection success');
@@ -72,5 +95,6 @@ const createConnection = (params)=>{
 
 module.exports = {
 	connection,
-	createConnection
+	createConnection,
+	reconnectiondbGlobal
 }
