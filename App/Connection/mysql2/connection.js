@@ -41,7 +41,7 @@ if(connectionGlobal === true){
 }
 
 const reconnectiondbGlobal= ()=>{
-	if(connectionGlobal === true){
+	if(connectionGlobal === 12233){
 		console.info('reconnectiondbGlobal');
 		createConnection({
 			host: env?.DB_HOST || 'localhost',
