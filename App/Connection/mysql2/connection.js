@@ -40,8 +40,8 @@ if(connectionGlobal === true){
 	console.info('connectionGlobal off');
 }
 
-const reconnectiondbGlobal= ()=>{
-	if(connectionGlobal === 12233){
+const reconnectiondbGlobal= function(){
+	if(connectionGlobal === true){
 		console.info('reconnectiondbGlobal');
 		createConnection({
 			host: env?.DB_HOST || 'localhost',

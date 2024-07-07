@@ -40,7 +40,7 @@ if(connectionGlobal === true){
 	console.info('connectionGlobal off');
 }
 
-const reconnectiondbGlobal= ()=>{
+const reconnectiondbGlobal= function(){
 	if(connectionGlobal === true){
 		console.info('reconnectiondbGlobal');
 		createConnection({
