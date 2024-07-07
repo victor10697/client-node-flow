@@ -14,7 +14,7 @@ if(connectionGlobal === true){
 			database: env?.DB_DATABASE || '',
 			user: env?.DB_USERNAME || 'root',
 			password: env?.DB_PASSWORD || '',
-			connectTimeout: parseInt(env?.DB_CONNECT_TIMEOUT) || 10000,
+			connectTimeout: parseInt(env?.DB_CONNECT_TIMEOUT) || 30000,
 			connectionLimit: parseInt(env?.DB_CONNECTION_LIMIT) || 100
 		});
 	}else{
@@ -24,7 +24,7 @@ if(connectionGlobal === true){
 			database: env?.DB_DATABASE || '',
 			user: env?.DB_USERNAME || 'root',
 			password: env?.DB_PASSWORD || '',
-			connectTimeout: parseInt(env?.DB_CONNECT_TIMEOUT) || 10000
+			connectTimeout: parseInt(env?.DB_CONNECT_TIMEOUT) || 30000
 		});
 
 		connection.connect(function(errDB) {
@@ -49,7 +49,7 @@ const reconnectiondbGlobal= function(){
 			database: env?.DB_DATABASE || '',
 			user: env?.DB_USERNAME || 'root',
 			password: env?.DB_PASSWORD || '',
-			connectTimeout: parseInt(env?.DB_CONNECT_TIMEOUT) || 10000
+			connectTimeout: parseInt(env?.DB_CONNECT_TIMEOUT) || 30000
 		}).then(res=>{connection=res;}).catch(err=>(console.error(err)));
 	}
 };
@@ -64,7 +64,7 @@ const createConnection = (params)=>{
 				database: params?.DB_DATABASE || env?.DB_DATABASE ||'',
 				user: params?.DB_USERNAME || env?.DB_USERNAME ||'root',
 				password: params?.DB_PASSWORD || env?.DB_PASSWORD ||'',
-				connectTimeout: params?.DB_CONNECT_TIMEOUT || parseInt(env?.DB_CONNECT_TIMEOUT) || 10000,
+				connectTimeout: params?.DB_CONNECT_TIMEOUT || parseInt(env?.DB_CONNECT_TIMEOUT) || 30000,
 				connectionLimit: params?.DB_CONNECTION_LIMIT || parseInt(env?.DB_CONNECTION_LIMIT) || 100
 			});
 			console.info('createConnection pool success');
@@ -76,7 +76,7 @@ const createConnection = (params)=>{
 				database: params?.DB_DATABASE || env?.DB_DATABASE || '',
 				user: params?.DB_USERNAME || env?.DB_USERNAME || 'root',
 				password: params?.DB_PASSWORD || env?.DB_PASSWORD || '',
-				connectTimeout: params?.DB_CONNECT_TIMEOUT || parseInt(env?.DB_CONNECT_TIMEOUT) || 10000
+				connectTimeout: params?.DB_CONNECT_TIMEOUT || parseInt(env?.DB_CONNECT_TIMEOUT) || 30000
 			});
 
 			newconection.connect(function(errDB) {
