@@ -43,14 +43,6 @@ if(connectionGlobal === true){
 const reconnectiondbGlobal= function(){
 	if(connectionGlobal === true){
 		console.info('reconnectiondbGlobal');
-		createConnection({
-			host: env?.DB_HOST || 'localhost',
-			port: env?.DB_PORT || '3306',
-			database: env?.DB_DATABASE || '',
-			user: env?.DB_USERNAME || 'root',
-			password: env?.DB_PASSWORD || '',
-			connectTimeout: parseInt(env?.DB_CONNECT_TIMEOUT) || 30000
-		}).then(res=>{connection=res;}).catch(err=>(console.error(err)));
 	}
 };
 
