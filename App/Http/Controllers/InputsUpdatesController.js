@@ -28,41 +28,42 @@ exports.insert = (req, res, prconexion=null) => {
                                 input: JSON.parse(response.bodyRequest),
                                 source_id: response.source_id
                             }], (errorA, responseA, code=200) => {
-                                InputsUpdatesModel.delete(response.id, (eRi, rRi) => { console.log('eRi', eRi); });
                                 // Save log 
                                 SettingsModel.saveLog(errorA, responseA, idInput);
-                                if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
-                                if (!errorA) {
-                                    if(code > 399){
-                                        responseA= { 'state': 'error', 'message': responseA };
+                                InputsUpdatesModel.delete(response.id, (eRi, rRi) => { console.log('eRi', eRi); 
+                                    if(prconexion && typeof prconexion?.end === 'function' && process?.env?.DB_CONNECTION_END === 'on'){console.info('close connection created!'); prconexion.end();}
+                                    if (!errorA) {
+                                        if(code > 399){
+                                            responseA= { 'state': 'error', 'message': responseA };
+                                            if(typeof res == 'function'){
+                                                res({
+                                                    statusCode: code,
+                                                    body: JSON.stringify(responseA)
+                                                })
+                                            }else{
+                                                res.status(code).json(responseA)
+                                            }
+                                        }else{
+                                            if(typeof res == 'function'){
+                                                res({
+                                                    statusCode: code,
+                                                    body: JSON.stringify(responseA)
+                                                })
+                                            }else{
+                                                res.status(code).json({ 'state': 'success', 'result': responseA })
+                                            }
+                                        }
+                                    } else {
                                         if(typeof res == 'function'){
                                             res({
                                                 statusCode: code,
-                                                body: JSON.stringify(responseA)
+                                                body: JSON.stringify({ 'state': 'error', 'result': errorA })
                                             })
                                         }else{
-                                            res.status(code).json(responseA)
-                                        }
-                                    }else{
-                                        if(typeof res == 'function'){
-                                            res({
-                                                statusCode: code,
-                                                body: JSON.stringify(responseA)
-                                            })
-                                        }else{
-                                            res.status(code).json({ 'state': 'success', 'result': responseA })
+                                            res.status(code).json({ 'state': 'error', 'result': errorA })
                                         }
                                     }
-                                } else {
-                                    if(typeof res == 'function'){
-                                        res({
-                                            statusCode: code,
-                                            body: JSON.stringify({ 'state': 'error', 'result': errorA })
-                                        })
-                                    }else{
-                                        res.status(code).json({ 'state': 'error', 'result': errorA })
-                                    }
-                                }
+                                });
                             });
                         } else {
                             // Save log 

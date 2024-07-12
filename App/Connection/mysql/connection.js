@@ -26,25 +26,10 @@ if(connectionGlobal === true){
 			password: env?.DB_PASSWORD || '',
 			connectTimeout: parseInt(env?.DB_CONNECT_TIMEOUT) || 30000
 		});
-
-		connection.connect(function(errDB) {
-		  if (errDB) {
-		    console.error('error connecting: ', 'error connecting: ' + errDB.stack,  errDB);
-		    connection= null;
-		  }else{
-		  	console.info('createConnection success');
-		  }
-		});
 	}
 }else{
 	console.info('connectionGlobal off');
 }
-
-const reconnectiondbGlobal= function(){
-	if(connectionGlobal === true){
-		console.info('reconnectiondbGlobal');
-	}
-};
 
 const createConnection = (params)=>{
 	return new Promise(async function(res,err) {
@@ -56,8 +41,8 @@ const createConnection = (params)=>{
 				database: params?.DB_DATABASE || env?.DB_DATABASE ||'',
 				user: params?.DB_USERNAME || env?.DB_USERNAME ||'root',
 				password: params?.DB_PASSWORD || env?.DB_PASSWORD ||'',
-				connectTimeout: params?.DB_CONNECT_TIMEOUT || parseInt(env?.DB_CONNECT_TIMEOUT) || 30000,
-				connectionLimit: params?.DB_CONNECTION_LIMIT || parseInt(env?.DB_CONNECTION_LIMIT) || 100
+				connectTimeout: parseInt(params?.DB_CONNECT_TIMEOUT) || parseInt(env?.DB_CONNECT_TIMEOUT) || 30000,
+				connectionLimit: parseInt(params?.DB_CONNECTION_LIMIT) || parseInt(env?.DB_CONNECTION_LIMIT) || 100
 			});
 			console.info('createConnection pool success');
 			res(newconection);
@@ -68,7 +53,7 @@ const createConnection = (params)=>{
 				database: params?.DB_DATABASE || env?.DB_DATABASE || '',
 				user: params?.DB_USERNAME || env?.DB_USERNAME || 'root',
 				password: params?.DB_PASSWORD || env?.DB_PASSWORD || '',
-				connectTimeout: params?.DB_CONNECT_TIMEOUT || parseInt(env?.DB_CONNECT_TIMEOUT) || 30000
+				connectTimeout: parseInt(params?.DB_CONNECT_TIMEOUT) || parseInt(env?.DB_CONNECT_TIMEOUT) || 30000
 			});
 
 			newconection.connect(function(errDB) {
@@ -87,6 +72,5 @@ const createConnection = (params)=>{
 
 module.exports = {
 	connection,
-	createConnection,
-	reconnectiondbGlobal
+	createConnection
 }

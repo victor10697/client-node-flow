@@ -1,139 +1,164 @@
-const dbConnection = require('./connection')
+var dbConnection = require('./connection')
 const env = process.env;
-const connectionPool= env?.DB_CONNECTION_POOL && (env?.DB_CONNECTION_POOL=== true  || env?.DB_CONNECTION_POOL=== 'TRUE' || env?.DB_CONNECTION_POOL=== 'true') ? true : false;
+const connectionPool = env?.DB_CONNECTION_POOL && (env?.DB_CONNECTION_POOL === true || env?.DB_CONNECTION_POOL === 'TRUE' || env?.DB_CONNECTION_POOL === 'true') ? true : false;
+
+const setConectioModel = async () => {
+	return new Promise(async (respCon, errCon) => {
+		let connection = dbConnection?.connection;
+		try {
+			if(connection?._closing === true){
+				connection = await dbConnection?.createConnection(env);
+				dbConnection.connection = connection;
+			}else{
+				connection.connect(async function(errDB) {
+					if (errDB) {
+						console.error('error connecting: ', 'error connecting: ' + errDB.stack, errDB);
+						connection = await dbConnection?.createConnection(env);
+						dbConnection.connection = connection;
+					} else {
+						console.info('Connection success exist');
+					}
+				});
+			}
+		} catch (errConTry) {
+			console.log('errConTry', errConTry);
+			connection = await dbConnection?.createConnection(env);
+			dbConnection.connection = connection;
+		}
+		respCon(connection);
+	});
+};
 
 function Model() {
 	this.columnId = 'id'
-	this.dbConnection = dbConnection?.connection
-	this.dbReconnection = dbConnection?.reconnectiondbGlobal
+	this.dbConnection = setConectioModel
+	this.dbConnectionFn = null
 }
 
 /**
- * Ejecuta la consulta de registros en la base de datos.
- * @param {Function} result Función callback a la que se establece el resultado de la ejecución.
- */
-Model.prototype.select = function (result) {
+	* Ejecuta la consulta de registros en la base de datos.
+	* @param {Function} result Función callback a la que se establece el resultado de la ejecución.
+	*/
+Model.prototype.select = function(result) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE deleted = 0`
 	this.callbackSelect(statement, [], result)
-} 
+}
 
 /**
- * Obtiene los datos de un registro asociado a un determinado Id.
- * @param {*} id Id del registro a consultar.
- * @param {Function} result Función callback a la que se establece el resultado de la ejecución.
- */
-Model.prototype.get = function (id, result) {
+	* Obtiene los datos de un registro asociado a un determinado Id.
+	* @param {*} id Id del registro a consultar.
+	* @param {Function} result Función callback a la que se establece el resultado de la ejecución.
+	*/
+Model.prototype.get = function(id, result) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE id = ? AND deleted = 0`
 	this.callbackSelectOne(statement, [id], result)
 }
 
 /**
- * Obtiene los datos de un registro asociado a un determinado Id Promesa.
- * @param {*} id Id del registro a consultar.
- */
-Model.prototype.getRegister = async function (id) {
+	* Obtiene los datos de un registro asociado a un determinado Id Promesa.
+	* @param {*} id Id del registro a consultar.
+	*/
+Model.prototype.getRegister = async function(id) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE id = ? AND deleted = 0`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		return new Promise((resolve, reject) => {
 			connectDB.getConnection(function(errCx, connection) {
 				if (errCx) throw errCx; // not connected!
 				// Use the connection
-				connection.query(statement, [id], (err, results) => {  
+				connection.query(statement, [id], (err, results) => {
 					// When done with the connection, release it.
-		    		connection.release();
-				    if (err) {
-				      	console.error(err);
-				        reject(err)
-				    } else if(results[0]){
-				        resolve(results[0]);
-				    }else{
-				      	resolve(null);
-				    }
-			    })
-		  	});
+					connection.release();
+					if (err) {
+						console.error(err);
+						reject(err)
+					} else if (results[0]) {
+						resolve(results[0]);
+					} else {
+						resolve(null);
+					}
+				})
+			});
 		});
-	}else{
+	} else {
 		return new Promise((resolve, reject) => {
-			connectDB.query(statement, [id], (err, results) => {  
-		      if (err) {
-		      	console.error(err);
-		      	try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
-		        reject(err)
-		      } else if(results[0]){
-		        resolve(results[0]);
-		      }else{
-		      	resolve(null);
-		      }
-		    })
-		});	
+			connectDB.query(statement, [id], (err, results) => {
+				if (err) {
+					console.error(err);
+					reject(err)
+				} else if (results[0]) {
+					resolve(results[0]);
+				} else {
+					resolve(null);
+				}
+			})
+		});
 	}
 
 }
 
 /**
- * Obtiene los datos de registros asociado a un determinada relacion Promesa.
- * @param {*} campoRelacion campo al que relaciona con un un id.
- * @param {*} id Id del registro a consultar.
- */
-Model.prototype.getRegisterRelacion = async function (campoRelacion, id, active=1) {
+	* Obtiene los datos de registros asociado a un determinada relacion Promesa.
+	* @param {*} campoRelacion campo al que relaciona con un un id.
+	* @param {*} id Id del registro a consultar.
+	*/
+Model.prototype.getRegisterRelacion = async function(campoRelacion, id, active = 1) {
 	const statement = `SELECT * FROM ${this.tableName} WHERE ${campoRelacion} = ? AND deleted = 0 AND actived=?`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
-		return new Promise((resolve, reject) =>{ 
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
+		return new Promise((resolve, reject) => {
 			connectDB.getConnection(function(errCx, connection) {
 				if (errCx) throw errCx; // not connected!
 				// Use the connection
-				connection.query(statement, [id,active], (err, results) => {
+				connection.query(statement, [id, active], (err, results) => {
 					// When done with the connection, release it.
-			    	connection.release();
-				    if (err) {
-				      	console.error(err);
-				        reject(err)
-				    } else {
-				        resolve(results);
-				    }
-		    	})
-		  	});
+					connection.release();
+					if (err) {
+						console.error(err);
+						reject(err)
+					} else {
+						resolve(results);
+					}
+				})
+			});
 		});
-	}else{
-		return new Promise((resolve, reject) =>{ 
-			connectDB.query(statement, [id,active], (err, results) => {
-		      if (err) {
-		      	console.error(err);
-		      	try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
-		        reject(err)
-		      } else {
-		        resolve(results);
-		      }
-		    })
+	} else {
+		return new Promise((resolve, reject) => {
+			connectDB.query(statement, [id, active], (err, results) => {
+
+				if (err) {
+					console.error(err);
+					reject(err)
+				} else {
+					resolve(results);
+				}
+			})
 		});
 	}
 }
 
 /**
- * Eliminar los datos de un registro asociado a un determinado Id.
- * @param {*} id Id del registro a consultar.
- * @param {Function} result Función callback a la que se establece el resultado de la ejecución.
- */
- Model.prototype.delete = function (id, result) {
+	* Eliminar los datos de un registro asociado a un determinado Id.
+	* @param {*} id Id del registro a consultar.
+	* @param {Function} result Función callback a la que se establece el resultado de la ejecución.
+	*/
+Model.prototype.delete = function(id, result) {
 	const statement = `DELETE FROM ${this.tableName} WHERE id = ?`
 	this.callbackSelectOne(statement, [id], result)
 }
 
 /**
- * Inserta un nuevo registro en la base de datos.
- * @param {Object} record Datos a insertar.
- * @param {Function} result Función callback a la que se establece el resultado de la ejecución.
- */
-Model.prototype.insert = async function (record, result) {
+	* Inserta un nuevo registro en la base de datos.
+	* @param {Object} record Datos a insertar.
+	* @param {Function} result Función callback a la que se establece el resultado de la ejecución.
+	*/
+Model.prototype.insert = async function(record, result) {
 	setCurrentDate(record, true)
-
-	let fields = [], wildcards = [], values = []
+	let fields = [],
+		wildcards = [],
+		values = []
 	for (let i in record) {
 		if (record.hasOwnProperty(i)) {
 			fields.push(`\`${i}\``)
@@ -143,48 +168,54 @@ Model.prototype.insert = async function (record, result) {
 	}
 
 	const statement = `INSERT INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, values, (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					result(err, null)
 					return
 				}
-				result(null, { id: res.insertId, ...record })
+				result(null, {
+					id: res.insertId,
+					...record
+				})
 			});
 		});
-	}else{
+	} else {
 		connectDB.query(statement, values, (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				result(err, null)
 				return
 			}
-			result(null, { id: res.insertId, ...record })
+			result(null, {
+				id: res.insertId,
+				...record
+			})
 		});
 	}
 
 }
 
 /**
- * Actualiza los registros de la base de datos.
- * @param {*} id Id del registro a actualizar
- * @param {*} record Datos a actualizar.
- * @param {Function} result Función callback a la que se establece el resultado de la ejecución.
- */
-Model.prototype.update = async function (id, record, result) {
+	* Actualiza los registros de la base de datos.
+	* @param {*} id Id del registro a actualizar
+	* @param {*} record Datos a actualizar.
+	* @param {Function} result Función callback a la que se establece el resultado de la ejecución.
+	*/
+Model.prototype.update = async function(id, record, result) {
 	setCurrentDate(record, false)
-	const _this= this;
+	const _this = this;
 
-	let wildcards = [], values = []
+	let wildcards = [],
+		values = []
 	for (let i in record) {
 		if (record.hasOwnProperty(i)) {
 			wildcards.push(`\`${i}\` = ?`)
@@ -194,49 +225,47 @@ Model.prototype.update = async function (id, record, result) {
 	values.push(id)
 
 	let statement = `UPDATE ${this.tableName} SET ${wildcards.toString()} WHERE ${this.columnId} = ? AND deleted = 0`
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, values, (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				_this.callbackUpdateRecord(err, res, result)
 			});
 		});
-	}else{
+	} else {
 		connectDB.query(statement, values, (err, res) => {
 			_this.callbackUpdateRecord(err, res, result)
 		});
 	}
-	
+
 }
 
 /**
- * Actualiza el estado de un registro a eliminado (deleted = 1 y actived = 0)
- * @param {*} id Id del registro a eliminar.
- * @param {Function} result Función callback a la que se establece el resultado de la ejecución.
- */
-Model.prototype.remove = async function (id, result) {
+	* Actualiza el estado de un registro a eliminado (deleted = 1 y actived = 0)
+	* @param {*} id Id del registro a eliminar.
+	* @param {Function} result Función callback a la que se establece el resultado de la ejecución.
+	*/
+Model.prototype.remove = async function(id, result) {
 	const statement = `UPDATE ${this.tableName} SET deleted = 1, actived = 0 WHERE ${this.columnId} = ? AND deleted = 0`
 	const values = [id]
-	const _this= this;
+	const _this = this;
 
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, values, (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				_this.callbackDeleteRecord(err, res, result)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, values, (err, res) => {
 			_this.callbackDeleteRecord(err, res, result)
 		})
@@ -244,14 +273,16 @@ Model.prototype.remove = async function (id, result) {
 }
 
 /**
- * Inserta un nuevo registro en la base de datos.
- * @param {Object} record Datos a insertar.
- * @param {Function} result Función callback a la que se establece el resultado de la ejecución.
- */
-Model.prototype.replace = async function (record, result) {
+	* Inserta un nuevo registro en la base de datos.
+	* @param {Object} record Datos a insertar.
+	* @param {Function} result Función callback a la que se establece el resultado de la ejecución.
+	*/
+Model.prototype.replace = async function(record, result) {
 	setCurrentDate(record, true)
 
-	let fields = [], wildcards = [], values = []
+	let fields = [],
+		wildcards = [],
+		values = []
 	for (let i in record) {
 		if (record.hasOwnProperty(i)) {
 			fields.push(`\`${i}\``)
@@ -261,46 +292,49 @@ Model.prototype.replace = async function (record, result) {
 	}
 
 	let statement = `REPLACE INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, values, (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					result(err, null)
 					return
 				}
-				result(null, { id: res.insertId, ...record })
+				result(null, {
+					id: res.insertId,
+					...record
+				})
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, values, (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				result(err, null)
 				return
 			}
-			result(null, { id: res.insertId, ...record })
+			result(null, {
+				id: res.insertId,
+				...record
+			})
 		})
 	}
 }
 
-Model.prototype.callbackSelect = async function (statement, values, result) {
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+Model.prototype.callbackSelect = async function(statement, values, result) {
+	const connectDB = await this.getConnection()
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, values, (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					result(err, null)
@@ -309,11 +343,11 @@ Model.prototype.callbackSelect = async function (statement, values, result) {
 				result(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, values, (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				result(err, null)
 				return
 			}
@@ -322,16 +356,14 @@ Model.prototype.callbackSelect = async function (statement, values, result) {
 	}
 }
 
-Model.prototype.callbackSelectOne = async function (statement, values, result) {
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+Model.prototype.callbackSelectOne = async function(statement, values, result) {
+	const connectDB = await this.getConnection();
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, values, (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					result(err, null)
@@ -340,11 +372,11 @@ Model.prototype.callbackSelectOne = async function (statement, values, result) {
 				result(null, res[0])
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, values, (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				result(err, null)
 				return
 			}
@@ -353,72 +385,81 @@ Model.prototype.callbackSelectOne = async function (statement, values, result) {
 	}
 }
 
-Model.prototype.createOrUpdate = function (record, skipKeys, result) {
+Model.prototype.createOrUpdate = function(record, skipKeys, result) {
 	setCurrentDate(record, true)
-	let arrOptionUpdateCreate= this.getArrayRequestUpdateOrCreate(record, skipKeys), t= this;
-	
-	if(arrOptionUpdateCreate.fieldsUniquied.length > 0 && arrOptionUpdateCreate.fieldsUniquiedValues.length > 0){
-		t.validRegisterUniqued(arrOptionUpdateCreate.fieldsUniquied, arrOptionUpdateCreate.fieldsUniquiedValues, (err, res)=>{
-			if(!err){
-				if(res > 0){ // Registro para actualizacion
-					record[t.columnId]= res;
-					t.updateRegister(arrOptionUpdateCreate.fieldsUpdate, arrOptionUpdateCreate.valuesUpdates, res, (errU, resU)=>{
-						if(!errU){
-							delete record.created_at;	
+	let arrOptionUpdateCreate = this.getArrayRequestUpdateOrCreate(record, skipKeys),
+		t = this;
+
+	if (arrOptionUpdateCreate.fieldsUniquied.length > 0 && arrOptionUpdateCreate.fieldsUniquiedValues.length > 0) {
+		t.validRegisterUniqued(arrOptionUpdateCreate.fieldsUniquied, arrOptionUpdateCreate.fieldsUniquiedValues, (err, res) => {
+			if (!err) {
+				if (res > 0) { // Registro para actualizacion
+					record[t.columnId] = res;
+					t.updateRegister(arrOptionUpdateCreate.fieldsUpdate, arrOptionUpdateCreate.valuesUpdates, res, (errU, resU) => {
+						if (!errU) {
+							delete record.created_at;
 							result(null, record);
-						}else{
+						} else {
 							result(errU, null);
 						}
 					});
-				}else{ // Registro para creacion
-					t.createRegister(arrOptionUpdateCreate.fields, arrOptionUpdateCreate.wildcards, arrOptionUpdateCreate.values, (errC, resC)=>{console.log(errC);
-						if(!errC){
-							if(resC.insertId){
-								record[t.columnId]= resC.insertId
+				} else { // Registro para creacion
+					t.createRegister(arrOptionUpdateCreate.fields, arrOptionUpdateCreate.wildcards, arrOptionUpdateCreate.values, (errC, resC) => {
+						console.log(errC);
+						if (!errC) {
+							if (resC.insertId) {
+								record[t.columnId] = resC.insertId
 							}
 							result(null, record);
-						}else{
+						} else {
 							result(errC, null);
 						}
 					});
 				}
-			}else{
+			} else {
 				result(err, null);
 			}
 		})
-	}else if(arrOptionUpdateCreate.fields.length > 0 && arrOptionUpdateCreate.values.length > 0){
-		t.createRegister(arrOptionUpdateCreate.fields, arrOptionUpdateCreate.wildcards, arrOptionUpdateCreate.values, (errC, resC)=>{
-			if(!errC){
-				if(resC.insertId){
-					record[t.columnId]= resC.insertId
+	} else if (arrOptionUpdateCreate.fields.length > 0 && arrOptionUpdateCreate.values.length > 0) {
+		t.createRegister(arrOptionUpdateCreate.fields, arrOptionUpdateCreate.wildcards, arrOptionUpdateCreate.values, (errC, resC) => {
+			if (!errC) {
+				if (resC.insertId) {
+					record[t.columnId] = resC.insertId
 				}
 				result(null, record);
-			}else{
+			} else {
 				result(errC, null);
 			}
 		});
-	}else{
+	} else {
 		result('Error Register', null);
 	}
 }
 
 /**
- * Metodo para obtener variables de utilidad para actualizar o crear un registro
- * @param {*} record -- variables request
- * @param {*} skipKeys -- variables unicas
- * @returns {*} Objeto con datos de validacion de variables para almacenamiento o actualizacion
- */
-Model.prototype.getArrayRequestUpdateOrCreate = function (record, skipKeys) {
-	let fieldsUpdate=[], fields = [], wildcards = [], valuesUpdates = [], values = [], updateFields = [], fieldsUniquied= [], fieldsUniquiedValues= [];
+	* Metodo para obtener variables de utilidad para actualizar o crear un registro
+	* @param {*} record -- variables request
+	* @param {*} skipKeys -- variables unicas
+	* @returns {*} Objeto con datos de validacion de variables para almacenamiento o actualizacion
+	*/
+Model.prototype.getArrayRequestUpdateOrCreate = function(record, skipKeys) {
+	let fieldsUpdate = [],
+		fields = [],
+		wildcards = [],
+		valuesUpdates = [],
+		values = [],
+		updateFields = [],
+		fieldsUniquied = [],
+		fieldsUniquiedValues = [];
 
 	for (let i in record) {
 		if (record.hasOwnProperty(i)) {
 			fields.push(`\`${i}\``)
-			if(i != 'created_at'){
+			if (i != 'created_at') {
 				fieldsUpdate.push(`\`${i}\`=?`)
 				valuesUpdates.push(record[i])
 			}
-			
+
 			wildcards.push('?')
 			values.push(record[i])
 
@@ -426,7 +467,7 @@ Model.prototype.getArrayRequestUpdateOrCreate = function (record, skipKeys) {
 				updateFields.push(`\`${i}\` = VALUES(\`${i}\`)`)
 			}
 
-			if(skipKeys[i] && i != 'created_at' && i != 'updated_at'){
+			if (skipKeys[i] && i != 'created_at' && i != 'updated_at') {
 				fieldsUniquied.push(`${this.tableName}.${i}=?`);
 				fieldsUniquiedValues.push(record[i]);
 			}
@@ -446,49 +487,47 @@ Model.prototype.getArrayRequestUpdateOrCreate = function (record, skipKeys) {
 }
 
 /**
- * Metodo para consultar valor unico en base de datos
- * @param {*} fieldsUniquied -- campos unicos
- * @param {*} fieldsUniquiedValues -- valores de los campos unicos
- * @param {*} result function callback response 
- * @returns invoca function cno dos parametros uno con error y el otro con id si el registro existe o -1 si no xiste
- */
-Model.prototype.validRegisterUniqued = async function (fieldsUniquied, fieldsUniquiedValues, result) {
+	* Metodo para consultar valor unico en base de datos
+	* @param {*} fieldsUniquied -- campos unicos
+	* @param {*} fieldsUniquiedValues -- valores de los campos unicos
+	* @param {*} result function callback response 
+	* @returns invoca function cno dos parametros uno con error y el otro con id si el registro existe o -1 si no xiste
+	*/
+Model.prototype.validRegisterUniqued = async function(fieldsUniquied, fieldsUniquiedValues, result) {
 	const statementSelect = `SELECT ${this.columnId} FROM ${this.tableName} WHERE ${fieldsUniquied.join(' AND ')} AND ${this.tableName}.deleted=0 LIMIT 1`;
+	const connectDB = await this.getConnection();
 
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statementSelect, fieldsUniquiedValues, (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
-				if(!err){
-					if(res.length > 0){
+				connection.release();
+				if (!err) {
+					if (res.length > 0) {
 						result(null, res[0][this.columnId])
 						return
-					}else{
+					} else {
 						result(null, -1)
 						return
 					}
-				}else{
+				} else {
 					result(err, null)
 					return
 				}
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statementSelect, fieldsUniquiedValues, (err, res) => {
-			if(!err){
-				if(res.length > 0){
+			if (!err) {
+				if (res.length > 0) {
 					result(null, res[0][this.columnId])
 					return
-				}else{
+				} else {
 					result(null, -1)
 					return
 				}
-			}else{
+			} else {
 				result(err, null)
 				return
 			}
@@ -497,42 +536,41 @@ Model.prototype.validRegisterUniqued = async function (fieldsUniquied, fieldsUni
 }
 
 /**
- * Metodo para actualizar parametros por id de registro
- * @param {*} fieldsUpdate 
- * @param {*} values 
- * @param {*} registreId 
- * @param {*} result 
- */
-Model.prototype.updateRegister = async function (fieldsUpdate, values, registreId, result) {
+	* Metodo para actualizar parametros por id de registro
+	* @param {*} fieldsUpdate 
+	* @param {*} values 
+	* @param {*} registreId 
+	* @param {*} result 
+	*/
+Model.prototype.updateRegister = async function(fieldsUpdate, values, registreId, result) {
 	values.push(registreId);
 	const statement = `UPDATE ${this.tableName} SET ${fieldsUpdate} WHERE ${this.columnId}=? AND deleted = 0`
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, values, (err, res) => {
 				// When done with the connection, release it.
-	    	connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					result(err, null)
 					return
-				}else{
+				} else {
 					result(null, res)
 					return
 				}
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, values, (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				result(err, null)
 				return
-			}else{
+			} else {
 				result(null, res)
 				return
 			}
@@ -540,41 +578,40 @@ Model.prototype.updateRegister = async function (fieldsUpdate, values, registreI
 	}
 }
 /**
- * Metodo para insertar registros dentro de base datos
- *@param fields -- son las columnas a modificar
- *@param wildcards -- son los valores correctondientes a cada columna a insertar
- *@param values -- son valores que se envian para proteer de ataques sql
- *@param result -- es una funcion donse se retorma la respuesta del proceso realizado
- **/
-Model.prototype.createRegister = async function (fields, wildcards, values, result) {
+	* Metodo para insertar registros dentro de base datos
+	*@param fields -- son las columnas a modificar
+	*@param wildcards -- son los valores correctondientes a cada columna a insertar
+	*@param values -- son valores que se envian para proteer de ataques sql
+	*@param result -- es una funcion donse se retorma la respuesta del proceso realizado
+	**/
+Model.prototype.createRegister = async function(fields, wildcards, values, result) {
 	const statement = `INSERT INTO ${this.tableName} (${fields.toString()}) VALUES (${wildcards.toString()})`
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, values, (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					result(err, null)
 					return
-				}else{
+				} else {
 					result(null, res)
 					return
 				}
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, values, (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				result(err, null)
 				return
-			}else{
+			} else {
 				result(null, res)
 				return
 			}
@@ -587,34 +624,36 @@ Model.prototype.callbackDeleteRecord = callbackUpdateRecord
 Model.prototype.createConnection = dbConnection?.createConnection
 
 /**
- * Permite definir un bloque de sentencias dentro de una transacción SQL.
- * @param {Function} callback Función con las sentencias a ejecutar dentro de la transacción.
- */
-Model.prototype.executeTransaction = function (callback) {
+	* Permite definir un bloque de sentencias dentro de una transacción SQL.
+	* @param {Function} callback Función con las sentencias a ejecutar dentro de la transacción.
+	*/
+Model.prototype.executeTransaction = function(callback) {
 	//dbConnection.beginTransaction(callback)
 }
 
 /**
- * Método que ejecuta las acciones posteriores a la ejecución de la sentencia.
- * UPDATE o DELETE en la base de datos.
- */
+	* Método que ejecuta las acciones posteriores a la ejecución de la sentencia.
+	* UPDATE o DELETE en la base de datos.
+	*/
 function callbackUpdateRecord(error, response, result) {
 	if (error) {
 		result(error, null)
 		return
 	}
 	if (response.affectedRows == 0) {
-		result({ kind: "not_found" }, null)
+		result({
+			kind: "not_found"
+		}, null)
 		return
 	}
 	result(null, response)
 }
 
 /**
- * Establece la fecha actual de sistema en las propiedades 'created_at' y 'updated_at' del objeto de datos.
- * @param {Object} record Objeto de datos donde se establece las fechas.
- * @param {Boolean} create Valor que indica si el registro es de creación (TRUE) o actualización (FALSE).
- */
+	* Establece la fecha actual de sistema en las propiedades 'created_at' y 'updated_at' del objeto de datos.
+	* @param {Object} record Objeto de datos donde se establece las fechas.
+	* @param {Boolean} create Valor que indica si el registro es de creación (TRUE) o actualización (FALSE).
+	*/
 function setCurrentDate(record, create = true) {
 	const mySQLDateString = getCurrentDate()
 
@@ -635,26 +674,25 @@ function getCurrentDate() {
 Model.prototype.getCurrentDate = getCurrentDate
 
 /**
- * METODOS CUSTOM PARA CONSULATAS DE TABLAS ESPECIFICAS 
- **/
+	* METODOS CUSTOM PARA CONSULATAS DE TABLAS ESPECIFICAS 
+	**/
 
 /**
- * Metodo para poder eliminar una accion de la tabla action_parameter 
- *@param (*) actionId -- es el ide de la accion a eliminar
- **/
+	* Metodo para poder eliminar una accion de la tabla action_parameter 
+	*@param (*) actionId -- es el ide de la accion a eliminar
+	**/
 Model.prototype.deleteByActionId = async function deleteByActionId(actionId) {
 	const statement = `DELETE FROM ${this.tableName} WHERE action_id = ?`
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	return  new Promise(async function(resolve, reject){
-		if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	return new Promise(async function(resolve, reject) {
+		if (connectionPool === true) {
 			connectDB.getConnection(function(errCx, connection) {
 				if (errCx) throw errCx; // not connected!
-				connection.query(statement, [actionId],(err, res)=>{
+				connection.query(statement, [actionId], (err, res) => {
 					// When done with the connection, release it.
-	    			connection.release();
-					if(err){
+					connection.release();
+					if (err) {
 						console.log('err', err);
 						reject(err);
 						return;
@@ -662,9 +700,9 @@ Model.prototype.deleteByActionId = async function deleteByActionId(actionId) {
 					resolve(res);
 				})
 			});
-		}else{
-			connectDB.query(statement, [actionId],(err, res)=>{
-				if(err){
+		} else {
+			connectDB.query(statement, [actionId], (err, res) => {
+				if (err) {
 					console.log('err', err);
 					reject(err);
 					return;
@@ -672,26 +710,25 @@ Model.prototype.deleteByActionId = async function deleteByActionId(actionId) {
 				resolve(res);
 			})
 		}
-		
-	});  
+
+	});
 }
 
 /**
- * Es un metodo para obtener una accion por flujo nodo.
- *@param (*) nodeId   -- es el id del nodo de accion
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta 
- **/
+	* Es un metodo para obtener una accion por flujo nodo.
+	*@param (*) nodeId   -- es el id del nodo de accion
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta 
+	**/
 Model.prototype.getActionPerNodeFlowId = async function getActionPerNodeFlowId(nodeId, callback) {
 	const statement = `SELECT actions.*, act.name as action_type FROM actions INNER JOIN actions_types as act ON act.id=actions.action_type_id WHERE actions.nodes_flows_id=? AND actions.deleted=0 AND actions.actived=1 LIMIT 1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [nodeId], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, [])
@@ -700,11 +737,11 @@ Model.prototype.getActionPerNodeFlowId = async function getActionPerNodeFlowId(n
 				callback(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [nodeId], (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, [])
 				return
 			}
@@ -714,21 +751,20 @@ Model.prototype.getActionPerNodeFlowId = async function getActionPerNodeFlowId(n
 }
 
 /**
- * Metodo para obtener una accion de un nodo tipo RDS
- *@param (*) actionId   -- es el id de una accion
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
-Model.prototype.getActionDatabaseRDS = async function getActionDatabaseRDS(actionId, callback){
+	* Metodo para obtener una accion de un nodo tipo RDS
+	*@param (*) actionId   -- es el id de una accion
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
+Model.prototype.getActionDatabaseRDS = async function getActionDatabaseRDS(actionId, callback) {
 	const statement = `SELECT * FROM databases_rds WHERE databases_rds.actions_id=? AND databases_rds.deleted=0 AND databases_rds.actived=1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [actionId], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, [])
@@ -737,11 +773,11 @@ Model.prototype.getActionDatabaseRDS = async function getActionDatabaseRDS(actio
 				callback(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, [])
 				return
 			}
@@ -751,21 +787,20 @@ Model.prototype.getActionDatabaseRDS = async function getActionDatabaseRDS(actio
 }
 
 /**
- * Metodo para obtener una accion de un nodo tipo Emails
- *@param (*) actionId   -- es el id de una accion
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
-Model.prototype.getEmails = async function getEmails(actionEmailId, callback){
+	* Metodo para obtener una accion de un nodo tipo Emails
+	*@param (*) actionId   -- es el id de una accion
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
+Model.prototype.getEmails = async function getEmails(actionEmailId, callback) {
 	const statement = `SELECT * FROM emails WHERE emails.action_type_emails_id=? AND emails.deleted=0 AND emails.actived=1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [actionEmailId], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, [])
@@ -775,11 +810,11 @@ Model.prototype.getEmails = async function getEmails(actionEmailId, callback){
 				callback(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [actionEmailId], (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, [])
 				return
 			}
@@ -790,71 +825,70 @@ Model.prototype.getEmails = async function getEmails(actionEmailId, callback){
 }
 
 /**
- * Metodo para obtener una accion de un nodo tipo email
- *@param (*) actionId   -- es el id de una accion
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
-Model.prototype.getActionEmail = async function getActionEmail(actionId, callback){
+	* Metodo para obtener una accion de un nodo tipo email
+	*@param (*) actionId   -- es el id de una accion
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
+Model.prototype.getActionEmail = async function getActionEmail(actionId, callback) {
 	const statement = `SELECT * FROM action_type_emails WHERE action_type_emails.actions_id=? AND action_type_emails.deleted=0 AND action_type_emails.actived=1`;
-	let thisT= this;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	let thisT = this;
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [actionId], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, [])
 					return
 				}
 
-				if(res.length > 0){
+				if (res.length > 0) {
 					for (let index = 0; index < res.length; index++) {
-						thisT.getEmails(res[index].id, (error, response)=>{
+						thisT.getEmails(res[index].id, (error, response) => {
 							if (!error) {
-								res[index].emails=response;
+								res[index].emails = response;
 							} else {
-								res[index].emails=[];
+								res[index].emails = [];
 							}
 
-							if(res.length == (parseInt(index)+1)){
+							if (res.length == (parseInt(index) + 1)) {
 								callback(null, res)
 							}
 						})
 					}
-				}else{
+				} else {
 					callback(null, res)
 				}
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, [])
 				return
 			}
 
-			if(res.length > 0){
+			if (res.length > 0) {
 				for (let index = 0; index < res.length; index++) {
-					thisT.getEmails(res[index].id, (error, response)=>{
+					thisT.getEmails(res[index].id, (error, response) => {
 						if (!error) {
-							res[index].emails=response;
+							res[index].emails = response;
 						} else {
-							res[index].emails=[];
+							res[index].emails = [];
 						}
 
-						if(res.length == (parseInt(index)+1)){
+						if (res.length == (parseInt(index) + 1)) {
 							callback(null, res)
 						}
 					})
 				}
-			}else{
+			} else {
 				callback(null, res)
 			}
 		})
@@ -862,21 +896,20 @@ Model.prototype.getActionEmail = async function getActionEmail(actionId, callbac
 }
 
 /**
- * Metodo para obtener una accion de un nodo tipo JWT
- *@param (*) actionId   -- es el id de una accion
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
-Model.prototype.getActionJWT = async function getActionJWT(actionId, callback){
+	* Metodo para obtener una accion de un nodo tipo JWT
+	*@param (*) actionId   -- es el id de una accion
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
+Model.prototype.getActionJWT = async function getActionJWT(actionId, callback) {
 	const statement = `SELECT * FROM actions_types_jwt WHERE actions_types_jwt.actions_id=? AND actions_types_jwt.deleted=0 AND actions_types_jwt.actived=1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [actionId], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, [])
@@ -885,11 +918,11 @@ Model.prototype.getActionJWT = async function getActionJWT(actionId, callback){
 				callback(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, [])
 				return
 			}
@@ -899,21 +932,20 @@ Model.prototype.getActionJWT = async function getActionJWT(actionId, callback){
 }
 
 /**
- * Metodo para obtener una accion de un nodo tipo MD5
- *@param (*) actionId   -- es el id de una accion
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
-Model.prototype.getActionMD5 = async function getActionMD5(actionId, callback){
+	* Metodo para obtener una accion de un nodo tipo MD5
+	*@param (*) actionId   -- es el id de una accion
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
+Model.prototype.getActionMD5 = async function getActionMD5(actionId, callback) {
 	const statement = `SELECT * FROM actions_types_md5 WHERE actions_types_md5.actions_id=? AND actions_types_md5.deleted=0 AND actions_types_md5.actived=1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [actionId], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, [])
@@ -922,11 +954,11 @@ Model.prototype.getActionMD5 = async function getActionMD5(actionId, callback){
 				callback(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, [])
 				return
 			}
@@ -936,21 +968,20 @@ Model.prototype.getActionMD5 = async function getActionMD5(actionId, callback){
 }
 
 /**
- * Metodo para obtener una accion de un nodo tipo SFTP
- *@param (*) actionId   -- es el id de una accion
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
-Model.prototype.getActionSFTP = async function getActionSFTP(actionId, callback){
+	* Metodo para obtener una accion de un nodo tipo SFTP
+	*@param (*) actionId   -- es el id de una accion
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
+Model.prototype.getActionSFTP = async function getActionSFTP(actionId, callback) {
 	const statement = `SELECT * FROM actions_types_ssh2 WHERE actions_types_ssh2.actions_id=? AND actions_types_ssh2.deleted=0 AND actions_types_ssh2.actived=1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [actionId], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, [])
@@ -959,11 +990,11 @@ Model.prototype.getActionSFTP = async function getActionSFTP(actionId, callback)
 				callback(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, [])
 				return
 			}
@@ -973,62 +1004,72 @@ Model.prototype.getActionSFTP = async function getActionSFTP(actionId, callback)
 }
 
 /**
- * Metodo para obtener una accion de un nodo tipo SFTP
- *@param (*) name   -- es el nombre de una accion
- *@param (*) result -- es la funcion para retornar la respuesta del proceso de consulta
- **/
+	* Metodo para obtener una accion de un nodo tipo SFTP
+	*@param (*) name   -- es el nombre de una accion
+	*@param (*) result -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
 Model.prototype.validTypeAction = async function validTypeAction(name, result) {
 	const statement = `SELECT * FROM actions_types WHERE actions_types.name=? AND actions_types.deleted=0 AND actions_types.actived=1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [name], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					result(err, null)
 					return
 				}
 
-				res = res.length > 0 ? {state: 'success', action: res[0]} : {state: 'error', action:{}};
+				res = res.length > 0 ? {
+					state: 'success',
+					action: res[0]
+				} : {
+					state: 'error',
+					action: {}
+				};
 				result(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [name], (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				result(err, null)
 				return
 			}
 
-			res = res.length > 0 ? {state: 'success', action: res[0]} : {state: 'error', action:{}};
+			res = res.length > 0 ? {
+				state: 'success',
+				action: res[0]
+			} : {
+				state: 'error',
+				action: {}
+			};
 			result(null, res)
 		})
 	}
 }
 
 /**
- * Metodo para obtener una accion de un nodo tipo HTTP
- *@param (*) actionHttpId   -- es el id de una accion
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
-Model.prototype.getHeadersPerActionHttpRequest = async function getHeadersPerActionHttpRequest(actionHttpId, callback){
+	* Metodo para obtener una accion de un nodo tipo HTTP
+	*@param (*) actionHttpId   -- es el id de una accion
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
+Model.prototype.getHeadersPerActionHttpRequest = async function getHeadersPerActionHttpRequest(actionHttpId, callback) {
 	const statement = `SELECT * FROM headers WHERE headers.action_type_http_request_id=? AND headers.deleted=0 AND headers.actived=1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [actionHttpId], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					callback(err, [])
 					return
@@ -1037,7 +1078,7 @@ Model.prototype.getHeadersPerActionHttpRequest = async function getHeadersPerAct
 				callback(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [actionHttpId], (err, res) => {
 			if (err) {
 				callback(err, [])
@@ -1050,71 +1091,70 @@ Model.prototype.getHeadersPerActionHttpRequest = async function getHeadersPerAct
 }
 
 /**
- * Metodo para obtener una accion de un nodo tipo HTTP
- *@param (*) actionId   -- es el id de una accion
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
-Model.prototype.getActionHttpRequest = async function getActionHttpRequest(actionId, callback){
+	* Metodo para obtener una accion de un nodo tipo HTTP
+	*@param (*) actionId   -- es el id de una accion
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
+Model.prototype.getActionHttpRequest = async function getActionHttpRequest(actionId, callback) {
 	const statement = `SELECT * FROM action_type_http_request WHERE action_type_http_request.actions_id=? AND action_type_http_request.deleted=0 AND action_type_http_request.actived=1`;
-	let thisT= this;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
+	let thisT = this;
+	const connectDB = await this.getConnection();
 
-	if(connectionPool===true){
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [actionId], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, [])
 					return
 				}
 
-				if(res.length > 0){
+				if (res.length > 0) {
 					for (let index = 0; index < res.length; index++) {
-						thisT.getHeadersPerActionHttpRequest(res[index].id, (error, response)=>{
+						thisT.getHeadersPerActionHttpRequest(res[index].id, (error, response) => {
 							if (!error) {
-								res[index].headers=response;
+								res[index].headers = response;
 							} else {
-								res[index].headers=[];
+								res[index].headers = [];
 							}
 
-							if(res.length == (parseInt(index)+1)){
+							if (res.length == (parseInt(index) + 1)) {
 								callback(null, res)
 							}
 						})
 					}
-				}else{
+				} else {
 					callback(null, res)
 				}
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, [])
 				return
 			}
 
-			if(res.length > 0){
+			if (res.length > 0) {
 				for (let index = 0; index < res.length; index++) {
-					thisT.getHeadersPerActionHttpRequest(res[index].id, (error, response)=>{
+					thisT.getHeadersPerActionHttpRequest(res[index].id, (error, response) => {
 						if (!error) {
-							res[index].headers=response;
+							res[index].headers = response;
 						} else {
-							res[index].headers=[];
+							res[index].headers = [];
 						}
 
-						if(res.length == (parseInt(index)+1)){
+						if (res.length == (parseInt(index) + 1)) {
 							callback(null, res)
 						}
 					})
 				}
-			}else{
+			} else {
 				callback(null, res)
 			}
 		})
@@ -1122,21 +1162,20 @@ Model.prototype.getActionHttpRequest = async function getActionHttpRequest(actio
 }
 
 /**
- * Metodo para obtener una accion de un nodo tipo ProcessData
- *@param (*) actionId   -- es el id de una accion
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
-Model.prototype.getActionProcessData = async function getActionProcessData(actionId, callback){
+	* Metodo para obtener una accion de un nodo tipo ProcessData
+	*@param (*) actionId   -- es el id de una accion
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
+Model.prototype.getActionProcessData = async function getActionProcessData(actionId, callback) {
 	const statement = `SELECT * FROM action_type_process_data WHERE action_type_process_data.actions_id=? AND action_type_process_data.deleted=0 AND action_type_process_data.actived=1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [actionId], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, [])
@@ -1145,11 +1184,11 @@ Model.prototype.getActionProcessData = async function getActionProcessData(actio
 				callback(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [actionId], (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, [])
 				return
 			}
@@ -1159,75 +1198,77 @@ Model.prototype.getActionProcessData = async function getActionProcessData(actio
 }
 
 /**
- * Metodo para obtener una accion de un nodo tipo ProcessData
- *@param (*) regExpByDate   -- exprecion regular para buscar un registro para activar tarea programada
- *@param (*) regExpGeneral   -- exprecion regular para buscar registros generales para activar tarea programada
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
+	* Metodo para obtener una accion de un nodo tipo ProcessData
+	*@param (*) regExpByDate   -- exprecion regular para buscar un registro para activar tarea programada
+	*@param (*) regExpGeneral   -- exprecion regular para buscar registros generales para activar tarea programada
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
 Model.prototype.getCronJobs = async function getCronJobs(regExpByDate, regExpGeneral, callback) {
-    const statement = `SELECT * FROM cron_jobs WHERE (cron REGEXP '${regExpByDate}' OR cron NOT REGEXP '${regExpGeneral}') AND deleted = 0 AND actived = 1`;
-    const connectDB= this.dbConnection;
-    const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const statement = `SELECT * FROM cron_jobs WHERE (cron REGEXP '${regExpByDate}' OR cron NOT REGEXP '${regExpGeneral}') AND deleted = 0 AND actived = 1`;
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
-		  	connection.query(statement, [], (error, records) => {
-			  	// When done with the connection, release it.
-		    	connection.release();
-			    if (error) callback(error, null)
-			    else callback(null, records)
+			connection.query(statement, [], (error, records) => {
+				// When done with the connection, release it.
+				connection.release();
+				if (error) callback(error, null)
+				else callback(null, records)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [], (error, records) => {
-		  	if (error) callback(error, null)
-		    else callback(null, records)
-	  	})
+			if (error) callback(error, null)
+			else callback(null, records)
+		})
 	}
 }
 
 /**
- * Metodo para obtener una accion de un nodo tipo ProcessData
- *@param (*) actionId   -- es el id de una accion
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
-function getQueryHistory(req){
-	let w='', 
-		hoy= new Date()
-		dia= hoy.getDay(),
-		mes= hoy.getMonth(),
-		anio= hoy.getFullYear();
-		mes= (parseInt(mes)+1);
-		mes= mes < 10 ? '0'+mes : mes;
-		fecha= `${anio}-${mes}-${dia}`;
-		params= [];
+	* Metodo para obtener una accion de un nodo tipo ProcessData
+	*@param (*) actionId   -- es el id de una accion
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
+function getQueryHistory(req) {
+	let w = '',
+		hoy = new Date()
+	dia = hoy.getDay(),
+		mes = hoy.getMonth(),
+		anio = hoy.getFullYear();
+	mes = (parseInt(mes) + 1);
+	mes = mes < 10 ? '0' + mes : mes;
+	fecha = `${anio}-${mes}-${dia}`;
+	params = [];
 
-	w+= ` AND DATE(history_flow.created_at) = ?`;
-	if(req.query.createdAt && req.query.createdAt != ''){
+	w += ` AND DATE(history_flow.created_at) = ?`;
+	if (req.query.createdAt && req.query.createdAt != '') {
 		params.push(req.query.createdAt);
-	}else{
+	} else {
 		params.push(fecha);
 	}
-	if(req.query.searchInput && req.query.searchInput != ''){
-		w+= ` AND inp.bodyRequest LIKE ?`;
+	if (req.query.searchInput && req.query.searchInput != '') {
+		w += ` AND inp.bodyRequest LIKE ?`;
 		params.push(`%${req.query.searchInput}%`);
 	}
-	if(req.query.inputStatus && req.query.inputStatus != ''){
-		w+= ` AND inp.processStatus= ?`;
+	if (req.query.inputStatus && req.query.inputStatus != '') {
+		w += ` AND inp.processStatus= ?`;
 		params.push(req.query.inputStatus);
 	}
-	return {where:w,params:params};
+	return {
+		where: w,
+		params: params
+	};
 }
 
 /**
- * Metodo para obtener una historial de acciones flujos de accion
- *@param (*) req   -- es el id de una accion
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
-Model.prototype.selectHistory = async function selectHistory(req, callback){
-	let w= getQueryHistory(req);
-	const statement =  `SELECT 
+	* Metodo para obtener una historial de acciones flujos de accion
+	*@param (*) req   -- es el id de una accion
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
+Model.prototype.selectHistory = async function selectHistory(req, callback) {
+	let w = getQueryHistory(req);
+	const statement = `SELECT 
 							node.name as node_name,
 							node.label as node_label,
 							act.name as action_name,
@@ -1254,15 +1295,14 @@ Model.prototype.selectHistory = async function selectHistory(req, callback){
 							history_flow.actived=? AND
 							inp.source_id=? 
 							${w.where}`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
-			connection.query(statement, [0,1,req.params.source_id].concat(w.params), (err, res) => {
+			connection.query(statement, [0, 1, req.params.source_id].concat(w.params), (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, [])
@@ -1272,11 +1312,11 @@ Model.prototype.selectHistory = async function selectHistory(req, callback){
 				callback(null, res)
 			})
 		});
-	}else{
-		connectDB.query(statement, [0,1,req.params.source_id].concat(w.params), (err, res) => {
+	} else {
+		connectDB.query(statement, [0, 1, req.params.source_id].concat(w.params), (err, res) => {
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, [])
 				return
 			}
@@ -1287,21 +1327,20 @@ Model.prototype.selectHistory = async function selectHistory(req, callback){
 }
 
 /**
- * Metodo para obtener un nodo por fuente id
- *@param (*) source_id   -- es el id de una fuente
- *@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
- **/
-Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(source_id, callback){
+	* Metodo para obtener un nodo por fuente id
+	*@param (*) source_id   -- es el id de una fuente
+	*@param (*) callback -- es la funcion para retornar la respuesta del proceso de consulta
+	**/
+Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(source_id, callback) {
 	const statement = `SELECT * FROM nodes_flows WHERE nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [source_id], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, [])
@@ -1311,11 +1350,12 @@ Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(sou
 				callback(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [source_id], (err, res) => {
+
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, [])
 				return
 			}
@@ -1326,42 +1366,46 @@ Model.prototype.getNodesFlowPerSource = async function getNodesFlowPerSource(sou
 }
 
 /**
- * Metodo para actualizar un nodo padre
- *@param (*) nodeFlowId   -- es el id de una fuente
- *@param (*) nodeParent   -- nombre de nodo padre
- *@param (*) sourceId -- es el id de la fuente
- **/
-Model.prototype.updateNodeParent = async function updateNodeParent(nodeFlowId,nodeParent,sourceId){
+	* Metodo para actualizar un nodo padre
+	*@param (*) nodeFlowId   -- es el id de una fuente
+	*@param (*) nodeParent   -- nombre de nodo padre
+	*@param (*) sourceId -- es el id de la fuente
+	**/
+Model.prototype.updateNodeParent = async function updateNodeParent(nodeFlowId, nodeParent, sourceId) {
 	const statement = `SELECT id FROM nodes_flows WHERE nodes_flows.name=? AND nodes_flows.sources_id=? AND nodes_flows.deleted=0 AND nodes_flows.actived=1 ORDER BY id ASC`;
-	let thisT= this;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	let thisT = this;
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
-			connection.query(statement, [nodeParent,sourceId], (err, res) => {
+			connection.query(statement, [nodeParent, sourceId], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					return false;
 				}
-				if(res.length > 0){
-					thisT.update(nodeFlowId,{node_flow_id:res[0].id}, (errA,resA)=>{});
+				if (res.length > 0) {
+					thisT.update(nodeFlowId, {
+						node_flow_id: res[0].id
+					}, (errA, resA) => {});
 				}
 				return true;
 			})
 		});
-	}else{
-		connectDB.query(statement, [nodeParent,sourceId], (err, res) => {
+	} else {
+		connectDB.query(statement, [nodeParent, sourceId], (err, res) => {
+
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				return false;
 			}
-			if(res.length > 0){
-				thisT.update(nodeFlowId,{node_flow_id:res[0].id}, (errA,resA)=>{});
+			if (res.length > 0) {
+				thisT.update(nodeFlowId, {
+					node_flow_id: res[0].id
+				}, (errA, resA) => {});
 			}
 			return true;
 		})
@@ -1369,63 +1413,76 @@ Model.prototype.updateNodeParent = async function updateNodeParent(nodeFlowId,no
 }
 
 /**
- * Metodo para validar un fuente
- *@param (*) key   -- llave de la fuente
- *@param (*) token   -- token de la fuente
- *@param (*) result -- funcion que retorna el proceso de la funcion
- **/
+	* Metodo para validar un fuente
+	*@param (*) key   -- llave de la fuente
+	*@param (*) token   -- token de la fuente
+	*@param (*) result -- funcion que retorna el proceso de la funcion
+	**/
 Model.prototype.validSource = async function validSource(key, token, result) {
 	const statement = `SELECT id,name FROM sources WHERE sources.key=? AND sources.token=? AND sources.deleted=0 AND sources.actived=1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [key, token], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					result(err, null)
 					return
 				}
 
-				res = res.length > 0 ? {state: 'success', source_id: res[0].id, source_name: res[0].name} : {state: 'error', source_id:null};
+				res = res.length > 0 ? {
+					state: 'success',
+					source_id: res[0].id,
+					source_name: res[0].name
+				} : {
+					state: 'error',
+					source_id: null
+				};
 				result(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [key, token], (err, res) => {
+
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				result(err, null)
 				return
 			}
 
-			res = res.length > 0 ? {state: 'success', source_id: res[0].id, source_name: res[0].name} : {state: 'error', source_id:null};
+			res = res.length > 0 ? {
+				state: 'success',
+				source_id: res[0].id,
+				source_name: res[0].name
+			} : {
+				state: 'error',
+				source_id: null
+			};
 			result(null, res)
 		})
 	}
 }
 
 /**
- * Metodo para obtener el id de una fuente por nombre de la fuente
- *@param (*) sourceName   -- llave de la fuente
- *@param (*) result -- funcion que retorna el proceso de la funcion
- **/
+	* Metodo para obtener el id de una fuente por nombre de la fuente
+	*@param (*) sourceName   -- llave de la fuente
+	*@param (*) result -- funcion que retorna el proceso de la funcion
+	**/
 Model.prototype.getSourcePerName = async function getSourcePerName(sourceName, result) {
 	const statement = `SELECT id FROM sources WHERE sources.name=? AND sources.deleted=0 AND sources.actived=1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [sourceName], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					result(err, null)
@@ -1435,11 +1492,12 @@ Model.prototype.getSourcePerName = async function getSourcePerName(sourceName, r
 				result(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [sourceName], (err, res) => {
+
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				result(err, null)
 				return
 			}
@@ -1450,44 +1508,44 @@ Model.prototype.getSourcePerName = async function getSourcePerName(sourceName, r
 }
 
 /**
- * METODOS PARA EL MANEJO DEL LOGIN 
- **/
+	* METODOS PARA EL MANEJO DEL LOGIN 
+	**/
 
 /**
- * Metodo para obtener token de autorizacion
- *@param (*) tokenAuthorization   -- token registro de autenticacion
- *@param (*) callback -- funcion que retorna el proceso de la funcion
- **/
-Model.prototype.getPerToken = async function getPerToken(tokenAuthorization, callback){
+	* Metodo para obtener token de autorizacion
+	*@param (*) tokenAuthorization   -- token registro de autenticacion
+	*@param (*) callback -- funcion que retorna el proceso de la funcion
+	**/
+Model.prototype.getPerToken = async function getPerToken(tokenAuthorization, callback) {
 	const statement = `SELECT id,types_logins_id,codeVerify,state,email,name,userId,redirect_uri,stateVtex,password FROM logins_authorizations WHERE tokenAuthorization=? AND state='pending' AND actived = 1 AND deleted=0`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [tokenAuthorization], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
-					callback('error',null);
+					callback('error', null);
 					return false;
-				}else{
-					callback(null,(res.length > 0 ? res[0] : {}));
+				} else {
+					callback(null, (res.length > 0 ? res[0] : {}));
 					return true;
 				}
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [tokenAuthorization], (err, res) => {
+
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
-				callback('error',null);
+
+				callback('error', null);
 				return false;
-			}else{
-				callback(null,(res.length > 0 ? res[0] : {}));
+			} else {
+				callback(null, (res.length > 0 ? res[0] : {}));
 				return true;
 			}
 		})
@@ -1495,40 +1553,40 @@ Model.prototype.getPerToken = async function getPerToken(tokenAuthorization, cal
 }
 
 /**
- * Metodo para validar accesos a un cliente
- *@param (*) accesToken   -- token registro de validacion
- *@param (*) callback -- funcion que retorna el proceso de la funcion
- **/
-Model.prototype.validAccessClient = async function validAccessClient(accesToken, callback){
+	* Metodo para validar accesos a un cliente
+	*@param (*) accesToken   -- token registro de validacion
+	*@param (*) callback -- funcion que retorna el proceso de la funcion
+	**/
+Model.prototype.validAccessClient = async function validAccessClient(accesToken, callback) {
 	const statement = `SELECT * FROM logins_authorizations WHERE accessToken=? AND actived = 1 AND deleted=0`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [accesToken], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
-					callback('error',null);
+					callback('error', null);
 					return false;
-				}else{
-					callback(null,(res.length > 0 ? res[0] : {}));
+				} else {
+					callback(null, (res.length > 0 ? res[0] : {}));
 					return true;
 				}
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [accesToken], (err, res) => {
+
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
-				callback('error',null);
+
+				callback('error', null);
 				return false;
-			}else{
-				callback(null,(res.length > 0 ? res[0] : {}));
+			} else {
+				callback(null, (res.length > 0 ? res[0] : {}));
 				return true;
 			}
 		})
@@ -1536,40 +1594,40 @@ Model.prototype.validAccessClient = async function validAccessClient(accesToken,
 }
 
 /**
- * Metodo para actualizar registros de una solicitud de acceso
- *@param (*) id   -- id registro actualizar
- *@param (*) token   -- token registro actualizacion
- *@param (*) callback -- funcion que retorna el proceso de la funcion
- **/
-Model.prototype.updateSolicitudVTEX = async function updateSolicitudVTEX(id,token, callback){
+	* Metodo para actualizar registros de una solicitud de acceso
+	*@param (*) id   -- id registro actualizar
+	*@param (*) token   -- token registro actualizacion
+	*@param (*) callback -- funcion que retorna el proceso de la funcion
+	**/
+Model.prototype.updateSolicitudVTEX = async function updateSolicitudVTEX(id, token, callback) {
 	const statement = `UPDATE logins_authorizations SET accessToken=?, state=? WHERE id=?`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
-			connection.query(statement, [token,'processed',id], (err, res) => {
+			connection.query(statement, [token, 'processed', id], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
-					callback('error',null);
+					callback('error', null);
 					return false;
-				}else{
+				} else {
 					callback(null, res);
 					return true;
 				}
 			})
 		});
-	}else{
-		connectDB.query(statement, [token,'processed',id], (err, res) => {
+	} else {
+		connectDB.query(statement, [token, 'processed', id], (err, res) => {
+
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
-				callback('error',null);
+
+				callback('error', null);
 				return false;
-			}else{
+			} else {
 				callback(null, res);
 				return true;
 			}
@@ -1578,39 +1636,39 @@ Model.prototype.updateSolicitudVTEX = async function updateSolicitudVTEX(id,toke
 }
 
 /**
- * Metodo para validar accesos a un cliente
- *@param (*) code -- token registro de validacion
- *@param (*) callback -- funcion que retorna el proceso de la funcion
- **/
-Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(code, callback){
+	* Metodo para validar accesos a un cliente
+	*@param (*) code -- token registro de validacion
+	*@param (*) callback -- funcion que retorna el proceso de la funcion
+	**/
+Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(code, callback) {
 	const statement = `SELECT * FROM logins_authorizations WHERE codeAuthorization=? AND (state=? OR state=?) AND actived = 1 AND deleted=0`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
-			connection.query(statement, [code,'processing','pending'], (err, res) => {
+			connection.query(statement, [code, 'processing', 'pending'], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
-					callback('error',null);
+					callback('error', null);
 					return false;
-				}else{
+				} else {
 					callback(null, res);
 					return true;
 				}
 			})
 		});
-	}else{
-		connectDB.query(statement, [code,'processing','pending'], (err, res) => {
+	} else {
+		connectDB.query(statement, [code, 'processing', 'pending'], (err, res) => {
+
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
-				callback('error',null);
+
+				callback('error', null);
 				return false;
-			}else{
+			} else {
 				callback(null, res);
 				return true;
 			}
@@ -1619,22 +1677,21 @@ Model.prototype.validCodeSolicitudVTEX = async function validCodeSolicitudVTEX(c
 }
 
 /**
- * Metodo para obtener un paso por nombre
- *@param (*) stepName -- nombre de un paso
- *@param (*) types_logins_id -- id tipo de login 
- *@param (*) callback -- funcion que retorna el proceso de la funcion
- **/
-Model.prototype.getStepPerName = async function getStepPerName(stepName, types_logins_id, callback){
+	* Metodo para obtener un paso por nombre
+	*@param (*) stepName -- nombre de un paso
+	*@param (*) types_logins_id -- id tipo de login 
+	*@param (*) callback -- funcion que retorna el proceso de la funcion
+	**/
+Model.prototype.getStepPerName = async function getStepPerName(stepName, types_logins_id, callback) {
 	const statement = `SELECT * FROM steps_logins WHERE steps_logins.name=? AND steps_logins.types_logins_id=? AND steps_logins.deleted=0 AND steps_logins.actived=1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
-			connection.query(statement, [stepName,types_logins_id], (err, res) => {
+			connection.query(statement, [stepName, types_logins_id], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, null)
@@ -1645,11 +1702,12 @@ Model.prototype.getStepPerName = async function getStepPerName(stepName, types_l
 				callback(null, res)
 			})
 		});
-	}else{
-		connectDB.query(statement, [stepName,types_logins_id], (err, res) => {
+	} else {
+		connectDB.query(statement, [stepName, types_logins_id], (err, res) => {
+
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, null)
 				return
 			}
@@ -1661,20 +1719,19 @@ Model.prototype.getStepPerName = async function getStepPerName(stepName, types_l
 }
 
 /**
- * Metodo para obtener listado de logins
- *@param (*) callback -- funcion que retorna el proceso de la funcion
- **/
-Model.prototype.getListProviders = async function getListProviders(callback){
+	* Metodo para obtener listado de logins
+	*@param (*) callback -- funcion que retorna el proceso de la funcion
+	**/
+Model.prototype.getListProviders = async function getListProviders(callback) {
 	const statement = `SELECT providerName,label,description,iconUrl FROM types_logins WHERE actived = 1 AND deleted=0 ORDER BY position ASC`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
 			connection.query(statement, [], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, null)
@@ -1685,11 +1742,12 @@ Model.prototype.getListProviders = async function getListProviders(callback){
 				callback(null, res)
 			})
 		});
-	}else{
+	} else {
 		connectDB.query(statement, [], (err, res) => {
+
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, null)
 				return
 			}
@@ -1701,21 +1759,20 @@ Model.prototype.getListProviders = async function getListProviders(callback){
 }
 
 /**
- * Metodo para obtener listado de logins
- *@param (*) provider -- es el name del provedor seleccionado
- *@param (*) callback -- funcion que retorna el proceso de la funcion
- **/
-Model.prototype.generateTokenIntial = async function generateTokenIntial(provider, callback){
+	* Metodo para obtener listado de logins
+	*@param (*) provider -- es el name del provedor seleccionado
+	*@param (*) callback -- funcion que retorna el proceso de la funcion
+	**/
+Model.prototype.generateTokenIntial = async function generateTokenIntial(provider, callback) {
 	const statement = `SELECT sl.sources_id, sl.types_logins_id FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? LIMIT 1`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
-			connection.query(statement, [1,0,provider,1,0,1], (err, res) => {
+			connection.query(statement, [1, 0, provider, 1, 0, 1], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, null)
@@ -1726,11 +1783,12 @@ Model.prototype.generateTokenIntial = async function generateTokenIntial(provide
 				callback(null, res)
 			})
 		});
-	}else{
-		connectDB.query(statement, [1,0,provider,1,0,1], (err, res) => {
+	} else {
+		connectDB.query(statement, [1, 0, provider, 1, 0, 1], (err, res) => {
+
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, null)
 				return
 			}
@@ -1742,21 +1800,20 @@ Model.prototype.generateTokenIntial = async function generateTokenIntial(provide
 }
 
 /**
- * Metodo para proveedor habilitado
- *@param (*) provider -- es el name del provedor seleccionado
- *@param (*) callback -- funcion que retorna el proceso de la funcion
- **/
-Model.prototype.getProviderAvailablePerName = async function getProviderAvailablePerName(provider, callback){
+	* Metodo para proveedor habilitado
+	*@param (*) provider -- es el name del provedor seleccionado
+	*@param (*) callback -- funcion que retorna el proceso de la funcion
+	**/
+Model.prototype.getProviderAvailablePerName = async function getProviderAvailablePerName(provider, callback) {
 	const statement = `SELECT sl.id, sl.name, sl.label, sl.description, sl.nameButtonSubmit, sl.nameButtonClose FROM types_logins INNER JOIN steps_logins as sl ON sl.types_logins_id=types_logins.id WHERE types_logins.actived=? AND types_logins.deleted=? AND types_logins.providerName=? AND sl.actived=? AND sl.deleted=? AND sl.createTokenInitial=? ORDER BY sl.step ASC`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	if (connectionPool === true) {
 		connectDB.getConnection(function(errCx, connection) {
 			if (errCx) throw errCx; // not connected!
-			connection.query(statement, [1,0,provider,1,0,0], (err, res) => {
+			connection.query(statement, [1, 0, provider, 1, 0, 0], (err, res) => {
 				// When done with the connection, release it.
-	    		connection.release();
+				connection.release();
 				if (err) {
 					console.error(err);
 					callback(err, null)
@@ -1767,11 +1824,12 @@ Model.prototype.getProviderAvailablePerName = async function getProviderAvailabl
 				callback(null, res)
 			})
 		});
-	}else{
-		connectDB.query(statement, [1,0,provider,1,0,0], (err, res) => {
+	} else {
+		connectDB.query(statement, [1, 0, provider, 1, 0, 0], (err, res) => {
+
 			if (err) {
 				console.error(err);
-				try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 				callback(err, null)
 				return
 			}
@@ -1783,20 +1841,19 @@ Model.prototype.getProviderAvailablePerName = async function getProviderAvailabl
 }
 
 /**
- * Metodo para limpiar datos de una tabla
- **/
-Model.prototype.truncate = async function truncate(){
+	* Metodo para limpiar datos de una tabla
+	**/
+Model.prototype.truncate = async function truncate() {
 	const statement = `TRUNCATE TABLE ${this.tableName}`;
-	const connectDB= this.dbConnection;
-	const reConnectDB= this.dbReconnection;
-	
-	return new Promise(async(resp, er)=>{
-		if(connectionPool===true){
+	const connectDB = await this.getConnection();
+
+	return new Promise(async (resp, er) => {
+		if (connectionPool === true) {
 			connectDB.getConnection(function(errCx, connection) {
 				if (errCx) throw errCx; // not connected!
 				connection.query(statement, (err, res) => {
 					// When done with the connection, release it.
-	    	  		connection.release();
+					connection.release();
 					if (err) {
 						console.error(err);
 						er(err)
@@ -1806,11 +1863,12 @@ Model.prototype.truncate = async function truncate(){
 					resp(res);
 				});
 			});
-		}else{
+		} else {
 			connectDB.query(statement, (err, res) => {
+
 				if (err) {
 					console.error(err);
-					try{reConnectDB();}catch(eecb){console.error('error reconection db',eecb)}
+
 					er(err)
 				}
 
@@ -1822,48 +1880,58 @@ Model.prototype.truncate = async function truncate(){
 }
 
 /**
- * Funcion para eliminar coneccion a base de datos
- * */
-Model.prototype.closeConnection = function (callback) {
-	const _this= this;
-	try{
+	* Funcion para eliminar coneccion a base de datos
+	* */
+Model.prototype.closeConnection = function(callback) {
+	try {
 		console.log('connection ended');
-		_this.dbConnection.end();
-		if(typeof callback === 'function'){
-    	callback('connection ended');
-    }
-	} catch (err){
+		if (typeof dbConnection?.connection?.end === 'function') {
+			dbConnection.connection.end();
+		}
+		if (typeof this?.dbConnectionFn?.end === 'function') {
+			this.dbConnectionFn.end();
+		}
+		if (typeof callback === 'function') {
+			callback('connection ended');
+		}
+	} catch (err) {
 		console.error('[connection.end]err: ' + err);
-		callback('[connection.end]err');
+		if (typeof callback === 'function') {
+			callback('[connection.end]err');
+		}
 	}
-  	return;
+	return;
 }
 
 /**
- * Funcion para establecer coneccion a base de datos
- * */
-Model.prototype.setConnection = function (connection) {
-	if(connection){
-		this.dbConnection= connection;
+	* Funcion para establecer coneccion a base de datos
+	* */
+Model.prototype.setConnection = function(connection) {
+	if (connection) {
+		this.dbConnectionFn = connection;
 	}
 }
 
 /**
- * Funcion para obtener coneccion a base de datos
- * */
-Model.prototype.getConnection = function (connection) {
-	return this.dbConnection;
+	* Funcion para obtener coneccion a base de datos
+	* */
+Model.prototype.getConnection = async function() {
+	if (this.dbConnectionFn) {
+		return this.dbConnectionFn;
+	} else {
+		return await this.dbConnection();
+	}
 }
 
 /**
- * Funcion para crear coneccion a base de datos
- * */
-Model.prototype.createConnection = function (prm) {
-	return new Promise(async (res, err)=>{
-		try{
-			const conn= await dbConnection?.createConnection(prm);
+	* Funcion para crear coneccion a base de datos
+	* */
+Model.prototype.createConnection = function(prm) {
+	return new Promise(async (res, err) => {
+		try {
+			const conn = await dbConnection?.createConnection(prm);
 			res(conn);
-		} catch(er){
+		} catch (er) {
 			err(er);
 		}
 	});
